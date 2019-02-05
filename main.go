@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/go-redis/redis"
 	//_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/kelseyhightower/envconfig"
@@ -144,7 +143,7 @@ func main() {
 	e := echo.New()
 
 	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, fmt.Sprintf("This is your access token to amadeus: %v\n", token.AccessToken))
+		return c.JSON(http.StatusOK, &token)
 	})
 
 	e.Logger.Fatal(e.Start(":8000"))
