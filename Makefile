@@ -1,3 +1,5 @@
+.PHONY: proto
+
 IMAGE_NAME="amadeus-go"
 NETWORK="amadeus"
 SERVICE_DIR="/go/src/amadeus-go"
@@ -6,8 +8,9 @@ PWD=`pwd`
 build:
 	docker build -t ${IMAGE_NAME} .
 
-test:
-	echo ${PWD}
+proto:
+	protoc --go_out=plugins=grpc:${PWD} service/proto/amadeus/amadeus.proto
+
 run:
 
 	docker network ls | grep ${NETWORK} | [ `wc -l` -ne 1 ] && \
