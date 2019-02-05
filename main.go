@@ -24,15 +24,15 @@ type authentication struct {
 }
 
 type tokenResponse struct {
-	Type        string `json:"type"`
-	Username    string `json:"username"`
-	AppName     string `json:"application_name"`
-	ClientId    string `json:"client_id"`
-	TokenType   string `json:"token_type"`
-	AccessToken string `json:"access_token"`
-	ExpiresIn   int    `json:"expires_in"`
-	State       string `json:"state"`
-	Scope       string `json:"scope"`
+	Type        string        `json:"type"`
+	Username    string        `json:"username"`
+	AppName     string        `json:"application_name"`
+	ClientId    string        `json:"client_id"`
+	TokenType   string        `json:"token_type"`
+	AccessToken string        `json:"access_token"`
+	ExpiresIn   time.Duration `json:"expires_in"`
+	State       string        `json:"state"`
+	Scope       string        `json:"scope"`
 }
 
 var (
@@ -44,7 +44,7 @@ var (
 
 //var db *gorm.DB
 
-func init() {
+func getToken() error {
 	var auth authentication
 	err := envconfig.Process("auth", &auth)
 	if err != nil {
@@ -59,19 +59,23 @@ func init() {
 	resp, err := http.Post(auth.ApiUrl, "application/x-www-form-urlencoded", strings.NewReader(body.Encode()))
 	defer resp.Body.Close()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	r, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	err = json.Unmarshal(r, &token)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
+	return nil
+}
+
+func initRedis() error {
 	redisClient = redis.NewClient(
 		&redis.Options{
 			Addr:     "redis-server:6379",
@@ -80,16 +84,61 @@ func init() {
 		},
 	)
 
-	_, err = redisClient.Ping().Result()
+	_, err := redisClient.Ping().Result()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func readConfRedis() error {
+	accessToken, err := redisClient.Get(redisAccessTokenKey).Result()
+	if err != nil {
+		return err
+	}
+
+	ttl, err := redisClient.TTL(redisAccessTokenKey).Result()
+	if err != nil {
+		return err
+	}
+
+	token.AccessToken = accessToken
+	token.ExpiresIn = ttl
+	return nil
+}
+
+func writeToRedis() error {
+	_, err := redisClient.SetNX(redisAccessTokenKey, token.AccessToken, time.Second*token.ExpiresIn).Result()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func init() {
+	err := initRedis()
 	if err != nil {
 		panic(err)
 	}
 
-	log.Println(token.ExpiresIn)
-	_, err = redisClient.SetNX(redisAccessTokenKey,  token.AccessToken, time.Second * time.Duration(token.ExpiresIn)).Result()
+	err = readConfRedis()
 	if err != nil {
-		panic(err)
+		log.Fatalln("key not found in redis:", err)
+
+		err = getToken()
+		if err != nil {
+			panic(err)
+		}
+
+		err = writeToRedis()
+		if err != nil {
+			log.Fatalln("could not write to redis:", err)
+		}
 	}
+
+	return
 }
 
 func main() {
@@ -98,5 +147,6 @@ func main() {
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, fmt.Sprintf("This is your access token to amadeus: %v\n", token.AccessToken))
 	})
+
 	e.Logger.Fatal(e.Start(":8000"))
 }
