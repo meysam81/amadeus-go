@@ -1,18 +1,20 @@
-package main
+package services
 
 import (
 	"encoding/json"
 	"github.com/go-redis/redis"
-	//_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/kelseyhightower/envconfig"
-	"github.com/labstack/echo"
-	"log"
-	"time"
-
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
+
+	//_ "github.com/jinzhu/gorm/dialects/postgres"
+)
+
+const (
+	redisAccessTokenKey = "amadeus_access_token"
 )
 
 type authentication struct {
@@ -21,7 +23,7 @@ type authentication struct {
 	ApiSecret string `envconfig:"API_SECRET" required:"true"`
 }
 
-type tokenResponse struct {
+type amadeusToken struct {
 	Type        string        `json:"type"`
 	Username    string        `json:"username"`
 	AppName     string        `json:"application_name"`
@@ -33,20 +35,11 @@ type tokenResponse struct {
 	Scope       string        `json:"scope"`
 }
 
-var (
-	// access token from amadeus
-	token               tokenResponse
-	redisClient         *redis.Client
-	redisAccessTokenKey = "amadeus_access_token"
-)
-
-//var db *gorm.DB
-
-func getToken() error {
+func getToken() (token *amadeusToken, err error) {
 	var auth authentication
-	err := envconfig.Process("auth", &auth)
+	err = envconfig.Process("auth", &auth)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	body := url.Values{}
@@ -57,23 +50,23 @@ func getToken() error {
 	resp, err := http.Post(auth.ApiUrl, "application/x-www-form-urlencoded", strings.NewReader(body.Encode()))
 	defer resp.Body.Close()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	r, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	err = json.Unmarshal(r, &token)
+	err = json.Unmarshal(r, token)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return
 }
 
-func initRedis() error {
+func initRedis() (redisClient *redis.Client, err error) {
 	redisClient = redis.NewClient(
 		&redis.Options{
 			Addr:     "redis-server:6379",
@@ -82,31 +75,31 @@ func initRedis() error {
 		},
 	)
 
-	_, err := redisClient.Ping().Result()
+	_, err = redisClient.Ping().Result()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return
 }
 
-func readConfRedis() error {
+func readConfRedis(redisClient *redis.Client) (token *amadeusToken, err error) {
 	accessToken, err := redisClient.Get(redisAccessTokenKey).Result()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	ttl, err := redisClient.TTL(redisAccessTokenKey).Result()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	token.AccessToken = accessToken
 	token.ExpiresIn = ttl
-	return nil
+	return
 }
 
-func writeToRedis() error {
+func writeToRedis(redisClient *redis.Client, token *amadeusToken) error {
 	_, err := redisClient.SetNX(redisAccessTokenKey, token.AccessToken, time.Second*token.ExpiresIn).Result()
 	if err != nil {
 		return err
@@ -115,36 +108,25 @@ func writeToRedis() error {
 	return nil
 }
 
-func init() {
-	err := initRedis()
+/* TODO put this somewhere later (don't remove them before that)
+err := initRedis()
+if err != nil {
+	panic(err)
+}
+
+err = readConfRedis()
+if err != nil {
+	log.Fatalln("<read config from redis>", err)
+
+	err = getToken()
 	if err != nil {
 		panic(err)
 	}
 
-	err = readConfRedis()
+	err = writeToRedis()
 	if err != nil {
-		log.Fatalln("key not found in redis:", err)
-
-		err = getToken()
-		if err != nil {
-			panic(err)
-		}
-
-		err = writeToRedis()
-		if err != nil {
-			log.Fatalln("could not write to redis:", err)
-		}
+		log.Fatalln("could not write to redis:", err)
 	}
-
-	return
 }
 
-func main() {
-	e := echo.New()
-
-	e.GET("/", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, &token)
-	})
-
-	e.Logger.Fatal(e.Start(":8000"))
-}
+*/
