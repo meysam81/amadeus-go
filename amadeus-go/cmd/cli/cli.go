@@ -1,20 +1,20 @@
 package main
 
 import (
+	"amadeus-go/pkg/services"
 	"amadeus-go/pkg/transports"
 
 	"context"
 	"flag"
 	"google.golang.org/grpc"
 	"log"
-	"strings"
 	"time"
 )
 
 func main() {
 	fs := flag.NewFlagSet("amadeus-cli", flag.ExitOnError)
 	var (
-		grpcAddr = fs.String("grpc-addr", ":8000", "gRPC listener address")
+		grpcAddr = fs.String("grpc-addr", ":8080", "gRPC listener address")
 	)
 
 	ctx, _ := context.WithTimeout(context.TODO(), time.Second*1)
@@ -24,12 +24,19 @@ func main() {
 		panic(err)
 	}
 	srv := transports.NewGRPCClient(conn)
-	name := "Meysam"
-	resp, err := srv.Greeter(context.TODO(), name)
+
+	query := services.FlightLowFareSearchRequest{
+		ReturnDate:    "2019-08-28",
+		Destination:   "ELS",
+		DepartureDate: "2019-08-27",
+		Origin:        "NYC",
+	}
+
+	resp, err := srv.FlightLowFareSearch(context.TODO(), &query)
 	if err != nil {
 		panic(err)
 	}
 
-	log.Printf("%v ---> \n", name)
-	log.Printf("%v <--- %v\n", strings.Repeat(" ", len(name)), resp)
+	log.Println(">>>>>", query)
+	log.Println("<<<<<", resp)
 }
