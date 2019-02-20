@@ -81,6 +81,7 @@ message Price {
 
 // msgCode: 0061
 message Dictionaries {
+    // you MAY need to change this, but not necessary at the moment I assume
     google.protobuf.Any carriers = 1;
     google.protobuf.Any currencies = 2;
     google.protobuf.Any aircraft = 3;
