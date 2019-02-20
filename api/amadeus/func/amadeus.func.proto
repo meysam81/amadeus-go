@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+import "api/amadeus/type/amadeus.type.proto";
+//import "comn/comn.type.proto";
+
+package amadeus.func;
+
+service AmadeusService {
+    // I know where I want to fly, the dates and duration, what are the best flight deals?
+    rpc FlightLowFareSearch (FlightLowFareSearchRequest) returns (amadeus.type.FlightLowFareSearchResult);
+}
+
+// msgCode: 0001
+// => amadeus.type.FlightOffersResult (0050)
+// => amadeus.comn.BadRequest (0950)
+message FlightLowFareSearchRequest {
+    string origin = 1;
+    string destination = 2;
+    string departure_date = 3;
+    string return_date = 4;
+}
