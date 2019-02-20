@@ -1,8 +1,9 @@
 package caching
 
 import (
-	"github.com/go-redis/redis"
 	"time"
+
+	"github.com/go-redis/redis"
 )
 
 func InitRedis() (redisClient *redis.Client, err error) {

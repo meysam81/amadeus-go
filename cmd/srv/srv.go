@@ -1,22 +1,23 @@
 package main
 
 import (
-	"Amadeus/amadeus-go/pkg/endpoints"
-	"Amadeus/amadeus-go/pkg/services"
-	"Amadeus/amadeus-go/pkg/transports"
-	pb "Amadeus/api/amadeus/func"
+	pb "amadeus-go/api/amadeus/func"
+	"amadeus-go/pkg/endpoints"
+	"amadeus-go/pkg/services"
+	"amadeus-go/pkg/transports"
 
 	"flag"
-	"github.com/prometheus/common/log"
-	"google.golang.org/grpc"
 	"net"
 	"os"
+
+	"github.com/prometheus/common/log"
+	"google.golang.org/grpc"
 )
 
 func main() {
 	fs := flag.NewFlagSet("amadeus-srv", flag.ContinueOnError)
 	var (
-		grpcAddr = fs.String("grpc-addr", ":8080", "gRPC listen address")
+		grpcAddr = fs.String("grpc-addr", ":8000", "gRPC listen address")
 	)
 	fs.Parse(os.Args[1:])
 

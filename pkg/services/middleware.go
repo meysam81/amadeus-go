@@ -2,8 +2,9 @@ package services
 
 import (
 	"context"
-	"github.com/go-kit/kit/log"
 	"time"
+
+	"github.com/go-kit/kit/log"
 )
 
 func loggingMiddleware(logger log.Logger) ServiceMiddleware {
@@ -14,7 +15,7 @@ func loggingMiddleware(logger log.Logger) ServiceMiddleware {
 
 type logmw struct {
 	logger log.Logger
-	sv AmadeusService
+	sv     AmadeusService
 }
 
 func (mw logmw) FlightLowFareSearch(ctx context.Context, req *FlightLowFareSearchRequest) (resp *FlightLowFareSearchResponse, err error) {

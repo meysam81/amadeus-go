@@ -1,15 +1,16 @@
 package transports
 
 import (
-	"Amadeus/amadeus-go/pkg/endpoints"
-	srv "Amadeus/amadeus-go/pkg/services"
-	pbFunc "Amadeus/api/amadeus/func"
-	pbType "Amadeus/api/amadeus/type"
-	"github.com/mitchellh/mapstructure"
+	pbFunc "amadeus-go/api/amadeus/func"
+	pbType "amadeus-go/api/amadeus/type"
+	"amadeus-go/pkg/endpoints"
+	srv "amadeus-go/pkg/services"
 
 	"context"
+
 	"github.com/go-kit/kit/endpoint"
 	grpcTransport "github.com/go-kit/kit/transport/grpc"
+	"github.com/mitchellh/mapstructure"
 	"google.golang.org/grpc"
 )
 

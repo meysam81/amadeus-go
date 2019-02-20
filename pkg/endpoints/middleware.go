@@ -2,9 +2,10 @@ package endpoints
 
 import (
 	"context"
+	"time"
+
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
-	"time"
 )
 
 func loggingMiddleware(logger log.Logger) endpoint.Middleware {

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "Amadeus/api/amadeus/type/amadeus.type.proto";
+import "amadeus-go/api/amadeus/type/amadeus.type.proto";
 //import "comn/comn.type.proto";
 
 package amadeus.func;

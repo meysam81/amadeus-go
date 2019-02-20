@@ -1,12 +1,13 @@
 package transports
 
 import (
-	pbFunc "Amadeus/api/amadeus/func"
-	pbType "Amadeus/api/amadeus/type"
-	
+	pbFunc "amadeus-go/api/amadeus/func"
+	pbType "amadeus-go/api/amadeus/type"
+
 	"context"
-	"github.com/go-kit/kit/log"
 	"time"
+
+	"github.com/go-kit/kit/log"
 )
 
 func loggingMiddleware(logger log.Logger) TransportMiddleware {
@@ -17,7 +18,7 @@ func loggingMiddleware(logger log.Logger) TransportMiddleware {
 
 type logmw struct {
 	logger log.Logger
-	sv pbFunc.AmadeusServiceServer
+	sv     pbFunc.AmadeusServiceServer
 }
 
 func (mw logmw) FlightLowFareSearch(ctx context.Context, req *pbFunc.FlightLowFareSearchRequest) (resp *pbType.FlightLowFareSearchResult, err error) {
