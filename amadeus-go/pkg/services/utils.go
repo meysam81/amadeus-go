@@ -2,19 +2,13 @@ package services
 
 import (
 	"encoding/json"
-	"github.com/go-redis/redis"
 	"github.com/kelseyhightower/envconfig"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
-
 	//_ "github.com/jinzhu/gorm/dialects/postgres"
-)
-
-const (
-	redisAccessTokenKey = "amadeus_access_token"
 )
 
 type authentication struct {
@@ -35,19 +29,28 @@ type amadeusToken struct {
 	Scope       string        `json:"scope"`
 }
 
-func getToken() (token *amadeusToken, err error) {
-	var auth authentication
+func getTokenFromAmadeus() (*amadeusToken, error) {
+	var (
+		auth  authentication
+		err   error
+		token amadeusToken
+	)
+
 	err = envconfig.Process("auth", &auth)
 	if err != nil {
 		return nil, err
 	}
 
+	// this is the way to send body of mime-type: x-www-form-urlencoded
 	body := url.Values{}
 	body.Set("client_id", auth.ApiKey)
 	body.Set("client_secret", auth.ApiSecret)
 	body.Set("grant_type", "client_credentials")
 
-	resp, err := http.Post(auth.ApiUrl, "application/x-www-form-urlencoded", strings.NewReader(body.Encode()))
+	contentType := "application/x-www-form-urlencoded"
+	resp, err := http.Post(auth.ApiUrl,
+		contentType,
+		strings.NewReader(body.Encode()))
 	defer resp.Body.Close()
 	if err != nil {
 		return nil, err
@@ -58,54 +61,28 @@ func getToken() (token *amadeusToken, err error) {
 		return nil, err
 	}
 
-	err = json.Unmarshal(r, token)
+	err = json.Unmarshal(r, &token)
 	if err != nil {
 		return nil, err
 	}
 
-	return
+	return &token, nil
 }
 
-func initRedis() (redisClient *redis.Client, err error) {
-	redisClient = redis.NewClient(
-		&redis.Options{
-			Addr:     "redis-server:6379",
-			Password: "",
-			DB:       0,
-		},
-	)
-
-	_, err = redisClient.Ping().Result()
-	if err != nil {
-		return nil, err
-	}
-
-	return
+func getServicesURLs() (*serviceUrls, error) {
+	// TODO read from config file
+	var urls serviceUrls
+	urls.apiBaseUrl = "https://test.api.amadeus.com"
+	urls.flightLowFareSearch = "/v1/shopping/flight-offers"
+	return &urls, nil
 }
 
-func readConfRedis(redisClient *redis.Client) (token *amadeusToken, err error) {
-	accessToken, err := redisClient.Get(redisAccessTokenKey).Result()
-	if err != nil {
-		return nil, err
-	}
-
-	ttl, err := redisClient.TTL(redisAccessTokenKey).Result()
-	if err != nil {
-		return nil, err
-	}
-
-	token.AccessToken = accessToken
-	token.ExpiresIn = ttl
-	return
+func cleanUrl(base, route string) string {
+	return base + route
 }
 
-func writeToRedis(redisClient *redis.Client, token *amadeusToken) error {
-	_, err := redisClient.SetNX(redisAccessTokenKey, token.AccessToken, time.Second*token.ExpiresIn).Result()
-	if err != nil {
-		return err
-	}
-
-	return nil
+func getBearer(token *amadeusToken) string {
+	return "Bearer " + token.AccessToken
 }
 
 /* TODO put this somewhere later (don't remove them before that)
@@ -114,19 +91,23 @@ if err != nil {
 	panic(err)
 }
 
-err = readConfRedis()
-if err != nil {
-	log.Fatalln("<read config from redis>", err)
-
-	err = getToken()
+func getToken(redisClient *redis.Client) (*amadeusToken, error) {
+	token, err := readConfRedis(redisClient)
 	if err != nil {
-		panic(err)
+		log.Fatalln("<read config from redis>", err)
+
+		token, err = getTokenFromAmadeus()
+		if err != nil {
+			return nil, err
+		}
+
+		err = writeToRedis(redisClient, token)
+		if err != nil {
+			log.Fatalln("<write to redis>", err)
+		}
 	}
 
-	err = writeToRedis()
-	if err != nil {
-		log.Fatalln("could not write to redis:", err)
-	}
+	return token, nil
 }
 
 */
