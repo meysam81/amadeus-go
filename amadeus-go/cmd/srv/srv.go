@@ -1,10 +1,10 @@
 package main
 
 import (
-	pb "amadeus-go/pb/amadeus"
 	"amadeus-go/pkg/endpoints"
 	"amadeus-go/pkg/services"
 	"amadeus-go/pkg/transports"
+	pb "api/amadeus/func"
 
 	"flag"
 	"github.com/prometheus/common/log"
@@ -16,13 +16,16 @@ import (
 func main() {
 	fs := flag.NewFlagSet("amadeus-srv", flag.ContinueOnError)
 	var (
-		grpcAddr = fs.String("grpc-addr", ":8000", "gRPC listen address")
+		grpcAddr = fs.String("grpc-addr", ":8080", "gRPC listen address")
 	)
 	fs.Parse(os.Args[1:])
 
+	srv, err := services.NewBasicService()
+	if err != nil {
+		panic(err)
+	}
 	var (
-		srv         = services.NewBasicService()
-		endpointSet = endpoints.New(srv)
+		endpointSet = endpoints.NewEndpointSet(srv)
 		grpcServer  = transports.NewGRPCServer(endpointSet)
 	)
 
