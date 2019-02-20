@@ -1,10 +1,11 @@
 package transports
 
 import (
-	"amadeus-go/pkg/endpoints"
-	srv "amadeus-go/pkg/services"
-	pbFunc "api/amadeus/func"
-	pbType "api/amadeus/type"
+	"Amadeus/amadeus-go/pkg/endpoints"
+	srv "Amadeus/amadeus-go/pkg/services"
+	pbFunc "Amadeus/api/amadeus/func"
+	pbType "Amadeus/api/amadeus/type"
+	"github.com/mitchellh/mapstructure"
 
 	"context"
 	"github.com/go-kit/kit/endpoint"
@@ -40,5 +41,93 @@ func encodeRequest(_ context.Context, request interface{}) (interface{}, error) 
 
 func decodeResponse(_ context.Context, response interface{}) (interface{}, error) {
 	resp := response.(*pbType.FlightLowFareSearchResult)
-	return resp, nil
+
+	var datas []*srv.Data
+	for _, data := range resp.Data {
+
+		var offerItems []*srv.OfferItem
+		for _, offers := range data.OfferItems {
+
+			var services []*srv.Service
+			for _, service := range offers.Services {
+
+				var segments []*srv.Segment
+				for _, segment := range service.Segments {
+
+					segments = append(segments, &srv.Segment{
+						FlightSegment: &srv.FlightSegment{
+							Duration: segment.FlightSegment.Duration,
+							Number:   segment.FlightSegment.Number,
+							Aircraft: &srv.Aircraft{
+								Code: segment.FlightSegment.Aircraft.Code,
+							},
+							Arrival: &srv.DepartureArrival{
+								At:       segment.FlightSegment.Arrival.At,
+								IataCode: segment.FlightSegment.Arrival.IataCode,
+								Terminal: segment.FlightSegment.Arrival.Terminal,
+							},
+							Departure: &srv.DepartureArrival{
+								At:       segment.FlightSegment.Departure.At,
+								IataCode: segment.FlightSegment.Departure.IataCode,
+								Terminal: segment.FlightSegment.Departure.Terminal,
+							},
+							CarrierCode: segment.FlightSegment.CarrierCode,
+							Operating: &srv.Operating{
+								CarrierCode: segment.FlightSegment.Operating.CarrierCode,
+								Number:      segment.FlightSegment.Operating.Number,
+							},
+						},
+						PricingDetailPerAdult: &srv.PricingDetailPerAdult{
+							Availability: segment.PricingDetailPerAdult.Availability,
+							FareBasis:    segment.PricingDetailPerAdult.FareBasis,
+							FareClass:    segment.PricingDetailPerAdult.FareClass,
+							TravelClass:  segment.PricingDetailPerAdult.TravelClass,
+						},
+					})
+				}
+
+				services = append(services, &srv.Service{
+					Segments: segments,
+				})
+			}
+
+			offerItems = append(offerItems, &srv.OfferItem{
+				Services: services,
+				Price: &srv.Price{
+					Total:      offers.Price.Total,
+					TotalTaxes: offers.Price.TotalTaxes,
+				},
+				PricePerAdult: &srv.Price{
+					Total:      offers.PricePerAdult.Total,
+					TotalTaxes: offers.PricePerAdult.TotalTaxes,
+				},
+			})
+		}
+
+		datas = append(datas, &srv.Data{
+			Id:         data.Id,
+			Type:       data.Type,
+			OfferItems: offerItems,
+		})
+	}
+
+	var dictionaries srv.Dictionaries
+	_ = mapstructure.Decode(resp.Dictionaries, &dictionaries)
+
+	meta := srv.Meta{
+		Links: &srv.Links{
+			Self: resp.Meta.Links.Self,
+		},
+		Currency: resp.Meta.Currency,
+		Defaults: &srv.Defaults{
+			Adults:  resp.Meta.Defaults.Adults,
+			NonStop: resp.Meta.Defaults.NonStop,
+		},
+	}
+
+	return &srv.FlightLowFareSearchResponse{
+		Data:         datas,
+		Dictionaries: &dictionaries,
+		Meta:         &meta,
+	}, nil
 }

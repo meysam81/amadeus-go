@@ -1,7 +1,5 @@
 syntax = "proto3";
 
-import "google/protobuf/any.proto";
-
 package amadeus.type;
 
 // msgCode: 0050
@@ -13,8 +11,8 @@ message FlightLowFareSearchResult {
 
 // msgCode: 0051
 message Data {
-    string type = 1;
-    string id = 2;
+    string id = 1;
+    string type = 2;
     repeated OfferItem offerItems = 3;
 }
 
@@ -32,7 +30,7 @@ message Service {
 
 // msgCode: 0054
 message Segment {
-    repeated FlightSegment flightSegments = 1;
+    FlightSegment flightSegment = 1;
     PricingDetailPerAdult pricingDetailPerAdult = 2;
 }
 
@@ -81,26 +79,51 @@ message Price {
 
 // msgCode: 0061
 message Dictionaries {
-    // you MAY need to change this, but not necessary at the moment I assume
-    google.protobuf.Any carriers = 1;
-    google.protobuf.Any currencies = 2;
-    google.protobuf.Any aircraft = 3;
-    google.protobuf.Any locations = 4;
+    // you MAY need to change this, but unnecessary at the moment I assume
+    map<string, string> carriers = 1;
+    map<string, string> currencies = 2;
+    map<string, string> aircrafts = 3;
+    map<string, LocationDetail> locations = 4;
 }
 
 // msgCode: 0062
+message Carrier {
+    map<string, string>  carrier = 1;
+}
+
+// msgCode: 0063
+message Currency {
+    map<string, string>  currency = 1;
+}
+
+// msgCode: 0064
+message DictionariesAircraft {
+    map<string, string>  aircraft = 1;
+}
+
+// msgCode: 0065
+message Location {
+    map<string, LocationDetail>  location = 1;
+}
+
+// msgCode: 0066
+message LocationDetail {
+    map<string, string>  detail = 1;
+}
+
+// msgCode: 0067
 message Meta {
     Links links = 1;
     string currency = 2;
     Defaults defaults = 3;
 }
 
-// msgCode: 0063
+// msgCode: 0068
 message Links {
     string self = 1;
 }
 
-// msgCode: 0064
+// msgCode: 0069
 message Defaults {
     bool nonStop = 1;
     int32 adults = 2;
