@@ -1,16 +1,16 @@
 package transports
 
 import (
-	"amadeus-go/pkg/endpoints"
-	sv "amadeus-go/pkg/services"
-	pbFunc "api/amadeus/func"
-	pbType "api/amadeus/type"
+	"Amadeus/amadeus-go/pkg/endpoints"
+	sv "Amadeus/amadeus-go/pkg/services"
+	pbFunc "Amadeus/api/amadeus/func"
+	pbType "Amadeus/api/amadeus/type"
 	//pbComn "api/amadeus/comn"
 
-	"github.com/go-kit/kit/log"
+	"context"
 	"os"
 
-	"context"
+	"github.com/go-kit/kit/log"
 	grpcTransport "github.com/go-kit/kit/transport/grpc"
 )
 
@@ -56,77 +56,122 @@ func decodeFlightLowFareSearchRequest(_ context.Context, grpcReq interface{}) (i
 }
 
 func encodeFlightLowFareSearchResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp := response.(sv.Data)
+	resp := response.(*sv.FlightLowFareSearchResponse)
 
-	var off []*pbType.OfferItem
-	for _, offers := range resp.OfferItems {
+	var datas []*pbType.Data
+	for _, data := range resp.Data {
 
-		var services []*pbType.Service
-		for _, service := range offers.Services {
+		var offerItems []*pbType.OfferItem
+		for _, offers := range data.OfferItems {
 
-			var segments []*pbType.Segment
-			for _, segment := range service.Segments {
+			var services []*pbType.Service
+			for _, service := range offers.Services {
 
-				var flightSegments []*pbType.FlightSegment
-				for _, flightSegment := range segment.FlightSegment {
-					flightSegments = append(flightSegments, &pbType.FlightSegment{
-						Duration: flightSegment.Duration,
-						Number:   flightSegment.Number,
-						Aircraft: &pbType.Aircraft{
-							Code: flightSegment.Aircraft.Code,
+				var segments []*pbType.Segment
+				for _, segment := range service.Segments {
+
+					segments = append(segments, &pbType.Segment{
+						FlightSegment: &pbType.FlightSegment{
+							Duration: segment.FlightSegment.Duration,
+							Number:   segment.FlightSegment.Number,
+							Aircraft: &pbType.Aircraft{
+								Code: segment.FlightSegment.Aircraft.Code,
+							},
+							Arrival: &pbType.DepartureArrival{
+								At:       segment.FlightSegment.Arrival.At,
+								IataCode: segment.FlightSegment.Arrival.IataCode,
+								Terminal: segment.FlightSegment.Arrival.Terminal,
+							},
+							Departure: &pbType.DepartureArrival{
+								At:       segment.FlightSegment.Departure.At,
+								IataCode: segment.FlightSegment.Departure.IataCode,
+								Terminal: segment.FlightSegment.Departure.Terminal,
+							},
+							CarrierCode: segment.FlightSegment.CarrierCode,
+							Operating: &pbType.Operating{
+								CarrierCode: segment.FlightSegment.Operating.CarrierCode,
+								Number:      segment.FlightSegment.Operating.Number,
+							},
 						},
-						Arrival: &pbType.DepartureArrival{
-							At:       flightSegment.Arrival.At,
-							IataCode: flightSegment.Arrival.IataCode,
-							Terminal: flightSegment.Arrival.Terminal,
-						},
-						Departure: &pbType.DepartureArrival{
-							At:       flightSegment.Departure.At,
-							IataCode: flightSegment.Departure.IataCode,
-							Terminal: flightSegment.Departure.Terminal,
-						},
-						CarrierCode: flightSegment.CarrierCode,
-						Operating: &pbType.Operating{
-							CarrierCode: flightSegment.Operating.CarrierCode,
-							Number:      flightSegment.Operating.Number,
+						PricingDetailPerAdult: &pbType.PricingDetailPerAdult{
+							Availability: segment.PricingDetailPerAdult.Availability,
+							FareBasis:    segment.PricingDetailPerAdult.FareBasis,
+							FareClass:    segment.PricingDetailPerAdult.FareClass,
+							TravelClass:  segment.PricingDetailPerAdult.TravelClass,
 						},
 					})
 				}
 
-				segments = append(segments, &pbType.Segment{
-					FlightSegments: flightSegments,
-					PricingDetailPerAdult: &pbType.PricingDetailPerAdult{
-						Availability: segment.PricingDetailPerAdult.Availability,
-						FareBasis:    segment.PricingDetailPerAdult.FareBasis,
-						FareClass:    segment.PricingDetailPerAdult.FareClass,
-						TravelClass:  segment.PricingDetailPerAdult.TravelClass,
-					},
+				services = append(services, &pbType.Service{
+					Segments: segments,
 				})
 			}
 
-			services = append(services, &pbType.Service{
-				Segments: segments,
+			offerItems = append(offerItems, &pbType.OfferItem{
+				Services: services,
+				Price: &pbType.Price{
+					Total:      offers.Price.Total,
+					TotalTaxes: offers.Price.TotalTaxes,
+				},
+				PricePerAdult: &pbType.Price{
+					Total:      offers.PricePerAdult.Total,
+					TotalTaxes: offers.PricePerAdult.TotalTaxes,
+				},
 			})
 		}
 
-		off = append(off, &pbType.OfferItem{
-			Services: services,
-			Price: &pbType.Price{
-				Total:      offers.Price.Total,
-				TotalTaxes: offers.Price.TotalTaxes,
-			},
-			PricePerAdult: &pbType.Price{
-				Total:      offers.PricePerAdult.Total,
-				TotalTaxes: offers.PricePerAdult.TotalTaxes,
-			},
+		datas = append(datas, &pbType.Data{
+			Id:         data.Id,
+			Type:       data.Type,
+			OfferItems: offerItems,
 		})
 	}
 
+	var dictionaries pbType.Dictionaries
+	dictionaries.Aircrafts = make(map[string]string)
+	dictionaries.Locations = make(map[string]*pbType.LocationDetail)
+	dictionaries.Carriers = make(map[string]string)
+	dictionaries.Currencies = make(map[string]string)
+	for k, v := range resp.Dictionaries.Aircraft {
+		dictionaries.Aircrafts[k] = v
+	}
+	for k, v := range resp.Dictionaries.Locations {
+		if _, ok := dictionaries.Locations[k]; !ok {
+			dictionaries.Locations[k] = &pbType.LocationDetail{
+				Detail: make(map[string]string),
+			}
+		}
+		for subK, subV := range v {
+			dictionaries.Locations[k] = &pbType.LocationDetail{
+				Detail: map[string]string{subK: subV},
+			}
+		}
+	}
+	for k, v := range resp.Dictionaries.Carriers {
+		dictionaries.Aircrafts[k] = v
+	}
+	for k, v := range resp.Dictionaries.Currencies {
+		dictionaries.Aircrafts[k] = v
+	}
+
+
+	meta := pbType.Meta{
+		Links: &pbType.Links{
+			Self: resp.Meta.Links.Self,
+		},
+		Currency: resp.Meta.Currency,
+		Defaults: &pbType.Defaults{
+			Adults: resp.Meta.Defaults.Adults,
+			NonStop: resp.Meta.Defaults.NonStop,
+		},
+	}
+
 	return &pbType.FlightLowFareSearchResult{
-		Id:         resp.Id,
-		OfferItems: off,
-		Type:       resp.Type,
+		Data: datas,
+		Dictionaries: &dictionaries,
+		Meta: &meta,
 	}, nil
+
 }
 
-type TransportMiddleware func (pbFunc.AmadeusServiceServer) pbFunc.AmadeusServiceServer
+type TransportMiddleware func(pbFunc.AmadeusServiceServer) pbFunc.AmadeusServiceServer

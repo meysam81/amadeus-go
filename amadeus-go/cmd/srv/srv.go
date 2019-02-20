@@ -1,10 +1,10 @@
 package main
 
 import (
-	"amadeus-go/pkg/endpoints"
-	"amadeus-go/pkg/services"
-	"amadeus-go/pkg/transports"
-	pb "api/amadeus/func"
+	"Amadeus/amadeus-go/pkg/endpoints"
+	"Amadeus/amadeus-go/pkg/services"
+	"Amadeus/amadeus-go/pkg/transports"
+	pb "Amadeus/api/amadeus/func"
 
 	"flag"
 	"github.com/prometheus/common/log"

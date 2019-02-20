@@ -1,8 +1,8 @@
 package transports
 
 import (
-	pbFunc "api/amadeus/func"
-	pbType "api/amadeus/type"
+	pbFunc "Amadeus/api/amadeus/func"
+	pbType "Amadeus/api/amadeus/type"
 	
 	"context"
 	"github.com/go-kit/kit/log"

@@ -9,9 +9,9 @@ type FlightLowFareSearchRequest struct {
 }
 
 type FlightLowFareSearchResponse struct {
-	Datas        []*Data      `json:"data"`
-	Dictionaries Dictionaries `json:"dictionaries"`
-	Meta         Meta         `json:"meta"`
+	Data         []*Data       `json:"data"`
+	Dictionaries *Dictionaries `json:"dictionaries"`
+	Meta         *Meta         `json:"meta"`
 }
 
 // ===============================================================
@@ -32,7 +32,7 @@ type Service struct {
 }
 
 type Segment struct {
-	FlightSegment         []*FlightSegment       `json:"flightSegment"`
+	FlightSegment         *FlightSegment         `json:"flightSegment"`
 	PricingDetailPerAdult *PricingDetailPerAdult `json:"pricingDetailPerAdult"`
 }
 
@@ -75,17 +75,17 @@ type Price struct {
 
 // ===============================================================
 type Dictionaries struct {
-	Carriers   map[string]interface{} `json:"carriers"`
-	Currencies map[string]interface{} `json:"currencies"`
-	Aircraft   map[string]interface{} `json:"aircraft"`
-	Locations  map[string]interface{} `json:"locations"`
+	Carriers   map[string]string `json:"carriers"`
+	Currencies map[string]string `json:"currencies"`
+	Aircraft   map[string]string `json:"aircraft"`
+	Locations  map[string]map[string]string `json:"locations"`
 }
 
 // ===============================================================
 type Meta struct {
-	Links    Links    `json:"links"`
-	Currency string   `json:"currency"`
-	Defaults Defaults `json:"defaults"`
+	Links    *Links    `json:"links"`
+	Currency string    `json:"currency"`
+	Defaults *Defaults `json:"defaults"`
 }
 
 type Links struct {
@@ -93,6 +93,6 @@ type Links struct {
 }
 
 type Defaults struct {
-	NonStop bool `json:"nonStop"`
-	Adults  int  `json:"adults"`
+	NonStop bool  `json:"nonStop"`
+	Adults  int32 `json:"adults"`
 }

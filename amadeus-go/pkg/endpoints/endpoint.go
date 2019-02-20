@@ -1,7 +1,7 @@
 package endpoints
 
 import (
-	sv "amadeus-go/pkg/services"
+	sv "Amadeus/amadeus-go/pkg/services"
 	"github.com/go-kit/kit/log"
 	"os"
 
@@ -20,8 +20,8 @@ func (s AmadeusEndpointSet) FlightLowFareSearch(ctx context.Context, routeData *
 		return nil, err
 	}
 
-	response := resp.(sv.FlightLowFareSearchResponse)
-	return &response, nil
+	response := resp.(*sv.FlightLowFareSearchResponse)
+	return response, nil
 }
 
 func MakeFlightLowFareSearchEndpoint(srv sv.AmadeusService) endpoint.Endpoint {

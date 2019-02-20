@@ -13,3 +13,6 @@
 
 # GoLand directory
 .idea/
+
+# protobuf compiled go
+*.pb.go
