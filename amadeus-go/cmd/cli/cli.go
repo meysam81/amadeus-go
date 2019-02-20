@@ -1,8 +1,8 @@
 package main
 
 import (
-	"amadeus-go/pkg/services"
-	"amadeus-go/pkg/transports"
+	"Amadeus/amadeus-go/pkg/services"
+	"Amadeus/amadeus-go/pkg/transports"
 
 	"context"
 	"flag"
