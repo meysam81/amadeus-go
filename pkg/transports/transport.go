@@ -1,11 +1,10 @@
 package transports
 
 import (
-	"Amadeus/amadeus-go/pkg/endpoints"
-	sv "Amadeus/amadeus-go/pkg/services"
-	pbFunc "Amadeus/api/amadeus/func"
-	pbType "Amadeus/api/amadeus/type"
-	//pbComn "api/amadeus/comn"
+	pbFunc "amadeus-go/api/amadeus/func"
+	pbType "amadeus-go/api/amadeus/type"
+	"amadeus-go/pkg/endpoints"
+	sv "amadeus-go/pkg/services"
 
 	"context"
 	"os"
@@ -154,22 +153,21 @@ func encodeFlightLowFareSearchResponse(_ context.Context, response interface{}) 
 		dictionaries.Aircrafts[k] = v
 	}
 
-
 	meta := pbType.Meta{
 		Links: &pbType.Links{
 			Self: resp.Meta.Links.Self,
 		},
 		Currency: resp.Meta.Currency,
 		Defaults: &pbType.Defaults{
-			Adults: resp.Meta.Defaults.Adults,
+			Adults:  resp.Meta.Defaults.Adults,
 			NonStop: resp.Meta.Defaults.NonStop,
 		},
 	}
 
 	return &pbType.FlightLowFareSearchResult{
-		Data: datas,
+		Data:         datas,
 		Dictionaries: &dictionaries,
-		Meta: &meta,
+		Meta:         &meta,
 	}, nil
 
 }

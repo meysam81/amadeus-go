@@ -1,13 +1,14 @@
 package endpoints
 
 import (
-	sv "Amadeus/amadeus-go/pkg/services"
-	"github.com/go-kit/kit/log"
-	"os"
+	sv "amadeus-go/pkg/services"
 
 	"context"
 	"errors"
+	"os"
+
 	"github.com/go-kit/kit/endpoint"
+	"github.com/go-kit/kit/log"
 )
 
 type AmadeusEndpointSet struct {

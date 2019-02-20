@@ -3,10 +3,11 @@ package services
 import (
 	"context"
 	"encoding/json"
-	"github.com/go-kit/kit/log"
 	"io/ioutil"
 	"net/http"
 	"os"
+
+	"github.com/go-kit/kit/log"
 )
 
 type AmadeusService interface {

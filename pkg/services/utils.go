@@ -2,12 +2,13 @@ package services
 
 import (
 	"encoding/json"
-	"github.com/kelseyhightower/envconfig"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/kelseyhightower/envconfig"
 	//_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
