@@ -4,11 +4,13 @@ IMAGE_NAME="amadeus-go"
 NETWORK="amadeus"
 SERVICE_DIR="/go/src/amadeus-go"
 PWD=$(shell pwd)
+PROTO_FILES=$(shell grep --exclude=*.pb.go -r .proto$  api/ | cut -d: -f1 | sort | uniq)
+PROTO_IMPORT="."
 
 proto:
-	protoc --go_out=plugins=grpc:${PWD} pb/amadeus/amadeus.proto
+	for i in ${PROTO_FILES}; do protoc -I ${PROTO_IMPORT} --go_out=plugins=grpc:${PROTO_IMPORT} $$i; done
 
-build: proto
+build:
 	docker build -t ${IMAGE_NAME} .
 
 
