@@ -2,8 +2,7 @@
 FROM golang:latest as builder
 
 WORKDIR /go/src/amadeus-go
-COPY amadeus-go .
-COPY api /go/src/api
+COPY . .
 
 
 RUN go get -u github.com/golang/dep/cmd/dep
