@@ -16,10 +16,9 @@ type AmadeusService interface {
 }
 
 type amadeusService struct {
-	token *amadeusToken
-	urls  *serviceUrls
+	token        *amadeusToken
+	urls         *serviceUrls
 	registerInfo *serviceReg
-
 }
 
 type serviceUrls struct {
@@ -82,11 +81,10 @@ func NewBasicService() (AmadeusService, error) {
 	var srv AmadeusService
 
 	aSrv := amadeusService{
-		urls: urls,
-		token: token,
+		urls:         urls,
+		token:        token,
 		registerInfo: s,
 	}
-
 
 	var logger log.Logger
 	logger = log.NewLogfmtLogger(os.Stderr)

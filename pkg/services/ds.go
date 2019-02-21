@@ -75,9 +75,9 @@ type Price struct {
 
 // ===============================================================
 type Dictionaries struct {
-	Carriers   map[string]string `json:"carriers"`
-	Currencies map[string]string `json:"currencies"`
-	Aircraft   map[string]string `json:"aircraft"`
+	Carriers   map[string]string            `json:"carriers"`
+	Currencies map[string]string            `json:"currencies"`
+	Aircraft   map[string]string            `json:"aircraft"`
 	Locations  map[string]map[string]string `json:"locations"`
 }
 
