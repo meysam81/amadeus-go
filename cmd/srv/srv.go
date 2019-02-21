@@ -5,6 +5,8 @@ import (
 	"amadeus-go/pkg/endpoints"
 	"amadeus-go/pkg/services"
 	"amadeus-go/pkg/transports"
+	"strconv"
+	"strings"
 
 	"flag"
 	"net"
@@ -21,7 +23,19 @@ func main() {
 	)
 	fs.Parse(os.Args[1:])
 
-	srv, err := services.NewBasicService()
+	var port int
+	var err error
+	if strings.HasPrefix(*grpcAddr, ":") {
+		port, err = strconv.Atoi((*grpcAddr)[1:])
+	} else {
+		port, err = strconv.Atoi((*grpcAddr)[1:])
+	}
+	if err != nil {
+		panic(err)
+	}
+
+
+	srv, err := services.NewBasicService(port)
 	if err != nil {
 		panic(err)
 	}
@@ -30,7 +44,7 @@ func main() {
 		grpcServer  = transports.NewGRPCServer(endpointSet)
 	)
 
-	grpcListener, err := net.Listen("tcp", *grpcAddr)
+	grpcListener, err := net.Listen("tcp", string(*grpcAddr))
 	if err != nil {
 		panic(err)
 	}

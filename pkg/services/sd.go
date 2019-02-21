@@ -17,7 +17,7 @@ type serviceReg struct {
 	ConsulAgent *consul.Agent
 }
 
-func RegisterService(addr string, ttl time.Duration) (*serviceReg, error) {
+func RegisterService(addr string, port int, ttl time.Duration) (*serviceReg, error) {
 	s := serviceReg{
 		Name: addr,
 		TTL:  ttl,
@@ -32,6 +32,9 @@ func RegisterService(addr string, ttl time.Duration) (*serviceReg, error) {
 
 	serviceDef := consul.AgentServiceRegistration{
 		Name: s.Name,
+		// TODO: change this address later
+		Address: "localhost",
+		Port: port,
 		Check: &consul.AgentServiceCheck{
 			TTL: s.TTL.String(),
 		},

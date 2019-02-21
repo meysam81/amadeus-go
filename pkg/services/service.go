@@ -62,8 +62,8 @@ func (aSrv amadeusService) FlightLowFareSearch(_ context.Context, routeData *Fli
 	return &flightOfferResult, nil
 }
 
-func NewBasicService() (AmadeusService, error) {
-	s, err := RegisterService("amadeus-go", time.Second*15)
+func NewBasicService(port int) (AmadeusService, error) {
+	s, err := RegisterService("amadeus-go", port, time.Second*15)
 	if err != nil {
 		return nil, err
 	}
