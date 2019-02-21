@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/go-kit/kit/log"
 )
@@ -17,6 +18,8 @@ type AmadeusService interface {
 type amadeusService struct {
 	token *amadeusToken
 	urls  *serviceUrls
+	registerInfo *serviceReg
+
 }
 
 type serviceUrls struct {
@@ -61,6 +64,11 @@ func (aSrv amadeusService) FlightLowFareSearch(_ context.Context, routeData *Fli
 }
 
 func NewBasicService() (AmadeusService, error) {
+	s, err := RegisterService("amadeus-go", time.Second*15)
+	if err != nil {
+		return nil, err
+	}
+
 	token, err := getTokenFromAmadeus()
 	if err != nil {
 		return nil, err
@@ -73,9 +81,12 @@ func NewBasicService() (AmadeusService, error) {
 
 	var srv AmadeusService
 
-	var aSrv amadeusService
-	aSrv.token = token
-	aSrv.urls = urls
+	aSrv := amadeusService{
+		urls: urls,
+		token: token,
+		registerInfo: s,
+	}
+
 
 	var logger log.Logger
 	logger = log.NewLogfmtLogger(os.Stderr)
