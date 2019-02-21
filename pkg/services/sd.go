@@ -1,6 +1,6 @@
 /*
-		SD implements Service Discovery using Consul (you can implement different SD later if you feel like it)
- */
+	SD implements Service Discovery using **Consul** (you can implement different SD later if you feel like it)
+*/
 
 package services
 
@@ -12,15 +12,15 @@ import (
 )
 
 type serviceReg struct {
-	Name string
-	TTL time.Duration
+	Name        string
+	TTL         time.Duration
 	ConsulAgent *consul.Agent
 }
 
 func RegisterService(addr string, ttl time.Duration) (*serviceReg, error) {
 	s := serviceReg{
 		Name: addr,
-		TTL: ttl,
+		TTL:  ttl,
 	}
 
 	c, err := consul.NewClient(consul.DefaultConfig())
