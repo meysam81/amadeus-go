@@ -72,9 +72,11 @@ func getTokenFromAmadeus() (*amadeusToken, error) {
 
 func getServicesURLs() (*serviceUrls, error) {
 	// TODO read from config file
-	var urls serviceUrls
-	urls.apiBaseUrl = "https://test.api.amadeus.com"
-	urls.flightLowFareSearch = "/v1/shopping/flight-offers"
+	urls := serviceUrls{
+		apiBaseUrl:              "https://test.api.amadeus.com",
+		flightLowFareSearch:     "/v1/shopping/flight-offers",
+		flightInspirationSearch: "/v1/shopping/flight-destinations",
+	}
 	return &urls, nil
 }
 
