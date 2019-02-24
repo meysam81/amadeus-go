@@ -6,6 +6,7 @@ PROJECT_ROOT="/go/src/amadeus-go"
 PWD=$(shell pwd)
 PROTO_FILES=$(shell grep --exclude=*.pb.go -r .proto$  ${PWD}/api/ | cut -d: -f1 | sort | uniq)
 PROTO_IMPORT=$(shell dirname ${PWD})
+GO_FILES=$(shell find . | grep -v pb.go | grep .go)
 
 proto:
 	for i in ${PROTO_FILES}; do protoc -I ${PROTO_IMPORT} --go_out=plugins=grpc:${PROTO_IMPORT} $$i; done
@@ -32,3 +33,5 @@ dev_run:
 dev_cli:
 	go run ./cmd/cli/cli.go
 
+gofmt:
+	for i in ${GO_FILES}; do gofmt -w $$i; done
