@@ -116,6 +116,7 @@ message Meta {
     Links links = 1;
     string currency = 2;
     Defaults defaults = 3;
+    int32 count = 4;
 }
 
 // msgCode: 0068
@@ -156,3 +157,30 @@ message InspirationLinks {
     string flightDates = 1;
     string flightOffers = 2;
 }
+
+// msgCode: 0073
+message FlightMostTraveledDestinationsResponse {
+    Meta meta = 1;
+    repeated MostTraveledData data = 2;
+}
+
+// msgCode: 0074
+message MostTraveledData {
+    string type = 1;
+    string destination = 2;
+    string subType = 3;
+    Analytics analytics = 4;
+}
+
+// msgCode: 0075
+message Analytics {
+    Score flights = 1;
+    Score travelers = 2;
+}
+
+// msgCode: 0076
+message Score {
+    int32 score = 1;
+}
+
+

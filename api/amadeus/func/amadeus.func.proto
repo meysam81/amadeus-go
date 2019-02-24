@@ -1,7 +1,6 @@
 syntax = "proto3";
 
 import "amadeus-go/api/amadeus/type/amadeus.type.proto";
-//import "comn/comn.type.proto";
 
 package amadeus.func;
 
@@ -9,14 +8,15 @@ service AmadeusService {
     // I know where I want to fly, the dates and duration, what are the best flight deals?
     rpc FlightLowFareSearch (FlightLowFareSearchRequest) returns (amadeus.type.FlightLowFareSearchResponse);
 
-    // Where can I fly from/to origin in the next months for maxPrice?
+    // Where can I fly from/to Delhi in the next months for $400?
     rpc FlightInspirationSearch (FlightInspirationSearchRequest) returns (amadeus.type.FlightInspirationSearchResponse);
 
+    // Where were people flying to the most from London in September 2017?
+    rpc FlightMostTraveledDestinations (FlightMostTraveledDestinationsRequest) returns (amadeus.type.FlightMostTraveledDestinationsResponse);
 }
 
 // msgCode: 0001
-// => amadeus.type.FlightOffersResult (0050)
-// => amadeus.comn.Exception (0950)
+// => amadeus.type.FlightLowFareSearchResponse (0050)
 message FlightLowFareSearchRequest {
     string origin = 1;
     string destination = 2;
@@ -25,10 +25,15 @@ message FlightLowFareSearchRequest {
 }
 
 // msgCode: 0002
-// => amadeus.type.FlightOffersResult (0070)
-// => amadeus.comn.Exception (0950)
+// => amadeus.type.FlightInspirationSearchResponse (0070)
 message FlightInspirationSearchRequest {
     string origin = 1;
     int32 maxPrice = 2;
 }
 
+// msgCode: 0003
+// => amadeus.type.FlightMostTraveledDestinationsResponse (0073)
+message FlightMostTraveledDestinationsRequest {
+    string originCityCode = 1;
+    string period = 2;
+}
