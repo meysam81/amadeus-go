@@ -17,7 +17,7 @@ type serviceReg struct {
 	ConsulAgent *consul.Agent
 }
 
-func RegisterService(addr string, port int, ttl time.Duration) (*serviceReg, error) {
+func registerService(addr string, port int, ttl time.Duration) (*serviceReg, error) {
 	s := serviceReg{
 		Name: addr,
 		TTL:  ttl,
@@ -43,12 +43,12 @@ func RegisterService(addr string, port int, ttl time.Duration) (*serviceReg, err
 		return nil, err
 	}
 
-	go s.UpdateTTL()
+	go s.updateTTL()
 
 	return &s, nil
 }
 
-func (s *serviceReg) UpdateTTL() {
+func (s *serviceReg) updateTTL() {
 	ticker := time.NewTicker(s.TTL / 2)
 	for range ticker.C {
 		if agentErr := s.ConsulAgent.FailTTL("service:"+s.Name, ""); agentErr != nil {
