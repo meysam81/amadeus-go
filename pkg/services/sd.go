@@ -34,7 +34,7 @@ func RegisterService(addr string, port int, ttl time.Duration) (*serviceReg, err
 		Name: s.Name,
 		// TODO: change this address later
 		Address: "localhost",
-		Port: port,
+		Port:    port,
 		Check: &consul.AgentServiceCheck{
 			TTL: s.TTL.String(),
 		},
