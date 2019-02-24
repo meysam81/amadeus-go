@@ -16,3 +16,7 @@
 
 # protobuf compiled go
 *.pb.go
+
+# local env
+.env
+.local_env
