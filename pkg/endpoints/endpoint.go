@@ -55,7 +55,7 @@ func makeFlightLowFareSearchEndpoint(srv sv.AmadeusService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req, ok := request.(*sv.FlightLowFareSearchRequest)
 		if !ok {
-			return nil, errors.New("bad request")
+			return nil, errors.New("service did not fetch type <FlightLowFareSearchRequest>")
 		}
 		resp, err := srv.FlightLowFareSearch(ctx, req)
 		return resp, err
@@ -66,7 +66,7 @@ func makeFlightInspirationSearchEndpoint(srv sv.AmadeusService) endpoint.Endpoin
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req, ok := request.(*sv.FlightInspirationSearchRequest)
 		if !ok {
-			return nil, errors.New("bad request")
+			return nil, errors.New("service did not fetch type <FlightInspirationSearchRequest>")
 		}
 		resp, err := srv.FlightInspirationSearch(ctx, req)
 		return resp, err
