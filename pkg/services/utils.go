@@ -73,9 +73,10 @@ func getTokenFromAmadeus() (*amadeusToken, error) {
 func getServicesURLs() (*serviceUrls, error) {
 	// TODO read from config file
 	urls := serviceUrls{
-		apiBaseUrl:              "https://test.api.amadeus.com",
-		flightLowFareSearch:     "/v1/shopping/flight-offers",
-		flightInspirationSearch: "/v1/shopping/flight-destinations",
+		apiBaseUrl:                     "https://test.api.amadeus.com",
+		flightLowFareSearch:            "/v1/shopping/flight-offers",
+		flightInspirationSearch:        "/v1/shopping/flight-destinations",
+		flightMostTraveledDestinations: "/v1/travel/analytics/air-traffic/traveled",
 	}
 	return &urls, nil
 }
@@ -85,7 +86,7 @@ func cleanUrl(base, route string) string {
 }
 
 func getBearer(token *amadeusToken) string {
-	return "Bearer " + token.AccessToken
+	return token.TokenType + " " + token.AccessToken
 }
 
 /* TODO put this somewhere later (don't remove them before that)
