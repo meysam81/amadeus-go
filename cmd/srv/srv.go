@@ -5,14 +5,15 @@ import (
 	"amadeus-go/pkg/endpoints"
 	"amadeus-go/pkg/services"
 	"amadeus-go/pkg/transports"
+
+	"flag"
+	defaultLogger "log"
+	"net"
+	"os"
 	"strconv"
 	"strings"
 
-	"flag"
-	"net"
-	"os"
-
-	"github.com/prometheus/common/log"
+	"github.com/go-kit/kit/log"
 	"google.golang.org/grpc"
 )
 
@@ -34,14 +35,17 @@ func main() {
 		panic(err)
 	}
 
+	var logger log.Logger
+	logger = log.NewLogfmtLogger(os.Stderr)
+	logger = log.With(logger, "caller", log.DefaultCaller)
 
-	srv, err := services.NewBasicService(port)
+	srv, err := services.NewBasicService(port, logger)
 	if err != nil {
 		panic(err)
 	}
 	var (
-		endpointSet = endpoints.NewEndpointSet(srv)
-		grpcServer  = transports.NewGRPCServer(endpointSet)
+		endpointSet = endpoints.NewEndpointSet(srv, logger)
+		grpcServer  = transports.NewGRPCServer(endpointSet, logger)
 	)
 
 	grpcListener, err := net.Listen("tcp", string(*grpcAddr))
@@ -51,5 +55,8 @@ func main() {
 
 	baseServer := grpc.NewServer()
 	pb.RegisterAmadeusServiceServer(baseServer, grpcServer)
-	log.Fatalln(baseServer.Serve(grpcListener))
+	defaultLogger.Fatalln(
+		"listening to", *grpcAddr,
+		"serving...", baseServer.Serve(grpcListener),
+	)
 }

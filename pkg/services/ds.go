@@ -14,6 +14,17 @@ type FlightLowFareSearchResponse struct {
 	Meta         *Meta         `json:"meta"`
 }
 
+type FlightInspirationSearchRequest struct {
+	Origin   string
+	MaxPrice int32
+}
+
+type FlightInspirationSearchResponse struct {
+	InspirationData []*InspirationData `json:"data"`
+	Dictionaries    *Dictionaries      `json:"dictionaries"`
+	Meta            *Meta              `json:"meta"`
+}
+
 // ===============================================================
 type Data struct {
 	Type       string       `json:"type"`
@@ -77,7 +88,7 @@ type Price struct {
 type Dictionaries struct {
 	Carriers   map[string]string            `json:"carriers"`
 	Currencies map[string]string            `json:"currencies"`
-	Aircraft   map[string]string            `json:"aircraft"`
+	Aircrafts  map[string]string            `json:"aircraft"`
 	Locations  map[string]map[string]string `json:"locations"`
 }
 
@@ -93,6 +104,26 @@ type Links struct {
 }
 
 type Defaults struct {
-	NonStop bool  `json:"nonStop"`
-	Adults  int32 `json:"adults"`
+	NonStop       bool   `json:"nonStop"`
+	Adults        int32  `json:"adults"`
+	DepartureDate string `json:"departureDate"`
+	OneWay        bool   `json:"oneWay"`
+	Duration      string `json:"duration"`
+	ViewBy        string `json:"viewBy"`
+}
+
+// ===============================================================
+type InspirationData struct {
+	Type          string           `json:"type"`
+	Origin        string           `json:"origin"`
+	Destination   string           `json:"destination"`
+	DepartureDate string           `json:"departureDate"`
+	ReturnDate    string           `json:"returnDate"`
+	Price         Price            `json:"price"`
+	Links         InspirationLinks `json:"links"`
+}
+
+type InspirationLinks struct {
+	FlightDates  string `json:"flightDates"`
+	FlightOffers string `json:"flightOffers"`
 }

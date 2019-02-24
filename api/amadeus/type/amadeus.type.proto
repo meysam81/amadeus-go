@@ -3,7 +3,7 @@ syntax = "proto3";
 package amadeus.type;
 
 // msgCode: 0050
-message FlightLowFareSearchResult {
+message FlightLowFareSearchResponse {
     repeated Data data = 1;
     Dictionaries dictionaries = 2;
     Meta meta = 3;
@@ -127,5 +127,32 @@ message Links {
 message Defaults {
     bool nonStop = 1;
     int32 adults = 2;
+    string departureDate = 3;
+    bool oneWay = 4;
+    string duration = 5;
+    string viewBy = 6;
 }
 
+// msgCode: 0070
+message FlightInspirationSearchResponse {
+    repeated InspirationData data = 1;
+    Dictionaries dictionaries = 2;
+    Meta meta = 3;
+}
+
+// msgCode: 0071
+message InspirationData {
+    string type = 1;
+    string origin = 2;
+    string destination = 3;
+    string departureDate = 4;
+    string returnDate = 5;
+    Price price = 6;
+    InspirationLinks links = 7;
+}
+
+// msgCode: 0072
+message InspirationLinks {
+    string flightDates = 1;
+    string flightOffers = 2;
+}

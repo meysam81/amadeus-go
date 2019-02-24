@@ -10,7 +10,6 @@ import (
 
 	"github.com/go-kit/kit/endpoint"
 	grpcTransport "github.com/go-kit/kit/transport/grpc"
-	"github.com/mitchellh/mapstructure"
 	"google.golang.org/grpc"
 )
 
@@ -23,13 +22,14 @@ func NewGRPCClient(conn *grpc.ClientConn) srv.AmadeusService {
 			"FlightLowFareSearch",
 			encodeRequest,
 			decodeResponse,
-			pbType.FlightLowFareSearchResult{},
+			pbType.FlightLowFareSearchResponse{},
 		).Endpoint()
 	}
 
 	return endpoints.AmadeusEndpointSet{FlightLowFareSearchEndpoint: flightLowFareSearchEndpoint}
 }
 
+// =============================================================================
 func encodeRequest(_ context.Context, request interface{}) (interface{}, error) {
 	req := request.(*srv.FlightLowFareSearchRequest)
 	return &pbFunc.FlightLowFareSearchRequest{
@@ -41,7 +41,7 @@ func encodeRequest(_ context.Context, request interface{}) (interface{}, error) 
 }
 
 func decodeResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp := response.(*pbType.FlightLowFareSearchResult)
+	resp := response.(*pbType.FlightLowFareSearchResponse)
 
 	var datas []*srv.Data
 	for _, data := range resp.Data {
@@ -113,7 +113,27 @@ func decodeResponse(_ context.Context, response interface{}) (interface{}, error
 	}
 
 	var dictionaries srv.Dictionaries
-	_ = mapstructure.Decode(resp.Dictionaries, &dictionaries)
+	dictionaries.Aircrafts = make(map[string]string)
+	dictionaries.Locations = make(map[string]map[string]string)
+	dictionaries.Carriers = make(map[string]string)
+	dictionaries.Currencies = make(map[string]string)
+	for k, v := range resp.Dictionaries.Aircrafts {
+		dictionaries.Aircrafts[k] = v
+	}
+	for k, v := range resp.Dictionaries.Locations {
+		if _, ok := dictionaries.Locations[k]; !ok {
+			dictionaries.Locations[k] = make(map[string]string)
+		}
+		for subK, subV := range v.Detail {
+			dictionaries.Locations[k] = map[string]string{subK: subV}
+		}
+	}
+	for k, v := range resp.Dictionaries.Carriers {
+		dictionaries.Aircrafts[k] = v
+	}
+	for k, v := range resp.Dictionaries.Currencies {
+		dictionaries.Aircrafts[k] = v
+	}
 
 	meta := srv.Meta{
 		Links: &srv.Links{
