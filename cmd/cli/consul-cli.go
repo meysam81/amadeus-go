@@ -9,7 +9,7 @@ import (
 )
 
 type cli struct {
-	Name string
+	Name        string
 	ConsulAgent *consul.Agent
 }
 
@@ -20,7 +20,7 @@ func main() {
 	}
 
 	client := cli{
-		Name: "amadeus-go",
+		Name:        "amadeus-go",
 		ConsulAgent: c.Agent(),
 	}
 
@@ -30,5 +30,5 @@ func main() {
 	}
 
 	grpcAddr := fmt.Sprintf("%s:%v", resp[0].Service.Address, resp[0].Service.Port)
-	utils.SendReq(&grpcAddr)
+	utils.SendReq(&grpcAddr, FLIGHT_LOW_FARE_SEARCH)
 }

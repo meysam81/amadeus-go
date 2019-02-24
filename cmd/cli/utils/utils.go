@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"amadeus-go/pkg/services"
+	sv "amadeus-go/pkg/services"
 	"amadeus-go/pkg/transports"
 
 	"context"
@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-func SendReq(grpcAddr *string) {
+func SendReq(grpcAddr *string, request interface{}) {
 	ctx, _ := context.WithTimeout(context.TODO(), time.Second*1)
 	conn, err := grpc.DialContext(ctx, *grpcAddr, grpc.WithInsecure())
 	defer conn.Close()
@@ -20,18 +20,19 @@ func SendReq(grpcAddr *string) {
 	}
 	srv := transports.NewGRPCClient(conn)
 
-	query := services.FlightLowFareSearchRequest{
-		ReturnDate:    "2019-08-28",
-		Destination:   "ELS",
-		DepartureDate: "2019-08-27",
-		Origin:        "NYC",
-	}
+	var (
+		response interface{}
+	)
 
-	resp, err := srv.FlightLowFareSearch(context.TODO(), &query)
+	if req, ok := request.(*sv.FlightLowFareSearchRequest); ok {
+		response, err = srv.FlightLowFareSearch(context.TODO(), req)
+	} else if req, ok := request.(*sv.FlightInspirationSearchRequest); ok {
+		response, err = srv.FlightInspirationSearch(context.TODO(), req)
+	}
 	if err != nil {
 		panic(err)
 	}
 
-	log.Println(">>>>>", query)
-	log.Println("<<<<<", resp)
+	log.Println("sending\n\t\t", request)
+	log.Println("receiving\n\t\t", response)
 }
