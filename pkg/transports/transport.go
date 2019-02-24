@@ -1,22 +1,20 @@
 package transports
 
 import (
-	pbComn "amadeus-go/api/amadeus/comn"
 	pbFunc "amadeus-go/api/amadeus/func"
 	pbType "amadeus-go/api/amadeus/type"
 	"amadeus-go/pkg/endpoints"
 	sv "amadeus-go/pkg/services"
-	"errors"
-	"net/http"
-
 	"context"
+	"errors"
 	"github.com/go-kit/kit/log"
 	grpcTransport "github.com/go-kit/kit/transport/grpc"
 )
 
 type grpcServer struct {
-	FlightLowFareSearchHandler     grpcTransport.Handler
-	FlightInspirationSearchHandler grpcTransport.Handler
+	FlightLowFareSearchHandler            grpcTransport.Handler
+	FlightInspirationSearchHandler        grpcTransport.Handler
+	FlightMostTraveledDestinationsHandler grpcTransport.Handler
 }
 
 func (s *grpcServer) FlightLowFareSearch(ctx context.Context, req *pbFunc.FlightLowFareSearchRequest) (*pbType.FlightLowFareSearchResponse, error) {
@@ -39,6 +37,16 @@ func (s *grpcServer) FlightInspirationSearch(ctx context.Context, req *pbFunc.Fl
 	return response, nil
 }
 
+func (s *grpcServer) FlightMostTraveledDestinations(ctx context.Context, req *pbFunc.FlightMostTraveledDestinationsRequest) (*pbType.FlightMostTraveledDestinationsResponse, error) {
+	_, resp, err := s.FlightLowFareSearchHandler.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	response := resp.(*pbType.FlightMostTraveledDestinationsResponse)
+	return response, nil
+}
+
 func NewGRPCServer(endpoints *endpoints.AmadeusEndpointSet, logger log.Logger) (s pbFunc.AmadeusServiceServer) {
 	s = &grpcServer{
 		FlightLowFareSearchHandler: grpcTransport.NewServer(
@@ -50,6 +58,11 @@ func NewGRPCServer(endpoints *endpoints.AmadeusEndpointSet, logger log.Logger) (
 			endpoints.FlightInspirationSearchEndpoint,
 			decodeFlightInspirationSearchRequest,
 			encodeFlightInspirationSearchResponse,
+		),
+		FlightMostTraveledDestinationsHandler: grpcTransport.NewServer(
+			endpoints.FlightMostTraveledDestinationsEndpoint,
+			decodeFlightMostTraveledDestinationsRequest,
+			encodeFlightMostTraveledDestinationsResponse,
 		),
 	}
 
@@ -73,10 +86,7 @@ func decodeFlightLowFareSearchRequest(_ context.Context, grpcReq interface{}) (i
 func encodeFlightLowFareSearchResponse(_ context.Context, response interface{}) (interface{}, error) {
 	resp, ok := response.(*sv.FlightLowFareSearchResponse)
 	if !ok {
-		return &pbComn.Exception{
-			Code: http.StatusInternalServerError,
-			Description: "couldn't convert response to <FlightLowFareSearchResponse>",
-		}, nil
+		return nil, errors.New("couldn't convert response to <FlightLowFareSearchResponse>")
 	}
 
 	var datas []*pbType.Data
@@ -207,10 +217,7 @@ func decodeFlightInspirationSearchRequest(_ context.Context, grpcReq interface{}
 func encodeFlightInspirationSearchResponse(_ context.Context, response interface{}) (interface{}, error) {
 	resp, ok := response.(*sv.FlightInspirationSearchResponse)
 	if !ok {
-		return &pbComn.Exception{
-			Code: http.StatusInternalServerError,
-			Description: "couldn't convert response to <FlightInspirationSearchResponse>",
-		}, nil
+		return nil, errors.New("couldn't convert response to <FlightInspirationSearchResponse>")
 	}
 
 	var datas []*pbType.InspirationData
@@ -225,7 +232,7 @@ func encodeFlightInspirationSearchResponse(_ context.Context, response interface
 				Total: data.Price.Total,
 			},
 			Links: &pbType.InspirationLinks{
-				FlightDates: data.Links.FlightDates,
+				FlightDates:  data.Links.FlightDates,
 				FlightOffers: data.Links.FlightOffers,
 			},
 		})
@@ -257,10 +264,10 @@ func encodeFlightInspirationSearchResponse(_ context.Context, response interface
 		Currency: resp.Meta.Currency,
 		Defaults: &pbType.Defaults{
 			DepartureDate: resp.Meta.Defaults.DepartureDate,
-			OneWay: resp.Meta.Defaults.OneWay,
-			Duration: resp.Meta.Defaults.Duration,
-			NonStop: resp.Meta.Defaults.NonStop,
-			ViewBy: resp.Meta.Defaults.ViewBy,
+			OneWay:        resp.Meta.Defaults.OneWay,
+			Duration:      resp.Meta.Defaults.Duration,
+			NonStop:       resp.Meta.Defaults.NonStop,
+			ViewBy:        resp.Meta.Defaults.ViewBy,
 		},
 	}
 
@@ -268,5 +275,52 @@ func encodeFlightInspirationSearchResponse(_ context.Context, response interface
 		Data:         datas,
 		Dictionaries: &dictionaries,
 		Meta:         &meta,
+	}, nil
+}
+
+func decodeFlightMostTraveledDestinationsRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+	req, ok := grpcReq.(*pbFunc.FlightMostTraveledDestinationsRequest)
+	if !ok {
+		return nil, errors.New("your request is not of type <FlightMostTraveledDestinationsRequest>")
+	}
+	return &sv.FlightMostTraveledDestinationsRequest{
+		OriginCityCode: req.OriginCityCode,
+		Period:         req.Period,
+	}, nil
+}
+
+func encodeFlightMostTraveledDestinationsResponse(_ context.Context, response interface{}) (interface{}, error) {
+	resp, ok := response.(*sv.FlightMostTraveledDestinationsResponse)
+	if !ok {
+		return nil, errors.New("your request is not of type <FlightMostTraveledDestinationsResponse>")
+	}
+
+	var datas []*pbType.MostTraveledData
+	for _, data := range resp.MostTraveledData {
+		datas = append(datas, &pbType.MostTraveledData{
+			Type:        data.Type,
+			Destination: data.Destination,
+			SubType:     data.SubType,
+			Analytics: &pbType.Analytics{
+				Flights: &pbType.Score{
+					Score: data.Analytics.Flights.Score,
+				},
+				Travelers: &pbType.Score{
+					Score: data.Analytics.Travelers.Score,
+				},
+			},
+		})
+	}
+
+	meta := pbType.Meta{
+		Links: &pbType.Links{
+			Self: resp.Meta.Links.Self,
+		},
+		Count: resp.Meta.Count,
+	}
+
+	return &pbType.FlightMostTraveledDestinationsResponse{
+		Data: datas,
+		Meta: &meta,
 	}, nil
 }

@@ -25,6 +25,16 @@ type FlightInspirationSearchResponse struct {
 	Meta            *Meta              `json:"meta"`
 }
 
+type FlightMostTraveledDestinationsRequest struct {
+	OriginCityCode string
+	Period         string
+}
+
+type FlightMostTraveledDestinationsResponse struct {
+	MostTraveledData []*MostTraveledData `json:"data"`
+	Meta             *Meta               `json:"meta"`
+}
+
 // ===============================================================
 type Data struct {
 	Type       string       `json:"type"`
@@ -97,6 +107,7 @@ type Meta struct {
 	Links    *Links    `json:"links"`
 	Currency string    `json:"currency"`
 	Defaults *Defaults `json:"defaults"`
+	Count    int32     `json:"count"`
 }
 
 type Links struct {
@@ -126,4 +137,21 @@ type InspirationData struct {
 type InspirationLinks struct {
 	FlightDates  string `json:"flightDates"`
 	FlightOffers string `json:"flightOffers"`
+}
+
+// ===============================================================
+type MostTraveledData struct {
+	Type        string    `json:"type"`
+	Destination string    `json:"destination"`
+	SubType     string    `json:"subType"`
+	Analytics   Analytics `json:"analytics"`
+}
+
+type Analytics struct {
+	Flights   Score `json:"flights"`
+	Travelers Score `json:"travelers"`
+}
+
+type Score struct {
+	Score int32 `json:"score"`
 }

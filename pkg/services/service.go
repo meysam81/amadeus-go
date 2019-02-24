@@ -13,6 +13,7 @@ import (
 type AmadeusService interface {
 	FlightLowFareSearch(context.Context, *FlightLowFareSearchRequest) (*FlightLowFareSearchResponse, error)
 	FlightInspirationSearch(context.Context, *FlightInspirationSearchRequest) (*FlightInspirationSearchResponse, error)
+	FlightMostTraveledDestinations(context.Context, *FlightMostTraveledDestinationsRequest) (*FlightMostTraveledDestinationsResponse, error)
 }
 
 func (aSrv amadeusService) FlightLowFareSearch(_ context.Context, request *FlightLowFareSearchRequest) (response *FlightLowFareSearchResponse, err error) {
@@ -42,6 +43,10 @@ func (aSrv amadeusService) FlightLowFareSearch(_ context.Context, request *Fligh
 	defer resp.Body.Close()
 
 	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
 	err = json.Unmarshal(b, &response)
 	if err != nil {
 		return nil, err
@@ -75,6 +80,47 @@ func (aSrv amadeusService) FlightInspirationSearch(_ context.Context, request *F
 	defer resp.Body.Close()
 
 	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(b, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return
+}
+
+func (aSrv amadeusService) FlightMostTraveledDestinations(_ context.Context, request *FlightMostTraveledDestinationsRequest) (response *FlightMostTraveledDestinationsResponse, err error) {
+	url := cleanUrl(aSrv.urls.apiBaseUrl, aSrv.urls.flightMostTraveledDestinations)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// this is the way to send body of mime-type: application/x-www-form-urlencoded
+	q := req.URL.Query()
+	q.Add("originCityCode", request.OriginCityCode)
+	q.Add("period", string(request.Period))
+	req.URL.RawQuery = q.Encode()
+
+	bearer := getBearer(aSrv.token)
+	req.Header.Add("Authorization", bearer)
+	req.Header.Add("Accept", "application/json")
+
+	client := http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
 	err = json.Unmarshal(b, &response)
 	if err != nil {
 		return nil, err
@@ -84,7 +130,7 @@ func (aSrv amadeusService) FlightInspirationSearch(_ context.Context, request *F
 }
 
 func NewBasicService(port int, logger log.Logger) (AmadeusService, error) {
-	s, err := RegisterService("amadeus-go", port, time.Second*15)
+	s, err := registerService("amadeus-go", port, time.Second*15)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +166,8 @@ type amadeusService struct {
 }
 
 type serviceUrls struct {
-	apiBaseUrl              string
-	flightLowFareSearch     string
-	flightInspirationSearch string
+	apiBaseUrl                     string
+	flightLowFareSearch            string
+	flightInspirationSearch        string
+	flightMostTraveledDestinations string
 }

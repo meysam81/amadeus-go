@@ -2,6 +2,7 @@ package main
 
 import (
 	"amadeus-go/cmd/cli/utils"
+	"amadeus-go/pkg/services"
 
 	"fmt"
 
@@ -12,6 +13,15 @@ type cli struct {
 	Name        string
 	ConsulAgent *consul.Agent
 }
+
+var (
+	FLIGHT_LOW_FARE_SEARCH = &services.FlightLowFareSearchRequest{
+		ReturnDate:    "2019-08-28",
+		Destination:   "ELS",
+		DepartureDate: "2019-08-27",
+		Origin:        "NYC",
+	}
+)
 
 func main() {
 	c, err := consul.NewClient(consul.DefaultConfig())
