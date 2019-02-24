@@ -1,51 +1,67 @@
 package transports
 
 import (
+	pbComn "amadeus-go/api/amadeus/comn"
 	pbFunc "amadeus-go/api/amadeus/func"
 	pbType "amadeus-go/api/amadeus/type"
 	"amadeus-go/pkg/endpoints"
 	sv "amadeus-go/pkg/services"
+	"errors"
+	"net/http"
 
 	"context"
-	"os"
-
 	"github.com/go-kit/kit/log"
 	grpcTransport "github.com/go-kit/kit/transport/grpc"
 )
 
 type grpcServer struct {
-	FlightLowFareSearchHandler grpcTransport.Handler
+	FlightLowFareSearchHandler     grpcTransport.Handler
+	FlightInspirationSearchHandler grpcTransport.Handler
 }
 
-func (s *grpcServer) FlightLowFareSearch(ctx context.Context, req *pbFunc.FlightLowFareSearchRequest) (*pbType.FlightLowFareSearchResult, error) {
+func (s *grpcServer) FlightLowFareSearch(ctx context.Context, req *pbFunc.FlightLowFareSearchRequest) (*pbType.FlightLowFareSearchResponse, error) {
 	_, resp, err := s.FlightLowFareSearchHandler.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	response := resp.(*pbType.FlightLowFareSearchResult)
+	response := resp.(*pbType.FlightLowFareSearchResponse)
 	return response, nil
 }
 
-func NewGRPCServer(endpoints endpoints.AmadeusEndpointSet) (s pbFunc.AmadeusServiceServer) {
-	var logger log.Logger
-	logger = log.NewLogfmtLogger(os.Stderr)
-	logger = log.With(logger, "caller", log.DefaultCaller)
+func (s *grpcServer) FlightInspirationSearch(ctx context.Context, req *pbFunc.FlightInspirationSearchRequest) (*pbType.FlightInspirationSearchResponse, error) {
+	_, resp, err := s.FlightLowFareSearchHandler.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
 
-	g := &grpcServer{
+	response := resp.(*pbType.FlightInspirationSearchResponse)
+	return response, nil
+}
+
+func NewGRPCServer(endpoints *endpoints.AmadeusEndpointSet, logger log.Logger) (s pbFunc.AmadeusServiceServer) {
+	s = &grpcServer{
 		FlightLowFareSearchHandler: grpcTransport.NewServer(
 			endpoints.FlightLowFareSearchEndpoint,
 			decodeFlightLowFareSearchRequest,
 			encodeFlightLowFareSearchResponse,
 		),
+		FlightInspirationSearchHandler: grpcTransport.NewServer(
+			endpoints.FlightInspirationSearchEndpoint,
+			decodeFlightInspirationSearchRequest,
+			encodeFlightInspirationSearchResponse,
+		),
 	}
 
-	s = loggingMiddleware(logger)(g)
 	return
 }
 
+// =============================================================================
 func decodeFlightLowFareSearchRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
-	req := grpcReq.(*pbFunc.FlightLowFareSearchRequest)
+	req, ok := grpcReq.(*pbFunc.FlightLowFareSearchRequest)
+	if !ok {
+		return nil, errors.New("your request is not of type <FlightLowFareSearchRequest>")
+	}
 	return &sv.FlightLowFareSearchRequest{
 		Origin:        req.Origin,
 		DepartureDate: req.DepartureDate,
@@ -55,7 +71,13 @@ func decodeFlightLowFareSearchRequest(_ context.Context, grpcReq interface{}) (i
 }
 
 func encodeFlightLowFareSearchResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp := response.(*sv.FlightLowFareSearchResponse)
+	resp, ok := response.(*sv.FlightLowFareSearchResponse)
+	if !ok {
+		return &pbComn.Exception{
+			Code: http.StatusInternalServerError,
+			Description: "couldn't convert response to <FlightLowFareSearchResponse>",
+		}, nil
+	}
 
 	var datas []*pbType.Data
 	for _, data := range resp.Data {
@@ -131,7 +153,7 @@ func encodeFlightLowFareSearchResponse(_ context.Context, response interface{}) 
 	dictionaries.Locations = make(map[string]*pbType.LocationDetail)
 	dictionaries.Carriers = make(map[string]string)
 	dictionaries.Currencies = make(map[string]string)
-	for k, v := range resp.Dictionaries.Aircraft {
+	for k, v := range resp.Dictionaries.Aircrafts {
 		dictionaries.Aircrafts[k] = v
 	}
 	for k, v := range resp.Dictionaries.Locations {
@@ -164,12 +186,87 @@ func encodeFlightLowFareSearchResponse(_ context.Context, response interface{}) 
 		},
 	}
 
-	return &pbType.FlightLowFareSearchResult{
+	return &pbType.FlightLowFareSearchResponse{
 		Data:         datas,
 		Dictionaries: &dictionaries,
 		Meta:         &meta,
 	}, nil
-
 }
 
-type TransportMiddleware func(pbFunc.AmadeusServiceServer) pbFunc.AmadeusServiceServer
+func decodeFlightInspirationSearchRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+	req, ok := grpcReq.(*pbFunc.FlightInspirationSearchRequest)
+	if !ok {
+		return nil, errors.New("your request is not of type <FlightInspirationSearchRequest>")
+	}
+	return &sv.FlightInspirationSearchRequest{
+		Origin:   req.Origin,
+		MaxPrice: req.MaxPrice,
+	}, nil
+}
+
+func encodeFlightInspirationSearchResponse(_ context.Context, response interface{}) (interface{}, error) {
+	resp, ok := response.(*sv.FlightInspirationSearchResponse)
+	if !ok {
+		return &pbComn.Exception{
+			Code: http.StatusInternalServerError,
+			Description: "couldn't convert response to <FlightInspirationSearchResponse>",
+		}, nil
+	}
+
+	var datas []*pbType.InspirationData
+	for _, data := range resp.InspirationData {
+		datas = append(datas, &pbType.InspirationData{
+			Type:          data.Type,
+			Origin:        data.Origin,
+			Destination:   data.Destination,
+			DepartureDate: data.DepartureDate,
+			ReturnDate:    data.ReturnDate,
+			Price: &pbType.Price{
+				Total: data.Price.Total,
+			},
+			Links: &pbType.InspirationLinks{
+				FlightDates: data.Links.FlightDates,
+				FlightOffers: data.Links.FlightOffers,
+			},
+		})
+	}
+
+	var dictionaries pbType.Dictionaries
+	dictionaries.Locations = make(map[string]*pbType.LocationDetail)
+	dictionaries.Currencies = make(map[string]string)
+	for k, v := range resp.Dictionaries.Locations {
+		if _, ok := dictionaries.Locations[k]; !ok {
+			dictionaries.Locations[k] = &pbType.LocationDetail{
+				Detail: make(map[string]string),
+			}
+		}
+		for subK, subV := range v {
+			dictionaries.Locations[k] = &pbType.LocationDetail{
+				Detail: map[string]string{subK: subV},
+			}
+		}
+	}
+	for k, v := range resp.Dictionaries.Currencies {
+		dictionaries.Aircrafts[k] = v
+	}
+
+	meta := pbType.Meta{
+		Links: &pbType.Links{
+			Self: resp.Meta.Links.Self,
+		},
+		Currency: resp.Meta.Currency,
+		Defaults: &pbType.Defaults{
+			DepartureDate: resp.Meta.Defaults.DepartureDate,
+			OneWay: resp.Meta.Defaults.OneWay,
+			Duration: resp.Meta.Defaults.Duration,
+			NonStop: resp.Meta.Defaults.NonStop,
+			ViewBy: resp.Meta.Defaults.ViewBy,
+		},
+	}
+
+	return &pbType.FlightInspirationSearchResponse{
+		Data:         datas,
+		Dictionaries: &dictionaries,
+		Meta:         &meta,
+	}, nil
+}
