@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/go-kit/kit/log"
@@ -13,32 +12,22 @@ import (
 
 type AmadeusService interface {
 	FlightLowFareSearch(context.Context, *FlightLowFareSearchRequest) (*FlightLowFareSearchResponse, error)
+	FlightInspirationSearch(context.Context, *FlightInspirationSearchRequest) (*FlightInspirationSearchResponse, error)
 }
 
-type amadeusService struct {
-	token        *amadeusToken
-	urls         *serviceUrls
-	registerInfo *serviceReg
-}
-
-type serviceUrls struct {
-	apiBaseUrl          string
-	flightLowFareSearch string
-}
-
-func (aSrv amadeusService) FlightLowFareSearch(_ context.Context, routeData *FlightLowFareSearchRequest) (*FlightLowFareSearchResponse, error) {
+func (aSrv amadeusService) FlightLowFareSearch(_ context.Context, request *FlightLowFareSearchRequest) (response *FlightLowFareSearchResponse, err error) {
 	url := cleanUrl(aSrv.urls.apiBaseUrl, aSrv.urls.flightLowFareSearch)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	// this is the way to send body of mime-type: form-data
+	// this is the way to send body of mime-type: application/x-www-form-urlencoded
 	q := req.URL.Query()
-	q.Add("origin", routeData.Origin)
-	q.Add("destination", routeData.Destination)
-	q.Add("departureDate", routeData.DepartureDate)
-	q.Add("returnDate", routeData.ReturnDate)
+	q.Add("origin", request.Origin)
+	q.Add("destination", request.Destination)
+	q.Add("departureDate", request.DepartureDate)
+	q.Add("returnDate", request.ReturnDate)
 	req.URL.RawQuery = q.Encode()
 
 	bearer := getBearer(aSrv.token)
@@ -52,17 +41,49 @@ func (aSrv amadeusService) FlightLowFareSearch(_ context.Context, routeData *Fli
 	}
 	defer resp.Body.Close()
 
-	var flightOfferResult FlightLowFareSearchResponse
 	b, err := ioutil.ReadAll(resp.Body)
-	err = json.Unmarshal(b, &flightOfferResult)
+	err = json.Unmarshal(b, &response)
 	if err != nil {
 		return nil, err
 	}
 
-	return &flightOfferResult, nil
+	return
 }
 
-func NewBasicService(port int) (AmadeusService, error) {
+func (aSrv amadeusService) FlightInspirationSearch(_ context.Context, request *FlightInspirationSearchRequest) (response *FlightInspirationSearchResponse, err error) {
+	url := cleanUrl(aSrv.urls.apiBaseUrl, aSrv.urls.flightInspirationSearch)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// this is the way to send body of mime-type: application/x-www-form-urlencoded
+	q := req.URL.Query()
+	q.Add("origin", request.Origin)
+	q.Add("maxPrice", string(request.MaxPrice))
+	req.URL.RawQuery = q.Encode()
+
+	bearer := getBearer(aSrv.token)
+	req.Header.Add("Authorization", bearer)
+	req.Header.Add("Accept", "application/json")
+
+	client := http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	b, err := ioutil.ReadAll(resp.Body)
+	err = json.Unmarshal(b, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return
+}
+
+func NewBasicService(port int, logger log.Logger) (AmadeusService, error) {
 	s, err := RegisterService("amadeus-go", port, time.Second*15)
 	if err != nil {
 		return nil, err
@@ -79,20 +100,27 @@ func NewBasicService(port int) (AmadeusService, error) {
 	}
 
 	var srv AmadeusService
-
 	aSrv := amadeusService{
 		urls:         urls,
 		token:        token,
 		registerInfo: s,
 	}
 
-	var logger log.Logger
-	logger = log.NewLogfmtLogger(os.Stderr)
-	logger = log.With(logger, "caller", log.DefaultCaller)
-
 	srv = loggingMiddleware(logger)(aSrv)
-
 	return srv, nil
 }
 
-type ServiceMiddleware func(service AmadeusService) AmadeusService
+// =============================================================================
+type serviceMiddleware func(service AmadeusService) AmadeusService
+
+type amadeusService struct {
+	token        *amadeusToken
+	urls         *serviceUrls
+	registerInfo *serviceReg
+}
+
+type serviceUrls struct {
+	apiBaseUrl              string
+	flightLowFareSearch     string
+	flightInspirationSearch string
+}
