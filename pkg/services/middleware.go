@@ -7,7 +7,7 @@ import (
 	"github.com/go-kit/kit/log"
 )
 
-func loggingMiddleware(logger log.Logger) ServiceMiddleware {
+func loggingMiddleware(logger log.Logger) serviceMiddleware {
 	return func(next AmadeusService) AmadeusService {
 		return logmw{logger, next}
 	}
@@ -31,5 +31,21 @@ func (mw logmw) FlightLowFareSearch(ctx context.Context, req *FlightLowFareSearc
 	}(time.Now())
 
 	resp, err = mw.sv.FlightLowFareSearch(ctx, req)
+	return
+}
+
+func (mw logmw) FlightInspirationSearch(ctx context.Context, req *FlightInspirationSearchRequest) (resp *FlightInspirationSearchResponse, err error) {
+	defer func(begin time.Time) {
+		_ = mw.logger.Log(
+			"layer", "service",
+			"method", "FlightInspirationSearch",
+			"input", req,
+			"output", resp,
+			"error", err,
+			"took", time.Since(begin),
+		)
+	}(time.Now())
+
+	resp, err = mw.sv.FlightInspirationSearch(ctx, req)
 	return
 }
