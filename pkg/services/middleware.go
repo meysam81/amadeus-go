@@ -18,7 +18,7 @@ type logmw struct {
 	sv     AmadeusService
 }
 
-func (mw logmw) FlightLowFareSearch(ctx context.Context, req *FlightLowFareSearchRequest) (resp *FlightLowFareSearchResponse, err error) {
+func (mw logmw) FlightLowFareSearch(ctx context.Context, req *FlightLowFareSearchRequest) (resp *Response, err error) {
 	defer func(begin time.Time) {
 		_ = mw.logger.Log(
 			"layer", "service",
@@ -34,7 +34,7 @@ func (mw logmw) FlightLowFareSearch(ctx context.Context, req *FlightLowFareSearc
 	return
 }
 
-func (mw logmw) FlightInspirationSearch(ctx context.Context, req *FlightInspirationSearchRequest) (resp *FlightInspirationSearchResponse, err error) {
+func (mw logmw) FlightInspirationSearch(ctx context.Context, req *FlightInspirationSearchRequest) (resp *Response, err error) {
 	defer func(begin time.Time) {
 		_ = mw.logger.Log(
 			"layer", "service",
@@ -50,7 +50,7 @@ func (mw logmw) FlightInspirationSearch(ctx context.Context, req *FlightInspirat
 	return
 }
 
-func (mw logmw) FlightMostTraveledDestinations(ctx context.Context, req *FlightMostTraveledDestinationsRequest) (resp *FlightMostTraveledDestinationsResponse, err error) {
+func (mw logmw) FlightMostTraveledDestinations(ctx context.Context, req *FlightMostTraveledDestinationsRequest) (resp *Response, err error) {
 	defer func(begin time.Time) {
 		_ = mw.logger.Log(
 			"layer", "service",
@@ -66,7 +66,7 @@ func (mw logmw) FlightMostTraveledDestinations(ctx context.Context, req *FlightM
 	return
 }
 
-func (mw logmw) FlightMostBookedDestinations(ctx context.Context, req *FlightMostBookedDestinationsRequest) (resp *FlightMostBookedDestinationsResponse, err error) {
+func (mw logmw) FlightMostBookedDestinations(ctx context.Context, req *FlightMostBookedDestinationsRequest) (resp *Response, err error) {
 	defer func(begin time.Time) {
 		_ = mw.logger.Log(
 			"layer", "service",
@@ -82,7 +82,7 @@ func (mw logmw) FlightMostBookedDestinations(ctx context.Context, req *FlightMos
 	return
 }
 
-func (mw logmw) FlightBusiestTravelingPeriod(ctx context.Context, req *FlightBusiestTravelingPeriodRequest) (resp *FlightBusiestTravelingPeriodResponse, err error) {
+func (mw logmw) FlightBusiestTravelingPeriod(ctx context.Context, req *FlightBusiestTravelingPeriodRequest) (resp *Response, err error) {
 	defer func(begin time.Time) {
 		_ = mw.logger.Log(
 			"layer", "service",
@@ -98,7 +98,7 @@ func (mw logmw) FlightBusiestTravelingPeriod(ctx context.Context, req *FlightBus
 	return
 }
 
-func (mw logmw) AirportNearestRelevant(ctx context.Context, req *AirportNearestRelevantRequest) (resp *AirportNearestRelevantResponse, err error) {
+func (mw logmw) AirportNearestRelevant(ctx context.Context, req *AirportNearestRelevantRequest) (resp *Response, err error) {
 	defer func(begin time.Time) {
 		_ = mw.logger.Log(
 			"layer", "service",
@@ -113,3 +113,20 @@ func (mw logmw) AirportNearestRelevant(ctx context.Context, req *AirportNearestR
 	resp, err = mw.sv.AirportNearestRelevant(ctx, req)
 	return
 }
+
+func (mw logmw) AirportAndCitySearch(ctx context.Context, req *AirportAndCitySearchRequest) (resp *Response, err error) {
+	defer func(begin time.Time) {
+		_ = mw.logger.Log(
+			"layer", "service",
+			"method", "AirportAndCitySearch",
+			"input", req,
+			"output", resp,
+			"error", err,
+			"took", time.Since(begin),
+		)
+	}(time.Now())
+
+	resp, err = mw.sv.AirportAndCitySearch(ctx, req)
+	return
+}
+
