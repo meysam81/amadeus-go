@@ -9,9 +9,9 @@ type FlightLowFareSearchRequest struct {
 }
 
 type FlightLowFareSearchResponse struct {
-	Data         []*Data       `json:"data"`
-	Dictionaries *Dictionaries `json:"dictionaries"`
-	Meta         *Meta         `json:"meta"`
+	Data         []*Data       `json:"data,omitempty"`
+	Dictionaries *Dictionaries `json:"dictionaries,omitempty"`
+	Meta         *Meta         `json:"meta,omitempty"`
 }
 
 type FlightInspirationSearchRequest struct {
@@ -20,9 +20,9 @@ type FlightInspirationSearchRequest struct {
 }
 
 type FlightInspirationSearchResponse struct {
-	InspirationData []*InspirationData `json:"data"`
-	Dictionaries    *Dictionaries      `json:"dictionaries"`
-	Meta            *Meta              `json:"meta"`
+	Data         []*Data       `json:"data,omitempty"`
+	Dictionaries *Dictionaries `json:"dictionaries,omitempty"`
+	Meta         *Meta         `json:"meta,omitempty"`
 }
 
 type FlightMostTraveledDestinationsRequest struct {
@@ -31,8 +31,8 @@ type FlightMostTraveledDestinationsRequest struct {
 }
 
 type FlightMostTraveledDestinationsResponse struct {
-	MostTraveledData []*MostTraveledData `json:"data"`
-	Meta             *Meta               `json:"meta"`
+	Data []*Data `json:"data,omitempty"`
+	Meta *Meta   `json:"meta,omitempty"`
 }
 
 type FlightMostBookedDestinationsRequest struct {
@@ -41,8 +41,8 @@ type FlightMostBookedDestinationsRequest struct {
 }
 
 type FlightMostBookedDestinationsResponse struct {
-	MostBookedData []*MostTraveledData `json:"data"`
-	Meta           *Meta               `json:"meta"`
+	Data []*Data `json:"data,omitempty"`
+	Meta *Meta   `json:"meta,omitempty"`
 }
 
 type FlightBusiestTravelingPeriodRequest struct {
@@ -52,128 +52,151 @@ type FlightBusiestTravelingPeriodRequest struct {
 }
 
 type FlightBusiestTravelingPeriodResponse struct {
-	BusiestTravelingData []*MostTraveledData `json:"data"`
-	Meta                 *Meta               `json:"meta"`
+	Data []*Data `json:"data,omitempty"`
+	Meta *Meta   `json:"meta,omitempty"`
+}
+
+type AirportNearestRelevantRequest struct {
+	Latitude  float32
+	Longitude float32
+	Sort      string
+}
+
+type AirportNearestRelevantResponse struct {
+	Data []*Data `json:"data,omitempty"`
+	Meta *Meta   `json:"meta,omitempty"`
 }
 
 // ===============================================================
 type Data struct {
-	Type       string       `json:"type"`
-	Id         string       `json:"id"`
-	OfferItems []*OfferItem `json:"offerItems"`
+	Type           string       `json:"type,omitempty"`
+	Id             string       `json:"id,omitempty"`
+	OfferItems     []*OfferItem `json:"offerItems,omitempty"`
+	Destination    string       `json:"destination,omitempty"`
+	SubType        string       `json:"subType,omitempty"`
+	Analytics      Analytics    `json:"analytics,omitempty"`
+	Period         string       `json:"period,omitempty"`
+	Name           string       `json:"name,omitempty"`
+	DetailedName   string       `json:"detailedName,omitempty"`
+	TimeZoneOffset string       `json:"timeZoneOffset,omitempty"`
+	IataCode       string       `json:"iataCode,omitempty"`
+	GeoCode        GeoCode      `json:"geoCode,omitempty"`
+	Address        Address      `json:"address,omitempty"`
+	Distance       Distance     `json:"distance,omitempty"`
+	Relevance      float32      `json:"relevance,omitempty"`
+	Origin         string       `json:"origin,omitempty"`
+	DepartureDate  string       `json:"departureDate,omitempty"`
+	ReturnDate     string       `json:"returnDate,omitempty"`
+	Price          Price        `json:"price,omitempty"`
+	Links          Links        `json:"links,omitempty"`
 }
 
 type OfferItem struct {
-	Services      []*Service `json:"services"`
-	Price         *Price     `json:"price"`
-	PricePerAdult *Price     `json:"pricePerAdult"`
+	Services      []*Service `json:"services,omitempty"`
+	Price         *Price     `json:"price,omitempty"`
+	PricePerAdult *Price     `json:"pricePerAdult,omitempty"`
 }
 
 type Service struct {
-	Segments []*Segment `json:"segments"`
+	Segments []*Segment `json:"segments,omitempty"`
 }
 
 type Segment struct {
-	FlightSegment         *FlightSegment         `json:"flightSegment"`
-	PricingDetailPerAdult *PricingDetailPerAdult `json:"pricingDetailPerAdult"`
+	FlightSegment         *FlightSegment         `json:"flightSegment,omitempty"`
+	PricingDetailPerAdult *PricingDetailPerAdult `json:"pricingDetailPerAdult,omitempty"`
 }
 
 type FlightSegment struct {
-	Departure   *DepartureArrival `json:"departure"`
-	Arrival     *DepartureArrival `json:"arrival"`
-	CarrierCode string            `json:"carrierCode"`
-	Number      string            `json:"number"`
-	Aircraft    *Aircraft         `json:"aircraft"`
-	Operating   *Operating        `json:"operating"`
-	Duration    string            `json:"duration"`
+	Departure   *DepartureArrival `json:"departure,omitempty"`
+	Arrival     *DepartureArrival `json:"arrival,omitempty"`
+	CarrierCode string            `json:"carrierCode,omitempty"`
+	Number      string            `json:"number,omitempty"`
+	Aircraft    *Aircraft         `json:"aircraft,omitempty"`
+	Operating   *Operating        `json:"operating,omitempty"`
+	Duration    string            `json:"duration,omitempty"`
 }
 
 type DepartureArrival struct {
-	IataCode string `json:"iatacode"`
-	Terminal string `json:"terminal"`
-	At       string `json:"at"`
+	IataCode string `json:"iatacode,omitempty"`
+	Terminal string `json:"terminal,omitempty"`
+	At       string `json:"at,omitempty"`
 }
 
 type Aircraft struct {
-	Code string `json:"code"`
+	Code string `json:"code,omitempty"`
 }
 
 type Operating struct {
-	CarrierCode string `json:"carrierCode"`
-	Number      string `json:"number"`
+	CarrierCode string `json:"carrierCode,omitempty"`
+	Number      string `json:"number,omitempty"`
 }
 
 type PricingDetailPerAdult struct {
-	TravelClass  string `json:"travelClass"`
-	FareClass    string `json:"fareClass"`
-	Availability int32  `json:"availability"`
-	FareBasis    string `json:"fareBasis"`
+	TravelClass  string `json:"travelClass,omitempty"`
+	FareClass    string `json:"fareClass,omitempty"`
+	Availability int32  `json:"availability,omitempty"`
+	FareBasis    string `json:"fareBasis,omitempty"`
 }
 
 type Price struct {
-	Total      string `json:"total"`
-	TotalTaxes string `json:"totalTaxes"`
-}
-
-// ===============================================================
-type Dictionaries struct {
-	Carriers   map[string]string            `json:"carriers"`
-	Currencies map[string]string            `json:"currencies"`
-	Aircrafts  map[string]string            `json:"aircraft"`
-	Locations  map[string]map[string]string `json:"locations"`
-}
-
-// ===============================================================
-type Meta struct {
-	Links    *Links    `json:"links"`
-	Currency string    `json:"currency"`
-	Defaults *Defaults `json:"defaults"`
-	Count    int32     `json:"count"`
-}
-
-type Links struct {
-	Self string `json:"self"`
-}
-
-type Defaults struct {
-	NonStop       bool   `json:"nonStop"`
-	Adults        int32  `json:"adults"`
-	DepartureDate string `json:"departureDate"`
-	OneWay        bool   `json:"oneWay"`
-	Duration      string `json:"duration"`
-	ViewBy        string `json:"viewBy"`
-}
-
-// ===============================================================
-type InspirationData struct {
-	Type          string           `json:"type"`
-	Origin        string           `json:"origin"`
-	Destination   string           `json:"destination"`
-	DepartureDate string           `json:"departureDate"`
-	ReturnDate    string           `json:"returnDate"`
-	Price         Price            `json:"price"`
-	Links         InspirationLinks `json:"links"`
-}
-
-type InspirationLinks struct {
-	FlightDates  string `json:"flightDates"`
-	FlightOffers string `json:"flightOffers"`
-}
-
-// ===============================================================
-type MostTraveledData struct {
-	Type        string    `json:"type"`
-	Destination string    `json:"destination"`
-	SubType     string    `json:"subType"`
-	Period      string    `json:"period"`
-	Analytics   Analytics `json:"analytics"`
+	Total      string `json:"total,omitempty"`
+	TotalTaxes string `json:"totalTaxes,omitempty"`
 }
 
 type Analytics struct {
-	Flights   Score `json:"flights"`
-	Travelers Score `json:"travelers"`
+	Flights   Score `json:"flights,omitempty"`
+	Travelers Score `json:"travelers,omitempty"`
 }
 
 type Score struct {
-	Score int32 `json:"score"`
+	Score int32 `json:"score,omitempty"`
+}
+
+type GeoCode struct {
+	Latitude  float32 `json:"Latitude,omitempty"`
+	Longitude float32 `json:"Longitude,omitempty"`
+}
+
+type Address struct {
+	CityName    string `json:"cityName,omitempty"`
+	CityCode    string `json:"cityCode,omitempty"`
+	CountryName string `json:"countryName,omitempty"`
+	CountryCode string `json:"countryCode,omitempty"`
+	RegionCode  string `json:"regionCode,omitempty"`
+}
+
+type Distance struct {
+	Value int32  `json:"value,omitempty"`
+	Unit  string `json:"unit,omitempty"`
+}
+
+type Dictionaries struct {
+	Carriers   map[string]string            `json:"carriers,omitempty"`
+	Currencies map[string]string            `json:"currencies,omitempty"`
+	Aircrafts  map[string]string            `json:"aircraft,omitempty"`
+	Locations  map[string]map[string]string `json:"locations,omitempty"`
+}
+
+type Meta struct {
+	Links    *Links    `json:"links,omitempty"`
+	Currency string    `json:"currency,omitempty"`
+	Defaults *Defaults `json:"defaults,omitempty"`
+	Count    int32     `json:"count,omitempty"`
+}
+
+type Links struct {
+	Self         string `json:"self,omitempty"`
+	Next         string `json:"next,omitempty"`
+	Last         string `json:"last,omitempty"`
+	FlightDates  string `json:"flightDates,omitempty"`
+	FlightOffers string `json:"flightOffers,omitempty"`
+}
+
+type Defaults struct {
+	NonStop       bool   `json:"nonStop,omitempty"`
+	Adults        int32  `json:"adults,omitempty"`
+	DepartureDate string `json:"departureDate,omitempty"`
+	OneWay        bool   `json:"oneWay,omitempty"`
+	Duration      string `json:"duration,omitempty"`
+	ViewBy        string `json:"viewBy,omitempty"`
 }
