@@ -45,6 +45,17 @@ type FlightMostBookedDestinationsResponse struct {
 	Meta           *Meta               `json:"meta"`
 }
 
+type FlightBusiestTravelingPeriodRequest struct {
+	CityCode  string
+	Period    string
+	Direction string
+}
+
+type FlightBusiestTravelingPeriodResponse struct {
+	BusiestTravelingData []*MostTraveledData `json:"data"`
+	Meta                 *Meta               `json:"meta"`
+}
+
 // ===============================================================
 type Data struct {
 	Type       string       `json:"type"`
@@ -154,6 +165,7 @@ type MostTraveledData struct {
 	Type        string    `json:"type"`
 	Destination string    `json:"destination"`
 	SubType     string    `json:"subType"`
+	Period      string    `json:"period"`
 	Analytics   Analytics `json:"analytics"`
 }
 
