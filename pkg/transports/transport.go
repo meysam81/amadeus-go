@@ -17,6 +17,7 @@ type grpcServer struct {
 	FlightMostTraveledDestinationsHandler grpcTransport.Handler
 	FlightMostBookedDestinationsHandler   grpcTransport.Handler
 	FlightBusiestTravelingPeriodHandler   grpcTransport.Handler
+	AirportNearestRelevantHandler         grpcTransport.Handler
 }
 
 func (s *grpcServer) FlightLowFareSearch(ctx context.Context, req *pbFunc.FlightLowFareSearchRequest) (*pbType.FlightLowFareSearchResponse, error) {
@@ -69,6 +70,16 @@ func (s *grpcServer) FlightBusiestTravelingPeriod(ctx context.Context, req *pbFu
 	return response, nil
 }
 
+func (s *grpcServer) AirportNearestRelevant(ctx context.Context, req *pbFunc.AirportNearestRelevantRequest) (*pbType.AirportNearestRelevantResponse, error) {
+	_, resp, err := s.AirportNearestRelevantHandler.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	response := resp.(*pbType.AirportNearestRelevantResponse)
+	return response, nil
+}
+
 func NewGRPCServer(endpoints *endpoints.AmadeusEndpointSet, logger log.Logger) (s pbFunc.AmadeusServiceServer) {
 	s = &grpcServer{
 		FlightLowFareSearchHandler: grpcTransport.NewServer(
@@ -95,6 +106,11 @@ func NewGRPCServer(endpoints *endpoints.AmadeusEndpointSet, logger log.Logger) (
 			endpoints.FlightBusiestTravelingPeriodEndpoint,
 			decodeFlightBusiestTravelingPeriodRequest,
 			encodeFlightBusiestTravelingPeriodResponse,
+		),
+		AirportNearestRelevantHandler: grpcTransport.NewServer(
+			endpoints.AirportNearestRelevantEndpoint,
+			decodeAirportNearestRelevantRequest,
+			encodeAirportNearestRelevantResponse,
 		),
 	}
 
@@ -252,9 +268,9 @@ func encodeFlightInspirationSearchResponse(_ context.Context, response interface
 		return nil, errors.New("couldn't convert response to <FlightInspirationSearchResponse>")
 	}
 
-	var datas []*pbType.InspirationData
-	for _, data := range resp.InspirationData {
-		datas = append(datas, &pbType.InspirationData{
+	var datas []*pbType.Data
+	for _, data := range resp.Data {
+		datas = append(datas, &pbType.Data{
 			Type:          data.Type,
 			Origin:        data.Origin,
 			Destination:   data.Destination,
@@ -263,7 +279,7 @@ func encodeFlightInspirationSearchResponse(_ context.Context, response interface
 			Price: &pbType.Price{
 				Total: data.Price.Total,
 			},
-			Links: &pbType.InspirationLinks{
+			Links: &pbType.Links{
 				FlightDates:  data.Links.FlightDates,
 				FlightOffers: data.Links.FlightOffers,
 			},
@@ -327,9 +343,9 @@ func encodeFlightMostTraveledDestinationsResponse(_ context.Context, response in
 		return nil, errors.New("couldn't convert response to <FlightMostTraveledDestinationsResponse>")
 	}
 
-	var datas []*pbType.MostTraveledData
-	for _, data := range resp.MostTraveledData {
-		datas = append(datas, &pbType.MostTraveledData{
+	var datas []*pbType.Data
+	for _, data := range resp.Data {
+		datas = append(datas, &pbType.Data{
 			Type:        data.Type,
 			Destination: data.Destination,
 			SubType:     data.SubType,
@@ -374,9 +390,9 @@ func encodeFlightMostBookedDestinationsResponse(_ context.Context, response inte
 		return nil, errors.New("couldn't convert response to <FlightMostBookedDestinationsResponse>")
 	}
 
-	var datas []*pbType.MostTraveledData
-	for _, data := range resp.MostBookedData {
-		datas = append(datas, &pbType.MostTraveledData{
+	var datas []*pbType.Data
+	for _, data := range resp.Data {
+		datas = append(datas, &pbType.Data{
 			Type:        data.Type,
 			Destination: data.Destination,
 			SubType:     data.SubType,
@@ -422,12 +438,15 @@ func encodeFlightBusiestTravelingPeriodResponse(_ context.Context, response inte
 		return nil, errors.New("couldn't convert response to <FlightBusiestTravelingPeriodResponse>")
 	}
 
-	var datas []*pbType.MostTraveledData
-	for _, data := range resp.BusiestTravelingData {
-		datas = append(datas, &pbType.MostTraveledData{
+	var datas []*pbType.Data
+	for _, data := range resp.Data {
+		datas = append(datas, &pbType.Data{
 			Type:   data.Type,
 			Period: data.Period,
 			Analytics: &pbType.Analytics{
+				Flights: &pbType.Score{
+					Score: data.Analytics.Flights.Score,
+				},
 				Travelers: &pbType.Score{
 					Score: data.Analytics.Travelers.Score,
 				},
@@ -438,6 +457,75 @@ func encodeFlightBusiestTravelingPeriodResponse(_ context.Context, response inte
 	meta := pbType.Meta{
 		Links: &pbType.Links{
 			Self: resp.Meta.Links.Self,
+		},
+		Count: resp.Meta.Count,
+	}
+
+	return &pbType.FlightBusiestTravelingPeriodResponse{
+		Data: datas,
+		Meta: &meta,
+	}, nil
+}
+
+func decodeAirportNearestRelevantRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+	req, ok := grpcReq.(*pbFunc.AirportNearestRelevantRequest)
+	if !ok {
+		return nil, errors.New("your request is not of type <AirportNearestRelevantRequest>")
+	}
+	return &sv.AirportNearestRelevantRequest{
+		Latitude:  req.Latitude,
+		Longitude: req.Longitude,
+		Sort:      req.Sort,
+	}, nil
+}
+
+func encodeAirportNearestRelevantResponse(_ context.Context, response interface{}) (interface{}, error) {
+	resp, ok := response.(*sv.AirportNearestRelevantResponse)
+	if !ok {
+		return nil, errors.New("couldn't convert response to <AirportNearestRelevantResponse>")
+	}
+
+	var datas []*pbType.Data
+	for _, data := range resp.Data {
+		datas = append(datas, &pbType.Data{
+			Type:           data.Type,
+			SubType:        data.SubType,
+			Name:           data.Name,
+			DetailedName:   data.DetailedName,
+			TimeZoneOffset: data.TimeZoneOffset,
+			IataCode:       data.IataCode,
+			GeoCode: &pbType.GeoCode{
+				Latitude:  data.GeoCode.Latitude,
+				Longitude: data.GeoCode.Longitude,
+			},
+			Address: &pbType.Address{
+				CityName:    data.Address.CityName,
+				CityCode:    data.Address.CityCode,
+				CountryName: data.Address.CountryName,
+				CountryCode: data.Address.CountryCode,
+				RegionCode:  data.Address.RegionCode,
+			},
+			Distance: &pbType.Distance{
+				Value: data.Distance.Value,
+				Unit:  data.Distance.Unit,
+			},
+			Analytics: &pbType.Analytics{
+				Flights: &pbType.Score{
+					Score: data.Analytics.Flights.Score,
+				},
+				Travelers: &pbType.Score{
+					Score: data.Analytics.Travelers.Score,
+				},
+			},
+			Relevance: data.Relevance,
+		})
+	}
+
+	meta := pbType.Meta{
+		Links: &pbType.Links{
+			Self: resp.Meta.Links.Self,
+			Next: resp.Meta.Links.Next,
+			Last: resp.Meta.Links.Last,
 		},
 		Count: resp.Meta.Count,
 	}
