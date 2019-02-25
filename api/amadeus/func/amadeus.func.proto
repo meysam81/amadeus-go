@@ -20,6 +20,9 @@ service AmadeusService {
     // What was the busiest travel period for New York, based on either arrivals or departures?
     rpc FlightBusiestTravelingPeriod (FlightBusiestTravelingPeriodRequest) returns (amadeus.type.FlightBusiestTravelingPeriodResponse);
 
+    // What relevant airports are there around a specific location?
+    rpc AirportNearestRelevant (AirportNearestRelevantRequest) returns (amadeus.type.AirportNearestRelevantResponse);
+
 }
 
 // msgCode: 0001
@@ -41,7 +44,7 @@ message FlightInspirationSearchRequest {
 }
 
 // msgCode: 0003
-// => amadeus.type.FlightMostTraveledDestinationsResponse (0073)
+// => amadeus.type.FlightMostTraveledDestinationsResponse (0071)
 // example: ?originCityCode=LON&period=2017-09
 message FlightMostTraveledDestinationsRequest {
     string originCityCode = 1;
@@ -49,7 +52,7 @@ message FlightMostTraveledDestinationsRequest {
 }
 
 // msgCode: 0004
-// => amadeus.type.FlightMostBookedDestinationsResponse (0077)
+// => amadeus.type.FlightMostBookedDestinationsResponse (0074)
 // example: ?originCityCode=BLR&period=2017-11
 message FlightMostBookedDestinationsRequest {
     string originCityCode = 1;
@@ -57,11 +60,20 @@ message FlightMostBookedDestinationsRequest {
 }
 
 // msgCode: 0005
-// => amadeus.type.FlightBusiestTravelingPeriodResponse (0078)
+// => amadeus.type.FlightBusiestTravelingPeriodResponse (0075)
 // example: ?cityCode=NYC&period=2017&direction=ARRIVING
 message FlightBusiestTravelingPeriodRequest {
     string cityCode = 1;
     string period = 2;
     string direction = 3;
+}
+
+// msgCode: 0006
+// => amadeus.type.AirportNearestRelevantRequestResponse (0076)
+// example: ?latitude=49.0000&longitude=2.55&sort=relevance
+message AirportNearestRelevantRequest {
+    float latitude = 1;
+    float longitude = 2;
+    string sort = 3;
 }
 

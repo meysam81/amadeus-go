@@ -14,6 +14,24 @@ message Data {
     string id = 1;
     string type = 2;
     repeated OfferItem offerItems = 3;
+    string destination = 4;
+    string subType = 5;
+    Analytics analytics = 6;
+    string period = 7;
+    string name = 8;
+    string detailedName = 9;
+    string timeZoneOffset = 10;
+    string iataCode = 11;
+    GeoCode geoCode = 12;
+    Address address = 13;
+    Distance distance = 14;
+    float relevance = 15;
+    string origin = 16;
+    string departureDate = 17;
+    string returnDate = 18;
+    Price price = 19;
+    Links links = 20;
+
 }
 
 // msgCode: 0052
@@ -122,6 +140,10 @@ message Meta {
 // msgCode: 0068
 message Links {
     string self = 1;
+    string next = 2;
+    string last = 3;
+    string flightDates = 4;
+    string flightOffers = 5;
 }
 
 // msgCode: 0069
@@ -136,63 +158,64 @@ message Defaults {
 
 // msgCode: 0070
 message FlightInspirationSearchResponse {
-    repeated InspirationData data = 1;
+    repeated Data data = 1;
     Dictionaries dictionaries = 2;
     Meta meta = 3;
 }
 
 // msgCode: 0071
-message InspirationData {
-    string type = 1;
-    string origin = 2;
-    string destination = 3;
-    string departureDate = 4;
-    string returnDate = 5;
-    Price price = 6;
-    InspirationLinks links = 7;
+message FlightMostTraveledDestinationsResponse {
+    Meta meta = 1;
+    repeated Data data = 2;
 }
 
 // msgCode: 0072
-message InspirationLinks {
-    string flightDates = 1;
-    string flightOffers = 2;
-}
-
-// msgCode: 0073
-message FlightMostTraveledDestinationsResponse {
-    Meta meta = 1;
-    repeated MostTraveledData data = 2;
-}
-
-// msgCode: 0074
-message MostTraveledData {
-    string type = 1;
-    string destination = 2;
-    string subType = 3;
-    string period = 4;
-    Analytics analytics = 5;
-}
-
-// msgCode: 0075
 message Analytics {
     Score flights = 1;
     Score travelers = 2;
 }
 
-// msgCode: 0076
+// msgCode: 0073
 message Score {
     int32 score = 1;
 }
 
-// msgCode: 0077
+// msgCode: 0074
 message FlightMostBookedDestinationsResponse {
     Meta meta = 1;
-    repeated MostTraveledData data = 2;
+    repeated Data data = 2;
+}
+
+// msgCode: 0075
+message FlightBusiestTravelingPeriodResponse {
+    Meta meta = 1;
+    repeated Data data = 2;
+}
+
+// msgCode: 0076
+message AirportNearestRelevantResponse {
+    Meta meta = 1;
+    repeated Data data = 2;
+}
+
+// msgCode: 0077
+message GeoCode {
+    float latitude = 1;
+    float longitude = 2;
 }
 
 // msgCode: 0078
-message FlightBusiestTravelingPeriodResponse {
-    Meta meta = 1;
-    repeated MostTraveledData data = 2;
+message Address {
+    string cityName = 1;
+    string cityCode = 2;
+    string countryName = 3;
+    string countryCode = 4;
+    string regionCode = 5;
+}
+
+// msgCode: 0079
+message Distance {
+    int32 value = 1;
+    string unit = 2;
 }
 
