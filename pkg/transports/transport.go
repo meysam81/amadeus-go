@@ -18,65 +18,76 @@ type grpcServer struct {
 	FlightMostBookedDestinationsHandler   grpcTransport.Handler
 	FlightBusiestTravelingPeriodHandler   grpcTransport.Handler
 	AirportNearestRelevantHandler         grpcTransport.Handler
+	AirportAndCitySearchHandler           grpcTransport.Handler
 }
 
-func (s *grpcServer) FlightLowFareSearch(ctx context.Context, req *pbFunc.FlightLowFareSearchRequest) (*pbType.FlightLowFareSearchResponse, error) {
+func (s *grpcServer) FlightLowFareSearch(ctx context.Context, req *pbFunc.FlightLowFareSearchRequest) (*pbType.Response, error) {
 	_, resp, err := s.FlightLowFareSearchHandler.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	response := resp.(*pbType.FlightLowFareSearchResponse)
+	response := resp.(*pbType.Response)
 	return response, nil
 }
 
-func (s *grpcServer) FlightInspirationSearch(ctx context.Context, req *pbFunc.FlightInspirationSearchRequest) (*pbType.FlightInspirationSearchResponse, error) {
+func (s *grpcServer) FlightInspirationSearch(ctx context.Context, req *pbFunc.FlightInspirationSearchRequest) (*pbType.Response, error) {
 	_, resp, err := s.FlightLowFareSearchHandler.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	response := resp.(*pbType.FlightInspirationSearchResponse)
+	response := resp.(*pbType.Response)
 	return response, nil
 }
 
-func (s *grpcServer) FlightMostTraveledDestinations(ctx context.Context, req *pbFunc.FlightMostTraveledDestinationsRequest) (*pbType.FlightMostTraveledDestinationsResponse, error) {
+func (s *grpcServer) FlightMostTraveledDestinations(ctx context.Context, req *pbFunc.FlightMostTraveledDestinationsRequest) (*pbType.Response, error) {
 	_, resp, err := s.FlightLowFareSearchHandler.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	response := resp.(*pbType.FlightMostTraveledDestinationsResponse)
+	response := resp.(*pbType.Response)
 	return response, nil
 }
 
-func (s *grpcServer) FlightMostBookedDestinations(ctx context.Context, req *pbFunc.FlightMostBookedDestinationsRequest) (*pbType.FlightMostBookedDestinationsResponse, error) {
+func (s *grpcServer) FlightMostBookedDestinations(ctx context.Context, req *pbFunc.FlightMostBookedDestinationsRequest) (*pbType.Response, error) {
 	_, resp, err := s.FlightMostBookedDestinationsHandler.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	response := resp.(*pbType.FlightMostBookedDestinationsResponse)
+	response := resp.(*pbType.Response)
 	return response, nil
 }
 
-func (s *grpcServer) FlightBusiestTravelingPeriod(ctx context.Context, req *pbFunc.FlightBusiestTravelingPeriodRequest) (*pbType.FlightBusiestTravelingPeriodResponse, error) {
+func (s *grpcServer) FlightBusiestTravelingPeriod(ctx context.Context, req *pbFunc.FlightBusiestTravelingPeriodRequest) (*pbType.Response, error) {
 	_, resp, err := s.FlightBusiestTravelingPeriodHandler.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	response := resp.(*pbType.FlightBusiestTravelingPeriodResponse)
+	response := resp.(*pbType.Response)
 	return response, nil
 }
 
-func (s *grpcServer) AirportNearestRelevant(ctx context.Context, req *pbFunc.AirportNearestRelevantRequest) (*pbType.AirportNearestRelevantResponse, error) {
+func (s *grpcServer) AirportNearestRelevant(ctx context.Context, req *pbFunc.AirportNearestRelevantRequest) (*pbType.Response, error) {
 	_, resp, err := s.AirportNearestRelevantHandler.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	response := resp.(*pbType.AirportNearestRelevantResponse)
+	response := resp.(*pbType.Response)
+	return response, nil
+}
+
+func (s *grpcServer) AirportAndCitySearch(ctx context.Context, req *pbFunc.AirportAndCitySearchRequest) (*pbType.Response, error) {
+	_, resp, err := s.AirportNearestRelevantHandler.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	response := resp.(*pbType.Response)
 	return response, nil
 }
 
@@ -112,6 +123,11 @@ func NewGRPCServer(endpoints *endpoints.AmadeusEndpointSet, logger log.Logger) (
 			decodeAirportNearestRelevantRequest,
 			encodeAirportNearestRelevantResponse,
 		),
+		AirportAndCitySearchHandler: grpcTransport.NewServer(
+			endpoints.AirportAndCitySearchEndpoint,
+			decodeAirportAndCitySearchRequest,
+			encodeAirportAndCitySearchResponse,
+		),
 	}
 
 	return
@@ -132,9 +148,9 @@ func decodeFlightLowFareSearchRequest(_ context.Context, grpcReq interface{}) (i
 }
 
 func encodeFlightLowFareSearchResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp, ok := response.(*sv.FlightLowFareSearchResponse)
+	resp, ok := response.(*sv.Response)
 	if !ok {
-		return nil, errors.New("couldn't convert response to <FlightLowFareSearchResponse>")
+		return nil, errors.New("couldn't convert response to <Response>")
 	}
 
 	var datas []*pbType.Data
@@ -244,7 +260,7 @@ func encodeFlightLowFareSearchResponse(_ context.Context, response interface{}) 
 		},
 	}
 
-	return &pbType.FlightLowFareSearchResponse{
+	return &pbType.Response{
 		Data:         datas,
 		Dictionaries: &dictionaries,
 		Meta:         &meta,
@@ -263,9 +279,9 @@ func decodeFlightInspirationSearchRequest(_ context.Context, grpcReq interface{}
 }
 
 func encodeFlightInspirationSearchResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp, ok := response.(*sv.FlightInspirationSearchResponse)
+	resp, ok := response.(*sv.Response)
 	if !ok {
-		return nil, errors.New("couldn't convert response to <FlightInspirationSearchResponse>")
+		return nil, errors.New("couldn't convert response to <Response>")
 	}
 
 	var datas []*pbType.Data
@@ -319,7 +335,7 @@ func encodeFlightInspirationSearchResponse(_ context.Context, response interface
 		},
 	}
 
-	return &pbType.FlightInspirationSearchResponse{
+	return &pbType.Response{
 		Data:         datas,
 		Dictionaries: &dictionaries,
 		Meta:         &meta,
@@ -338,9 +354,9 @@ func decodeFlightMostTraveledDestinationsRequest(_ context.Context, grpcReq inte
 }
 
 func encodeFlightMostTraveledDestinationsResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp, ok := response.(*sv.FlightMostTraveledDestinationsResponse)
+	resp, ok := response.(*sv.Response)
 	if !ok {
-		return nil, errors.New("couldn't convert response to <FlightMostTraveledDestinationsResponse>")
+		return nil, errors.New("couldn't convert response to <Response>")
 	}
 
 	var datas []*pbType.Data
@@ -367,7 +383,7 @@ func encodeFlightMostTraveledDestinationsResponse(_ context.Context, response in
 		Count: resp.Meta.Count,
 	}
 
-	return &pbType.FlightMostTraveledDestinationsResponse{
+	return &pbType.Response{
 		Data: datas,
 		Meta: &meta,
 	}, nil
@@ -385,9 +401,9 @@ func decodeFlightMostBookedDestinationsRequest(_ context.Context, grpcReq interf
 }
 
 func encodeFlightMostBookedDestinationsResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp, ok := response.(*sv.FlightMostBookedDestinationsResponse)
+	resp, ok := response.(*sv.Response)
 	if !ok {
-		return nil, errors.New("couldn't convert response to <FlightMostBookedDestinationsResponse>")
+		return nil, errors.New("couldn't convert response to <Response>")
 	}
 
 	var datas []*pbType.Data
@@ -414,7 +430,7 @@ func encodeFlightMostBookedDestinationsResponse(_ context.Context, response inte
 		Count: resp.Meta.Count,
 	}
 
-	return &pbType.FlightMostBookedDestinationsResponse{
+	return &pbType.Response{
 		Data: datas,
 		Meta: &meta,
 	}, nil
@@ -433,9 +449,9 @@ func decodeFlightBusiestTravelingPeriodRequest(_ context.Context, grpcReq interf
 }
 
 func encodeFlightBusiestTravelingPeriodResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp, ok := response.(*sv.FlightBusiestTravelingPeriodResponse)
+	resp, ok := response.(*sv.Response)
 	if !ok {
-		return nil, errors.New("couldn't convert response to <FlightBusiestTravelingPeriodResponse>")
+		return nil, errors.New("couldn't convert response to <Response>")
 	}
 
 	var datas []*pbType.Data
@@ -461,7 +477,7 @@ func encodeFlightBusiestTravelingPeriodResponse(_ context.Context, response inte
 		Count: resp.Meta.Count,
 	}
 
-	return &pbType.FlightBusiestTravelingPeriodResponse{
+	return &pbType.Response{
 		Data: datas,
 		Meta: &meta,
 	}, nil
@@ -480,9 +496,9 @@ func decodeAirportNearestRelevantRequest(_ context.Context, grpcReq interface{})
 }
 
 func encodeAirportNearestRelevantResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp, ok := response.(*sv.AirportNearestRelevantResponse)
+	resp, ok := response.(*sv.Response)
 	if !ok {
-		return nil, errors.New("couldn't convert response to <AirportNearestRelevantResponse>")
+		return nil, errors.New("couldn't convert response to <Response>")
 	}
 
 	var datas []*pbType.Data
@@ -530,7 +546,80 @@ func encodeAirportNearestRelevantResponse(_ context.Context, response interface{
 		Count: resp.Meta.Count,
 	}
 
-	return &pbType.FlightBusiestTravelingPeriodResponse{
+	return &pbType.Response{
+		Data: datas,
+		Meta: &meta,
+	}, nil
+}
+
+func decodeAirportAndCitySearchRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+	req, ok := grpcReq.(*pbFunc.AirportAndCitySearchRequest)
+	if !ok {
+		return nil, errors.New("your request is not of type <AirportAndCitySearchRequest>")
+	}
+	return &sv.AirportAndCitySearchRequest{
+		Keyword:     req.Keyword,
+		SubType:     req.SubType,
+		CountryCode: req.CountryCode,
+	}, nil
+}
+
+func encodeAirportAndCitySearchResponse(_ context.Context, response interface{}) (interface{}, error) {
+	resp, ok := response.(*sv.Response)
+	if !ok {
+		return nil, errors.New("couldn't convert response to <Response>")
+	}
+
+	var datas []*pbType.Data
+	for _, data := range resp.Data {
+
+		var methods []string
+		for _, method := range data.Self.Methods {
+			methods = append(methods, method)
+		}
+
+		datas = append(datas, &pbType.Data{
+			Type:           data.Type,
+			SubType:        data.SubType,
+			Name:           data.Name,
+			DetailedName:   data.DetailedName,
+			Id: data.Id,
+			Self: &pbType.Self{
+				Href: data.Self.Href,
+				Methods: methods,
+			},
+			TimeZoneOffset: data.TimeZoneOffset,
+			IataCode:       data.IataCode,
+			GeoCode: &pbType.GeoCode{
+				Latitude:  data.GeoCode.Latitude,
+				Longitude: data.GeoCode.Longitude,
+			},
+			Address: &pbType.Address{
+				CityName:    data.Address.CityName,
+				CityCode:    data.Address.CityCode,
+				CountryName: data.Address.CountryName,
+				CountryCode: data.Address.CountryCode,
+				StateCode:   data.Address.StateCode,
+				RegionCode:  data.Address.RegionCode,
+			},
+			Analytics: &pbType.Analytics{
+				Travelers: &pbType.Score{
+					Score: data.Analytics.Travelers.Score,
+				},
+			},
+		})
+	}
+
+	meta := pbType.Meta{
+		Links: &pbType.Links{
+			Self: resp.Meta.Links.Self,
+			Next: resp.Meta.Links.Next,
+			Last: resp.Meta.Links.Last,
+		},
+		Count: resp.Meta.Count,
+	}
+
+	return &pbType.Response{
 		Data: datas,
 		Meta: &meta,
 	}, nil
