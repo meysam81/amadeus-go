@@ -77,6 +77,7 @@ func getServicesURLs() (*serviceUrls, error) {
 		flightLowFareSearch:            "/v1/shopping/flight-offers",
 		flightInspirationSearch:        "/v1/shopping/flight-destinations",
 		flightMostTraveledDestinations: "/v1/travel/analytics/air-traffic/traveled",
+		flightMostBookedDestinations:   "/v1/travel/analytics/air-traffic/booked",
 	}
 	return &urls, nil
 }

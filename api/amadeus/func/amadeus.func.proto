@@ -13,10 +13,15 @@ service AmadeusService {
 
     // Where were people flying to the most from London in September 2017?
     rpc FlightMostTraveledDestinations (FlightMostTraveledDestinationsRequest) returns (amadeus.type.FlightMostTraveledDestinationsResponse);
+
+    // Where were the most number of bookings made to from Bangalore last November?
+    rpc FlightMostBookedDestinations (FlightMostBookedDestinationsRequest) returns (amadeus.type.FlightMostBookedDestinationsResponse);
+
 }
 
 // msgCode: 0001
 // => amadeus.type.FlightLowFareSearchResponse (0050)
+// example: ?origin=PAR&destination=LON&departureDate=2018-09-25&returnDate=2018-09-28
 message FlightLowFareSearchRequest {
     string origin = 1;
     string destination = 2;
@@ -26,6 +31,7 @@ message FlightLowFareSearchRequest {
 
 // msgCode: 0002
 // => amadeus.type.FlightInspirationSearchResponse (0070)
+// example: ?origin=DEL&maxPrice=400
 message FlightInspirationSearchRequest {
     string origin = 1;
     int32 maxPrice = 2;
@@ -33,7 +39,17 @@ message FlightInspirationSearchRequest {
 
 // msgCode: 0003
 // => amadeus.type.FlightMostTraveledDestinationsResponse (0073)
+// example: ?originCityCode=LON&period=2017-09
 message FlightMostTraveledDestinationsRequest {
     string originCityCode = 1;
     string period = 2;
 }
+
+// msgCode: 0004
+// => amadeus.type.FlightMostBookedDestinationsRequest (0077)
+// example: ?originCityCode=BLR&period=2017-11
+message FlightMostBookedDestinationsRequest {
+    string originCityCode = 1;
+    string period = 2;
+}
+
