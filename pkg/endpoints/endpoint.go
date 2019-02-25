@@ -14,6 +14,7 @@ type AmadeusEndpointSet struct {
 	FlightLowFareSearchEndpoint            endpoint.Endpoint
 	FlightInspirationSearchEndpoint        endpoint.Endpoint
 	FlightMostTraveledDestinationsEndpoint endpoint.Endpoint
+	FlightMostBookedDestinationsEndpoint   endpoint.Endpoint
 }
 
 func (s AmadeusEndpointSet) FlightLowFareSearch(ctx context.Context, request *sv.FlightLowFareSearchRequest) (*sv.FlightLowFareSearchResponse, error) {
@@ -46,6 +47,16 @@ func (s AmadeusEndpointSet) FlightMostTraveledDestinations(ctx context.Context, 
 	return response, nil
 }
 
+func (s AmadeusEndpointSet) FlightMostBookedDestinations(ctx context.Context, request *sv.FlightMostBookedDestinationsRequest) (*sv.FlightMostBookedDestinationsResponse, error) {
+	resp, err := s.FlightMostBookedDestinationsEndpoint(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	response := resp.(*sv.FlightMostBookedDestinationsResponse)
+	return response, nil
+}
+
 func NewEndpointSet(srv sv.AmadeusService, logger log.Logger) *AmadeusEndpointSet {
 	var flightLowFareSearchEndpoint endpoint.Endpoint
 	flightLowFareSearchEndpoint = makeFlightLowFareSearchEndpoint(srv)
@@ -55,14 +66,19 @@ func NewEndpointSet(srv sv.AmadeusService, logger log.Logger) *AmadeusEndpointSe
 	flightInspirationSearchEndpoint = makeFlightInspirationSearchEndpoint(srv)
 	flightInspirationSearchEndpoint = loggingMiddleware(logger, "FlightInspirationSearch")(flightInspirationSearchEndpoint)
 
-	var flightCheapestDateSearchEndpoint endpoint.Endpoint
-	flightCheapestDateSearchEndpoint = makeFlightMostTraveledDestinationsEndpoint(srv)
-	flightCheapestDateSearchEndpoint = loggingMiddleware(logger, "FlightMostTraveledDestinations")(flightCheapestDateSearchEndpoint)
+	var flightMostTraveledDestinationsEndpoint endpoint.Endpoint
+	flightMostTraveledDestinationsEndpoint = makeFlightMostTraveledDestinationsEndpoint(srv)
+	flightMostTraveledDestinationsEndpoint = loggingMiddleware(logger, "FlightMostTraveledDestinations")(flightMostTraveledDestinationsEndpoint)
+
+	var flightMostBookedDestinationsEndpoint endpoint.Endpoint
+	flightMostBookedDestinationsEndpoint = makeFlightMostBookedDestinationsEndpoint(srv)
+	flightMostBookedDestinationsEndpoint = loggingMiddleware(logger, "FlightMostBookedDestinations")(flightMostBookedDestinationsEndpoint)
 
 	return &AmadeusEndpointSet{
 		FlightLowFareSearchEndpoint:            flightLowFareSearchEndpoint,
 		FlightInspirationSearchEndpoint:        flightInspirationSearchEndpoint,
-		FlightMostTraveledDestinationsEndpoint: flightCheapestDateSearchEndpoint,
+		FlightMostTraveledDestinationsEndpoint: flightMostTraveledDestinationsEndpoint,
+		FlightMostBookedDestinationsEndpoint:   flightMostBookedDestinationsEndpoint,
 	}
 }
 
@@ -99,6 +115,18 @@ func makeFlightMostTraveledDestinationsEndpoint(srv sv.AmadeusService) endpoint.
 		}
 
 		resp, err := srv.FlightMostTraveledDestinations(ctx, req)
+		return resp, err
+	}
+}
+
+func makeFlightMostBookedDestinationsEndpoint(srv sv.AmadeusService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req, ok := request.(*sv.FlightMostBookedDestinationsRequest)
+		if !ok {
+			return nil, errors.New("service did not fetch type <FlightMostBookedDestinationsRequest>")
+		}
+
+		resp, err := srv.FlightMostBookedDestinations(ctx, req)
 		return resp, err
 	}
 }
