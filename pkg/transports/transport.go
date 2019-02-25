@@ -15,6 +15,7 @@ type grpcServer struct {
 	FlightLowFareSearchHandler            grpcTransport.Handler
 	FlightInspirationSearchHandler        grpcTransport.Handler
 	FlightMostTraveledDestinationsHandler grpcTransport.Handler
+	FlightMostBookedDestinationsHandler   grpcTransport.Handler
 }
 
 func (s *grpcServer) FlightLowFareSearch(ctx context.Context, req *pbFunc.FlightLowFareSearchRequest) (*pbType.FlightLowFareSearchResponse, error) {
@@ -47,6 +48,16 @@ func (s *grpcServer) FlightMostTraveledDestinations(ctx context.Context, req *pb
 	return response, nil
 }
 
+func (s *grpcServer) FlightMostBookedDestinations(ctx context.Context, req *pbFunc.FlightMostBookedDestinationsRequest) (*pbType.FlightMostBookedDestinationsResponse, error) {
+	_, resp, err := s.FlightMostBookedDestinationsHandler.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	response := resp.(*pbType.FlightMostBookedDestinationsResponse)
+	return response, nil
+}
+
 func NewGRPCServer(endpoints *endpoints.AmadeusEndpointSet, logger log.Logger) (s pbFunc.AmadeusServiceServer) {
 	s = &grpcServer{
 		FlightLowFareSearchHandler: grpcTransport.NewServer(
@@ -63,6 +74,11 @@ func NewGRPCServer(endpoints *endpoints.AmadeusEndpointSet, logger log.Logger) (
 			endpoints.FlightMostTraveledDestinationsEndpoint,
 			decodeFlightMostTraveledDestinationsRequest,
 			encodeFlightMostTraveledDestinationsResponse,
+		),
+		FlightMostBookedDestinationsHandler: grpcTransport.NewServer(
+			endpoints.FlightMostBookedDestinationsEndpoint,
+			decodeFlightMostBookedDestinationsRequest,
+			encodeFlightMostBookedDestinationsResponse,
 		),
 	}
 
@@ -292,7 +308,7 @@ func decodeFlightMostTraveledDestinationsRequest(_ context.Context, grpcReq inte
 func encodeFlightMostTraveledDestinationsResponse(_ context.Context, response interface{}) (interface{}, error) {
 	resp, ok := response.(*sv.FlightMostTraveledDestinationsResponse)
 	if !ok {
-		return nil, errors.New("your request is not of type <FlightMostTraveledDestinationsResponse>")
+		return nil, errors.New("couldn't convert response to <FlightMostTraveledDestinationsResponse>")
 	}
 
 	var datas []*pbType.MostTraveledData
@@ -320,6 +336,53 @@ func encodeFlightMostTraveledDestinationsResponse(_ context.Context, response in
 	}
 
 	return &pbType.FlightMostTraveledDestinationsResponse{
+		Data: datas,
+		Meta: &meta,
+	}, nil
+}
+
+func decodeFlightMostBookedDestinationsRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+	req, ok := grpcReq.(*pbFunc.FlightMostBookedDestinationsRequest)
+	if !ok {
+		return nil, errors.New("your request is not of type <FlightMostBookedDestinationsRequest>")
+	}
+	return &sv.FlightMostBookedDestinationsRequest{
+		OriginCityCode: req.OriginCityCode,
+		Period:         req.Period,
+	}, nil
+}
+
+func encodeFlightMostBookedDestinationsResponse(_ context.Context, response interface{}) (interface{}, error) {
+	resp, ok := response.(*sv.FlightMostBookedDestinationsResponse)
+	if !ok {
+		return nil, errors.New("couldn't convert response to <FlightMostBookedDestinationsResponse>")
+	}
+
+	var datas []*pbType.MostTraveledData
+	for _, data := range resp.MostBookedData {
+		datas = append(datas, &pbType.MostTraveledData{
+			Type:        data.Type,
+			Destination: data.Destination,
+			SubType:     data.SubType,
+			Analytics: &pbType.Analytics{
+				Flights: &pbType.Score{
+					Score: data.Analytics.Flights.Score,
+				},
+				Travelers: &pbType.Score{
+					Score: data.Analytics.Travelers.Score,
+				},
+			},
+		})
+	}
+
+	meta := pbType.Meta{
+		Links: &pbType.Links{
+			Self: resp.Meta.Links.Self,
+		},
+		Count: resp.Meta.Count,
+	}
+
+	return &pbType.FlightMostBookedDestinationsResponse{
 		Data: datas,
 		Meta: &meta,
 	}, nil
