@@ -16,6 +16,7 @@ type grpcServer struct {
 	FlightInspirationSearchHandler        grpcTransport.Handler
 	FlightMostTraveledDestinationsHandler grpcTransport.Handler
 	FlightMostBookedDestinationsHandler   grpcTransport.Handler
+	FlightBusiestTravelingPeriodHandler   grpcTransport.Handler
 }
 
 func (s *grpcServer) FlightLowFareSearch(ctx context.Context, req *pbFunc.FlightLowFareSearchRequest) (*pbType.FlightLowFareSearchResponse, error) {
@@ -58,6 +59,16 @@ func (s *grpcServer) FlightMostBookedDestinations(ctx context.Context, req *pbFu
 	return response, nil
 }
 
+func (s *grpcServer) FlightBusiestTravelingPeriod(ctx context.Context, req *pbFunc.FlightBusiestTravelingPeriodRequest) (*pbType.FlightBusiestTravelingPeriodResponse, error) {
+	_, resp, err := s.FlightBusiestTravelingPeriodHandler.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	response := resp.(*pbType.FlightBusiestTravelingPeriodResponse)
+	return response, nil
+}
+
 func NewGRPCServer(endpoints *endpoints.AmadeusEndpointSet, logger log.Logger) (s pbFunc.AmadeusServiceServer) {
 	s = &grpcServer{
 		FlightLowFareSearchHandler: grpcTransport.NewServer(
@@ -79,6 +90,11 @@ func NewGRPCServer(endpoints *endpoints.AmadeusEndpointSet, logger log.Logger) (
 			endpoints.FlightMostBookedDestinationsEndpoint,
 			decodeFlightMostBookedDestinationsRequest,
 			encodeFlightMostBookedDestinationsResponse,
+		),
+		FlightBusiestTravelingPeriodHandler: grpcTransport.NewServer(
+			endpoints.FlightBusiestTravelingPeriodEndpoint,
+			decodeFlightBusiestTravelingPeriodRequest,
+			encodeFlightBusiestTravelingPeriodResponse,
 		),
 	}
 
@@ -383,6 +399,50 @@ func encodeFlightMostBookedDestinationsResponse(_ context.Context, response inte
 	}
 
 	return &pbType.FlightMostBookedDestinationsResponse{
+		Data: datas,
+		Meta: &meta,
+	}, nil
+}
+
+func decodeFlightBusiestTravelingPeriodRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+	req, ok := grpcReq.(*pbFunc.FlightBusiestTravelingPeriodRequest)
+	if !ok {
+		return nil, errors.New("your request is not of type <FlightBusiestTravelingPeriodRequest>")
+	}
+	return &sv.FlightBusiestTravelingPeriodRequest{
+		CityCode:  req.CityCode,
+		Period:    req.Period,
+		Direction: req.Direction,
+	}, nil
+}
+
+func encodeFlightBusiestTravelingPeriodResponse(_ context.Context, response interface{}) (interface{}, error) {
+	resp, ok := response.(*sv.FlightBusiestTravelingPeriodResponse)
+	if !ok {
+		return nil, errors.New("couldn't convert response to <FlightBusiestTravelingPeriodResponse>")
+	}
+
+	var datas []*pbType.MostTraveledData
+	for _, data := range resp.BusiestTravelingData {
+		datas = append(datas, &pbType.MostTraveledData{
+			Type:   data.Type,
+			Period: data.Period,
+			Analytics: &pbType.Analytics{
+				Travelers: &pbType.Score{
+					Score: data.Analytics.Travelers.Score,
+				},
+			},
+		})
+	}
+
+	meta := pbType.Meta{
+		Links: &pbType.Links{
+			Self: resp.Meta.Links.Self,
+		},
+		Count: resp.Meta.Count,
+	}
+
+	return &pbType.FlightBusiestTravelingPeriodResponse{
 		Data: datas,
 		Meta: &meta,
 	}, nil

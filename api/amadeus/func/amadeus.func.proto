@@ -17,6 +17,9 @@ service AmadeusService {
     // Where were the most number of bookings made to from Bangalore last November?
     rpc FlightMostBookedDestinations (FlightMostBookedDestinationsRequest) returns (amadeus.type.FlightMostBookedDestinationsResponse);
 
+    // What was the busiest travel period for New York, based on either arrivals or departures?
+    rpc FlightBusiestTravelingPeriod (FlightBusiestTravelingPeriodRequest) returns (amadeus.type.FlightBusiestTravelingPeriodResponse);
+
 }
 
 // msgCode: 0001
@@ -46,10 +49,19 @@ message FlightMostTraveledDestinationsRequest {
 }
 
 // msgCode: 0004
-// => amadeus.type.FlightMostBookedDestinationsRequest (0077)
+// => amadeus.type.FlightMostBookedDestinationsResponse (0077)
 // example: ?originCityCode=BLR&period=2017-11
 message FlightMostBookedDestinationsRequest {
     string originCityCode = 1;
     string period = 2;
+}
+
+// msgCode: 0005
+// => amadeus.type.FlightBusiestTravelingPeriodResponse (0078)
+// example: ?cityCode=NYC&period=2017&direction=ARRIVING
+message FlightBusiestTravelingPeriodRequest {
+    string cityCode = 1;
+    string period = 2;
+    string direction = 3;
 }
 

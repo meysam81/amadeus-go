@@ -169,7 +169,8 @@ message MostTraveledData {
     string type = 1;
     string destination = 2;
     string subType = 3;
-    Analytics analytics = 4;
+    string period = 4;
+    Analytics analytics = 5;
 }
 
 // msgCode: 0075
@@ -185,6 +186,12 @@ message Score {
 
 // msgCode: 0077
 message FlightMostBookedDestinationsResponse {
+    Meta meta = 1;
+    repeated MostTraveledData data = 2;
+}
+
+// msgCode: 0078
+message FlightBusiestTravelingPeriodResponse {
     Meta meta = 1;
     repeated MostTraveledData data = 2;
 }
