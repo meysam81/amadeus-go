@@ -15,6 +15,7 @@ type AmadeusEndpointSet struct {
 	FlightInspirationSearchEndpoint        endpoint.Endpoint
 	FlightMostTraveledDestinationsEndpoint endpoint.Endpoint
 	FlightMostBookedDestinationsEndpoint   endpoint.Endpoint
+	FlightBusiestTravelingPeriodEndpoint   endpoint.Endpoint
 }
 
 func (s AmadeusEndpointSet) FlightLowFareSearch(ctx context.Context, request *sv.FlightLowFareSearchRequest) (*sv.FlightLowFareSearchResponse, error) {
@@ -54,6 +55,16 @@ func (s AmadeusEndpointSet) FlightMostBookedDestinations(ctx context.Context, re
 	}
 
 	response := resp.(*sv.FlightMostBookedDestinationsResponse)
+	return response, nil
+}
+
+func (s AmadeusEndpointSet) FlightBusiestTravelingPeriod(ctx context.Context, request *sv.FlightBusiestTravelingPeriodRequest) (*sv.FlightBusiestTravelingPeriodResponse, error) {
+	resp, err := s.FlightBusiestTravelingPeriodEndpoint(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	response := resp.(*sv.FlightBusiestTravelingPeriodResponse)
 	return response, nil
 }
 
