@@ -22,7 +22,7 @@ func NewGRPCClient(conn *grpc.ClientConn) srv.AmadeusService {
 			"FlightLowFareSearch",
 			encodeRequest,
 			decodeResponse,
-			pbType.FlightLowFareSearchResponse{},
+			pbType.Response{},
 		).Endpoint()
 	}
 
@@ -41,7 +41,7 @@ func encodeRequest(_ context.Context, request interface{}) (interface{}, error) 
 }
 
 func decodeResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp := response.(*pbType.FlightLowFareSearchResponse)
+	resp := response.(*pbType.Response)
 
 	var datas []*srv.Data
 	for _, data := range resp.Data {
@@ -146,7 +146,7 @@ func decodeResponse(_ context.Context, response interface{}) (interface{}, error
 		},
 	}
 
-	return &srv.FlightLowFareSearchResponse{
+	return &srv.Response{
 		Data:         datas,
 		Dictionaries: &dictionaries,
 		Meta:         &meta,
