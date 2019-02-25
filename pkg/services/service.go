@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -15,7 +16,8 @@ type AmadeusService interface {
 	FlightInspirationSearch(context.Context, *FlightInspirationSearchRequest) (*FlightInspirationSearchResponse, error)
 	FlightMostTraveledDestinations(context.Context, *FlightMostTraveledDestinationsRequest) (*FlightMostTraveledDestinationsResponse, error)
 	FlightMostBookedDestinations(context.Context, *FlightMostBookedDestinationsRequest) (*FlightMostBookedDestinationsResponse, error)
-	FlightBusiestTravelingPeriod (context.Context, *FlightBusiestTravelingPeriodRequest) (*FlightBusiestTravelingPeriodResponse, error);
+	FlightBusiestTravelingPeriod(context.Context, *FlightBusiestTravelingPeriodRequest) (*FlightBusiestTravelingPeriodResponse, error)
+	AirportNearestRelevant(context.Context, *AirportNearestRelevantRequest) (*AirportNearestRelevantResponse, error)
 }
 
 func (aSrv amadeusService) FlightLowFareSearch(_ context.Context, request *FlightLowFareSearchRequest) (response *FlightLowFareSearchResponse, err error) {
@@ -206,6 +208,44 @@ func (aSrv amadeusService) FlightBusiestTravelingPeriod(_ context.Context, reque
 	return
 }
 
+func (aSrv amadeusService) AirportNearestRelevant(_ context.Context, request *AirportNearestRelevantRequest) (response *AirportNearestRelevantResponse, err error) {
+	url := cleanUrl(aSrv.urls.apiBaseUrl, aSrv.urls.flightBusiestTravelingPeriod)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// this is the way to send body of mime-type: application/x-www-form-urlencoded
+	q := req.URL.Query()
+	q.Add("latitude", fmt.Sprintf("%f", request.Latitude))
+	q.Add("longitude", fmt.Sprintf("%f", request.Longitude))
+	q.Add("sort", request.Sort)
+	req.URL.RawQuery = q.Encode()
+
+	bearer := getBearer(aSrv.token)
+	req.Header.Add("Authorization", bearer)
+	req.Header.Add("Accept", "application/json")
+
+	client := http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(b, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return
+}
+
 func NewBasicService(port int, logger log.Logger) (AmadeusService, error) {
 	s, err := registerService("amadeus-go", port, time.Second*15)
 	if err != nil {
@@ -249,4 +289,5 @@ type serviceUrls struct {
 	flightMostTraveledDestinations string
 	flightMostBookedDestinations   string
 	flightBusiestTravelingPeriod   string
+	airportNearestRelevant         string
 }

@@ -98,3 +98,18 @@ func (mw logmw) FlightBusiestTravelingPeriod(ctx context.Context, req *FlightBus
 	return
 }
 
+func (mw logmw) AirportNearestRelevant(ctx context.Context, req *AirportNearestRelevantRequest) (resp *AirportNearestRelevantResponse, err error) {
+	defer func(begin time.Time) {
+		_ = mw.logger.Log(
+			"layer", "service",
+			"method", "AirportNearestRelevant",
+			"input", req,
+			"output", resp,
+			"error", err,
+			"took", time.Since(begin),
+		)
+	}(time.Now())
+
+	resp, err = mw.sv.AirportNearestRelevant(ctx, req)
+	return
+}
