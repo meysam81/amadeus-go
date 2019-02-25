@@ -6,27 +6,30 @@ package amadeus.func;
 
 service AmadeusService {
     // I know where I want to fly, the dates and duration, what are the best flight deals?
-    rpc FlightLowFareSearch (FlightLowFareSearchRequest) returns (amadeus.type.FlightLowFareSearchResponse);
+    rpc FlightLowFareSearch (FlightLowFareSearchRequest) returns (amadeus.type.Response);
 
     // Where can I fly from/to Delhi in the next months for $400?
-    rpc FlightInspirationSearch (FlightInspirationSearchRequest) returns (amadeus.type.FlightInspirationSearchResponse);
+    rpc FlightInspirationSearch (FlightInspirationSearchRequest) returns (amadeus.type.Response);
 
     // Where were people flying to the most from London in September 2017?
-    rpc FlightMostTraveledDestinations (FlightMostTraveledDestinationsRequest) returns (amadeus.type.FlightMostTraveledDestinationsResponse);
+    rpc FlightMostTraveledDestinations (FlightMostTraveledDestinationsRequest) returns (amadeus.type.Response);
 
     // Where were the most number of bookings made to from Bangalore last November?
-    rpc FlightMostBookedDestinations (FlightMostBookedDestinationsRequest) returns (amadeus.type.FlightMostBookedDestinationsResponse);
+    rpc FlightMostBookedDestinations (FlightMostBookedDestinationsRequest) returns (amadeus.type.Response);
 
     // What was the busiest travel period for New York, based on either arrivals or departures?
-    rpc FlightBusiestTravelingPeriod (FlightBusiestTravelingPeriodRequest) returns (amadeus.type.FlightBusiestTravelingPeriodResponse);
+    rpc FlightBusiestTravelingPeriod (FlightBusiestTravelingPeriodRequest) returns (amadeus.type.Response);
 
     // What relevant airports are there around a specific location?
-    rpc AirportNearestRelevant (AirportNearestRelevantRequest) returns (amadeus.type.AirportNearestRelevantResponse);
+    rpc AirportNearestRelevant (AirportNearestRelevantRequest) returns (amadeus.type.Response);
+
+    // Which cities and/or airports start with ‘PA’ characters?
+    rpc AirportAndCitySearch (AirportAndCitySearchRequest) returns (amadeus.type.Response);
 
 }
 
 // msgCode: 0001
-// => amadeus.type.FlightLowFareSearchResponse (0050)
+// => amadeus.type.Response (0050)
 // example: ?origin=PAR&destination=LON&departureDate=2018-09-25&returnDate=2018-09-28
 message FlightLowFareSearchRequest {
     string origin = 1;
@@ -36,7 +39,7 @@ message FlightLowFareSearchRequest {
 }
 
 // msgCode: 0002
-// => amadeus.type.FlightInspirationSearchResponse (0070)
+// => amadeus.type.Response (0050)
 // example: ?origin=DEL&maxPrice=400
 message FlightInspirationSearchRequest {
     string origin = 1;
@@ -44,7 +47,7 @@ message FlightInspirationSearchRequest {
 }
 
 // msgCode: 0003
-// => amadeus.type.FlightMostTraveledDestinationsResponse (0071)
+// => amadeus.type.Response (0050)
 // example: ?originCityCode=LON&period=2017-09
 message FlightMostTraveledDestinationsRequest {
     string originCityCode = 1;
@@ -52,7 +55,7 @@ message FlightMostTraveledDestinationsRequest {
 }
 
 // msgCode: 0004
-// => amadeus.type.FlightMostBookedDestinationsResponse (0074)
+// => amadeus.type.Response (0050)
 // example: ?originCityCode=BLR&period=2017-11
 message FlightMostBookedDestinationsRequest {
     string originCityCode = 1;
@@ -60,7 +63,7 @@ message FlightMostBookedDestinationsRequest {
 }
 
 // msgCode: 0005
-// => amadeus.type.FlightBusiestTravelingPeriodResponse (0075)
+// => amadeus.type.Response (0050)
 // example: ?cityCode=NYC&period=2017&direction=ARRIVING
 message FlightBusiestTravelingPeriodRequest {
     string cityCode = 1;
@@ -69,11 +72,20 @@ message FlightBusiestTravelingPeriodRequest {
 }
 
 // msgCode: 0006
-// => amadeus.type.AirportNearestRelevantRequestResponse (0076)
+// => amadeus.type.Response (0050)
 // example: ?latitude=49.0000&longitude=2.55&sort=relevance
 message AirportNearestRelevantRequest {
     float latitude = 1;
     float longitude = 2;
     string sort = 3;
+}
+
+// msgCode: 0007
+// => amadeus.type.Response (0050)
+// example: ?subType=AIRPORT,CITY&keyword=PAR&countryCode=FR
+message AirportAndCitySearchRequest {
+    string subType = 1;
+    string keyword = 2;
+    string countryCode = 3;
 }
 
