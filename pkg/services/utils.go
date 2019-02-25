@@ -80,6 +80,7 @@ func getServicesURLs() (*serviceUrls, error) {
 		flightMostBookedDestinations:   "/v1/travel/analytics/air-traffic/booked",
 		flightBusiestTravelingPeriod:   "/v1/travel/analytics/air-traffic/busiest-period",
 		airportNearestRelevant:         "/v1/reference-data/locations/airports",
+		airportAndCitySearch:           "/v1/reference-data/locations",
 	}
 	return &urls, nil
 }

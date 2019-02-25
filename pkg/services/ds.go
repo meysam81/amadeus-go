@@ -1,6 +1,12 @@
 package services
 
-// ======================= Data Structures =======================
+// ==================================== RPC ====================================
+type Response struct {
+	Data         []*Data       `json:"data,omitempty"`
+	Dictionaries *Dictionaries `json:"dictionaries,omitempty"`
+	Meta         *Meta         `json:"meta,omitempty"`
+}
+
 type FlightLowFareSearchRequest struct {
 	Origin        string
 	Destination   string
@@ -8,21 +14,9 @@ type FlightLowFareSearchRequest struct {
 	ReturnDate    string
 }
 
-type FlightLowFareSearchResponse struct {
-	Data         []*Data       `json:"data,omitempty"`
-	Dictionaries *Dictionaries `json:"dictionaries,omitempty"`
-	Meta         *Meta         `json:"meta,omitempty"`
-}
-
 type FlightInspirationSearchRequest struct {
 	Origin   string
 	MaxPrice int32
-}
-
-type FlightInspirationSearchResponse struct {
-	Data         []*Data       `json:"data,omitempty"`
-	Dictionaries *Dictionaries `json:"dictionaries,omitempty"`
-	Meta         *Meta         `json:"meta,omitempty"`
 }
 
 type FlightMostTraveledDestinationsRequest struct {
@@ -30,19 +24,9 @@ type FlightMostTraveledDestinationsRequest struct {
 	Period         string
 }
 
-type FlightMostTraveledDestinationsResponse struct {
-	Data []*Data `json:"data,omitempty"`
-	Meta *Meta   `json:"meta,omitempty"`
-}
-
 type FlightMostBookedDestinationsRequest struct {
 	OriginCityCode string
 	Period         string
-}
-
-type FlightMostBookedDestinationsResponse struct {
-	Data []*Data `json:"data,omitempty"`
-	Meta *Meta   `json:"meta,omitempty"`
 }
 
 type FlightBusiestTravelingPeriodRequest struct {
@@ -51,23 +35,19 @@ type FlightBusiestTravelingPeriodRequest struct {
 	Direction string
 }
 
-type FlightBusiestTravelingPeriodResponse struct {
-	Data []*Data `json:"data,omitempty"`
-	Meta *Meta   `json:"meta,omitempty"`
-}
-
 type AirportNearestRelevantRequest struct {
 	Latitude  float32
 	Longitude float32
 	Sort      string
 }
 
-type AirportNearestRelevantResponse struct {
-	Data []*Data `json:"data,omitempty"`
-	Meta *Meta   `json:"meta,omitempty"`
+type AirportAndCitySearchRequest struct {
+	SubType     string
+	Keyword     string
+	CountryCode string
 }
 
-// ===============================================================
+// ============================== Data Structures ==============================
 type Data struct {
 	Type           string       `json:"type,omitempty"`
 	Id             string       `json:"id,omitempty"`
@@ -89,6 +69,7 @@ type Data struct {
 	ReturnDate     string       `json:"returnDate,omitempty"`
 	Price          Price        `json:"price,omitempty"`
 	Links          Links        `json:"links,omitempty"`
+	Self           Self         `json:"links,omitempty"`
 }
 
 type OfferItem struct {
@@ -162,12 +143,18 @@ type Address struct {
 	CityCode    string `json:"cityCode,omitempty"`
 	CountryName string `json:"countryName,omitempty"`
 	CountryCode string `json:"countryCode,omitempty"`
+	StateCode   string `json:"stateCode,omitempty"`
 	RegionCode  string `json:"regionCode,omitempty"`
 }
 
 type Distance struct {
 	Value int32  `json:"value,omitempty"`
 	Unit  string `json:"unit,omitempty"`
+}
+
+type Self struct {
+	Href    string    `json:"href,omitempty"`
+	Methods []string `json:"methods,omitempty"`
 }
 
 type Dictionaries struct {
