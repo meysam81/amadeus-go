@@ -17,6 +17,9 @@ service AmadeusService {
     // Which were the most searched destinations from Nice in June 2017?
     rpc FlightMostSearchedDestinations (FlightMostSearchedDestinationsRequest) returns (amadeus.type.Response);
 
+    // Which were the most searched destinations from Nice in June 2017?
+    rpc FlightMostSearchedByDestination (FlightMostSearchedByDestinationRequest) returns (amadeus.type.Response);
+
     // Where were people flying to the most from London in September 2017?
     rpc FlightMostTraveledDestinations (FlightMostTraveledDestinationsRequest) returns (amadeus.type.Response);
 
@@ -110,5 +113,15 @@ message AirportAndCitySearchRequest {
     string subType = 1;
     string keyword = 2;
     string countryCode = 3;
+}
+
+// msgCode: 0013
+// => amadeus.type.Response (0050)
+// example: ?originCityCode=MAD&destinationCityCode=NYC&searchPeriod=2017-09&marketCountryCode=ES
+message FlightMostSearchedByDestinationRequest {
+    string originCityCode = 1;
+    string destinationCityCode = 2;
+    string searchPeriod = 3;
+    string marketCountryCode = 4;
 }
 

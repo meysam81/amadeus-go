@@ -7,7 +7,8 @@ message Response {
     repeated Data data = 1;
     Dictionaries dictionaries = 2;
     Meta meta = 3;
-    repeated Warning warnings = 4;
+    repeated ErrorWarning warnings = 4;
+    repeated ErrorWarning errors = 5;
 }
 
 // msgCode: 0051
@@ -169,6 +170,7 @@ message Analytics {
 // msgCode: 0071
 message Score {
     int32 score = 1;
+    NumberOfSearches numberOfSearches = 2;
 }
 
 // msgCode: 0072
@@ -200,7 +202,24 @@ message Self {
 }
 
 // msgCode: 0076
-message Warning {
-    string title = 1;
+message ErrorWarning {
+    int32 status = 1;
+    int32 code = 2;
+    string title = 3;
+    string detail = 4;
+    Source source = 5;
+}
+
+// msgCode: 0077
+message Source {
+    string pointer = 1;
+    string parameter = 2;
+    string example = 3;
+}
+
+// msgCode: 0078
+message NumberOfSearches {
+    map<string, string> perTripDuration = 1;
+    map<string, string> perDaysInAdvance = 2;
 }
 
