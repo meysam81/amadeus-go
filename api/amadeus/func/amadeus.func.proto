@@ -14,6 +14,9 @@ service AmadeusService {
     // When is the cheapest date to fly to San Francisco from Miami?
     rpc FlightCheapestDateSearch (FlightCheapestDateSearchRequest) returns (amadeus.type.Response);
 
+    // Which were the most searched destinations from Nice in June 2017?
+    rpc FlightMostSearchedDestinations (FlightMostSearchedDestinationsRequest) returns (amadeus.type.Response);
+
     // Where were people flying to the most from London in September 2017?
     rpc FlightMostTraveledDestinations (FlightMostTraveledDestinationsRequest) returns (amadeus.type.Response);
 
@@ -57,7 +60,16 @@ message FlightCheapestDateSearchRequest {
     string destination = 2;
 }
 
-// msgCode: 0004
+// msgCode: 0005
+// => amadeus.type.Response (0050)
+// example: ?originCityCode=MAD&searchPeriod=2017-08&marketCountryCode=ES
+message FlightMostSearchedDestinationsRequest {
+    string originCityCode = 1;
+    string searchPeriod = 2;
+    string marketCountryCode = 3;
+}
+
+// msgCode: 0006
 // => amadeus.type.Response (0050)
 // example: ?originCityCode=LON&period=2017-09
 message FlightMostTraveledDestinationsRequest {
@@ -65,7 +77,7 @@ message FlightMostTraveledDestinationsRequest {
     string period = 2;
 }
 
-// msgCode: 0005
+// msgCode: 0007
 // => amadeus.type.Response (0050)
 // example: ?originCityCode=BLR&period=2017-11
 message FlightMostBookedDestinationsRequest {
@@ -73,7 +85,7 @@ message FlightMostBookedDestinationsRequest {
     string period = 2;
 }
 
-// msgCode: 0006
+// msgCode: 0008
 // => amadeus.type.Response (0050)
 // example: ?cityCode=NYC&period=2017&direction=ARRIVING
 message FlightBusiestTravelingPeriodRequest {
@@ -82,7 +94,7 @@ message FlightBusiestTravelingPeriodRequest {
     string direction = 3;
 }
 
-// msgCode: 0007
+// msgCode: 0009
 // => amadeus.type.Response (0050)
 // example: ?latitude=49.0000&longitude=2.55&sort=relevance
 message AirportNearestRelevantRequest {
@@ -91,7 +103,7 @@ message AirportNearestRelevantRequest {
     string sort = 3;
 }
 
-// msgCode: 0008
+// msgCode: 0010
 // => amadeus.type.Response (0050)
 // example: ?subType=AIRPORT,CITY&keyword=PAR&countryCode=FR
 message AirportAndCitySearchRequest {
