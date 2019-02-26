@@ -17,6 +17,7 @@ type AmadeusService interface {
 	FlightCheapestDateSearch(context.Context, *FlightCheapestDateSearchRequest) (*Response, error)
 	FlightMostSearchedDestinations(context.Context, *FlightMostSearchedDestinationsRequest) (*Response, error)
 	FlightMostSearchedByDestination(context.Context, *FlightMostSearchedByDestinationRequest) (*Response, error)
+	FlightCheckInLinks(context.Context, *FlightCheckInLinksRequest) (*Response, error)
 	FlightMostTraveledDestinations(context.Context, *FlightMostTraveledDestinationsRequest) (*Response, error)
 	FlightMostBookedDestinations(context.Context, *FlightMostBookedDestinationsRequest) (*Response, error)
 	FlightBusiestTravelingPeriod(context.Context, *FlightBusiestTravelingPeriodRequest) (*Response, error)
@@ -188,6 +189,42 @@ func (aSrv amadeusService) FlightMostSearchedByDestination(_ context.Context, re
 	q.Add("destinationCityCode", request.DestinationCityCode)
 	q.Add("searchPeriod", request.SearchPeriod)
 	q.Add("marketCountryCode", request.MarketCountryCode)
+	req.URL.RawQuery = q.Encode()
+
+	bearer := getBearer(aSrv.token)
+	req.Header.Add("Authorization", bearer)
+	req.Header.Add("Accept", "application/json")
+
+	client := http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(b, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return
+}
+
+func (aSrv amadeusService) FlightCheckInLinks(_ context.Context, request *FlightCheckInLinksRequest) (response *Response, err error) {
+	url := cleanUrl(aSrv.urls.apiBaseUrl, aSrv.urls.flightCheckInLists)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// this is the way to send body of mime-type: application/x-www-form-urlencoded
+	q := req.URL.Query()
+	q.Add("airlineCode", request.AirlineCode)
 	req.URL.RawQuery = q.Encode()
 
 	bearer := getBearer(aSrv.token)
@@ -445,6 +482,7 @@ type serviceUrls struct {
 	flightCheapestDateSearch        string
 	flightMostSearchedDestinations  string
 	flightMostSearchedByDestination string
+	flightCheckInLists              string
 	flightMostTraveledDestinations  string
 	flightMostBookedDestinations    string
 	flightBusiestTravelingPeriod    string

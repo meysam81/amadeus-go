@@ -98,6 +98,22 @@ func (mw logmw) FlightMostSearchedByDestination(ctx context.Context, req *Flight
 	return
 }
 
+func (mw logmw) FlightCheckInLinks(ctx context.Context, req *FlightCheckInLinksRequest) (resp *Response, err error) {
+	defer func(begin time.Time) {
+		_ = mw.logger.Log(
+			"layer", "service",
+			"method", "FlightCheckInLinks",
+			"input", req,
+			"output", resp,
+			"error", err,
+			"took", time.Since(begin),
+		)
+	}(time.Now())
+
+	resp, err = mw.sv.FlightCheckInLinks(ctx, req)
+	return
+}
+
 func (mw logmw) FlightMostTraveledDestinations(ctx context.Context, req *FlightMostTraveledDestinationsRequest) (resp *Response, err error) {
 	defer func(begin time.Time) {
 		_ = mw.logger.Log(
