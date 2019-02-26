@@ -23,6 +23,7 @@ type grpcServer struct {
 	FlightBusiestTravelingPeriodHandler    grpcTransport.Handler
 	AirportNearestRelevantHandler          grpcTransport.Handler
 	AirportAndCitySearchHandler            grpcTransport.Handler
+	AirlineCodeLookupHandler               grpcTransport.Handler
 }
 
 func (s *grpcServer) FlightLowFareSearch(ctx context.Context, req *pbFunc.FlightLowFareSearchRequest) (*pbType.Response, error) {
@@ -135,6 +136,16 @@ func (s *grpcServer) AirportAndCitySearch(ctx context.Context, req *pbFunc.Airpo
 	return response, nil
 }
 
+func (s *grpcServer) AirlineCodeLookup(ctx context.Context, req *pbFunc.AirlineCodeLookupRequest) (*pbType.Response, error) {
+	_, resp, err := s.AirlineCodeLookupHandler.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	response := resp.(*pbType.Response)
+	return response, nil
+}
+
 func NewGRPCServer(endpoints *endpoints.AmadeusEndpointSet, logger log.Logger) (s pbFunc.AmadeusServiceServer) {
 	s = &grpcServer{
 		FlightLowFareSearchHandler: grpcTransport.NewServer(
@@ -190,6 +201,11 @@ func NewGRPCServer(endpoints *endpoints.AmadeusEndpointSet, logger log.Logger) (
 		AirportAndCitySearchHandler: grpcTransport.NewServer(
 			endpoints.AirportAndCitySearchEndpoint,
 			decodeAirportAndCitySearchRequest,
+			encodeResponse,
+		),
+		AirlineCodeLookupHandler: grpcTransport.NewServer(
+			endpoints.AirlineCodeLookupEndpoint,
+			decodeAirlineCodeLookupRequest,
 			encodeResponse,
 		),
 	}
@@ -654,5 +670,15 @@ func decodeFlightCheckInLinksRequest(_ context.Context, grpcReq interface{}) (in
 	}
 	return &sv.FlightCheckInLinksRequest{
 		AirlineCode: req.AirlineCode,
+	}, nil
+}
+
+func decodeAirlineCodeLookupRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+	req, ok := grpcReq.(*pbFunc.AirlineCodeLookupRequest)
+	if !ok {
+		return nil, errors.New("your request is not of type <AirlineCodeLookupRequest>")
+	}
+	return &sv.AirlineCodeLookupRequest{
+		AirlineCodes: req.AirlineCodes,
 	}, nil
 }

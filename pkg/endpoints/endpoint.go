@@ -22,6 +22,7 @@ type AmadeusEndpointSet struct {
 	FlightBusiestTravelingPeriodEndpoint    endpoint.Endpoint
 	AirportNearestRelevantEndpoint          endpoint.Endpoint
 	AirportAndCitySearchEndpoint            endpoint.Endpoint
+	AirlineCodeLookupEndpoint               endpoint.Endpoint
 }
 
 func (s AmadeusEndpointSet) FlightLowFareSearch(ctx context.Context, request *sv.FlightLowFareSearchRequest) (*sv.Response, error) {
@@ -134,6 +135,16 @@ func (s AmadeusEndpointSet) AirportAndCitySearch(ctx context.Context, request *s
 	return response, nil
 }
 
+func (s AmadeusEndpointSet) AirlineCodeLookup(ctx context.Context, request *sv.AirlineCodeLookupRequest) (*sv.Response, error) {
+	resp, err := s.AirlineCodeLookupEndpoint(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	response := resp.(*sv.Response)
+	return response, nil
+}
+
 func NewEndpointSet(srv sv.AmadeusService, logger log.Logger) *AmadeusEndpointSet {
 	var (
 		flightLowFareSearchEndpoint             endpoint.Endpoint
@@ -147,6 +158,7 @@ func NewEndpointSet(srv sv.AmadeusService, logger log.Logger) *AmadeusEndpointSe
 		flightBusiestTravelingPeriodEndpoint    endpoint.Endpoint
 		airportNearestRelevantEndpoint          endpoint.Endpoint
 		airportAndCitySearchEndpoint            endpoint.Endpoint
+		airlineCodeLookupEndpoint               endpoint.Endpoint
 	)
 
 	flightLowFareSearchEndpoint = makeFlightLowFareSearchEndpoint(srv)
@@ -182,17 +194,22 @@ func NewEndpointSet(srv sv.AmadeusService, logger log.Logger) *AmadeusEndpointSe
 	airportAndCitySearchEndpoint = makeAirportAndCitySearchEndpoint(srv)
 	airportAndCitySearchEndpoint = loggingMiddleware(logger, "AirportAndCitySearch")(airportAndCitySearchEndpoint)
 
+	airlineCodeLookupEndpoint = makeAirlineCodeLookupEndpoint(srv)
+	airlineCodeLookupEndpoint = loggingMiddleware(logger, "AirlineCodeLookup")(airlineCodeLookupEndpoint)
+
 	return &AmadeusEndpointSet{
 		FlightLowFareSearchEndpoint:             flightLowFareSearchEndpoint,
 		FlightInspirationSearchEndpoint:         flightInspirationSearchEndpoint,
 		FlightCheapestDateSearchEndpoint:        flightCheapestDateSearchEndpoint,
 		FlightMostSearchedDestinationsEndpoint:  flightMostSearchedDestinationsEndpoint,
 		FlightMostSearchedByDestinationEndpoint: flightMostSearchedByDestinationEndpoint,
+		FlightCheckInLinksEndpoint:              flightCheckInLinksEndpoint,
 		FlightMostTraveledDestinationsEndpoint:  flightMostTraveledDestinationsEndpoint,
 		FlightMostBookedDestinationsEndpoint:    flightMostBookedDestinationsEndpoint,
 		FlightBusiestTravelingPeriodEndpoint:    flightBusiestTravelingPeriodEndpoint,
 		AirportNearestRelevantEndpoint:          airportNearestRelevantEndpoint,
 		AirportAndCitySearchEndpoint:            airportAndCitySearchEndpoint,
+		AirlineCodeLookupEndpoint:               airlineCodeLookupEndpoint,
 	}
 }
 
@@ -325,6 +342,18 @@ func makeAirportAndCitySearchEndpoint(srv sv.AmadeusService) endpoint.Endpoint {
 		}
 
 		resp, err := srv.AirportAndCitySearch(ctx, req)
+		return resp, err
+	}
+}
+
+func makeAirlineCodeLookupEndpoint(srv sv.AmadeusService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req, ok := request.(*sv.AirlineCodeLookupRequest)
+		if !ok {
+			return nil, errors.New("service did not fetch type <AirlineCodeLookupRequest>")
+		}
+
+		resp, err := srv.AirlineCodeLookup(ctx, req)
 		return resp, err
 	}
 }

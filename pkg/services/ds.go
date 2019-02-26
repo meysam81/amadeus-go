@@ -71,6 +71,10 @@ type AirportAndCitySearchRequest struct {
 	CountryCode string
 }
 
+type AirlineCodeLookupRequest struct {
+	AirlineCodes string
+}
+
 // ============================== Data Structures ==============================
 type Data struct {
 	Type           string                  `json:"type"`
@@ -97,6 +101,9 @@ type Data struct {
 	Href           string                  `json:"href"`
 	Channel        string                  `json:"channel"`
 	Parameters     map[string]*ParamDetail `json:"parameters"`
+	IcaoCode       string                  `json:"icaoCode"`
+	BusinessName   string                  `json:"businessName"`
+	CommonName     string                  `json:"commonName"`
 }
 
 type OfferItem struct {
