@@ -37,6 +37,9 @@ message Data {
     string href = 22;
     string channel = 23;
     map<string, ParamDetail> parameters = 24;
+    string icaoCode = 25;
+    string businessName = 26;
+    string commonName = 27;
 
 }
 

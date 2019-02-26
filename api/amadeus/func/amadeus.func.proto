@@ -38,6 +38,9 @@ service AmadeusService {
     // Which cities and/or airports start with ‘PA’ characters?
     rpc AirportAndCitySearch (AirportAndCitySearchRequest) returns (amadeus.type.Response);
 
+    // Which airline has IATA code BA?
+    rpc AirlineCodeLookup (AirlineCodeLookupRequest) returns (amadeus.type.Response);
+
 }
 
 // msgCode: 0001
@@ -123,6 +126,13 @@ message AirportAndCitySearchRequest {
     string subType = 1;
     string keyword = 2;
     string countryCode = 3;
+}
+
+// msgCode: 0011
+// => amadeus.type.Response (0050)
+// example: ?airlineCodes=BA
+message AirlineCodeLookupRequest {
+    string airlineCodes = 1;
 }
 
 // msgCode: 0013
