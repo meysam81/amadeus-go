@@ -50,6 +50,22 @@ func (mw logmw) FlightInspirationSearch(ctx context.Context, req *FlightInspirat
 	return
 }
 
+func (mw logmw) FlightCheapestDateSearch(ctx context.Context, req *FlightCheapestDateSearchRequest) (resp *Response, err error) {
+	defer func(begin time.Time) {
+		_ = mw.logger.Log(
+			"layer", "service",
+			"method", "FlightCheapestDateSearch",
+			"input", req,
+			"output", resp,
+			"error", err,
+			"took", time.Since(begin),
+		)
+	}(time.Now())
+
+	resp, err = mw.sv.FlightCheapestDateSearch(ctx, req)
+	return
+}
+
 func (mw logmw) FlightMostTraveledDestinations(ctx context.Context, req *FlightMostTraveledDestinationsRequest) (resp *Response, err error) {
 	defer func(begin time.Time) {
 		_ = mw.logger.Log(
@@ -129,4 +145,3 @@ func (mw logmw) AirportAndCitySearch(ctx context.Context, req *AirportAndCitySea
 	resp, err = mw.sv.AirportAndCitySearch(ctx, req)
 	return
 }
-

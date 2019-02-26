@@ -76,6 +76,7 @@ func getServicesURLs() (*serviceUrls, error) {
 		apiBaseUrl:                     "https://test.api.amadeus.com",
 		flightLowFareSearch:            "/v1/shopping/flight-offers",
 		flightInspirationSearch:        "/v1/shopping/flight-destinations",
+		flightCheapestDateSearch:       "/v1/shopping/flight-dates",
 		flightMostTraveledDestinations: "/v1/travel/analytics/air-traffic/traveled",
 		flightMostBookedDestinations:   "/v1/travel/analytics/air-traffic/booked",
 		flightBusiestTravelingPeriod:   "/v1/travel/analytics/air-traffic/busiest-period",

@@ -5,6 +5,7 @@ type Response struct {
 	Data         []*Data       `json:"data,omitempty"`
 	Dictionaries *Dictionaries `json:"dictionaries,omitempty"`
 	Meta         *Meta         `json:"meta,omitempty"`
+	Warnings     []*Warning    `json:"warnings,omitempty"`
 }
 
 type FlightLowFareSearchRequest struct {
@@ -17,6 +18,11 @@ type FlightLowFareSearchRequest struct {
 type FlightInspirationSearchRequest struct {
 	Origin   string
 	MaxPrice int32
+}
+
+type FlightCheapestDateSearchRequest struct {
+	Origin      string
+	Destination string
 }
 
 type FlightMostTraveledDestinationsRequest struct {
@@ -153,7 +159,7 @@ type Distance struct {
 }
 
 type Self struct {
-	Href    string    `json:"href,omitempty"`
+	Href    string   `json:"href,omitempty"`
 	Methods []string `json:"methods,omitempty"`
 }
 
@@ -172,11 +178,12 @@ type Meta struct {
 }
 
 type Links struct {
-	Self         string `json:"self,omitempty"`
-	Next         string `json:"next,omitempty"`
-	Last         string `json:"last,omitempty"`
-	FlightDates  string `json:"flightDates,omitempty"`
-	FlightOffers string `json:"flightOffers,omitempty"`
+	Self               string `json:"self,omitempty"`
+	Next               string `json:"next,omitempty"`
+	Last               string `json:"last,omitempty"`
+	FlightDates        string `json:"flightDates,omitempty"`
+	FlightOffers       string `json:"flightOffers,omitempty"`
+	FlightDestinations string `json:"flightDestinations,omitempty"`
 }
 
 type Defaults struct {
@@ -186,4 +193,8 @@ type Defaults struct {
 	OneWay        bool   `json:"oneWay,omitempty"`
 	Duration      string `json:"duration,omitempty"`
 	ViewBy        string `json:"viewBy,omitempty"`
+}
+
+type Warning struct {
+	Title string `json:"title,omitempty"`
 }

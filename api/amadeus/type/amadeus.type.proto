@@ -7,6 +7,7 @@ message Response {
     repeated Data data = 1;
     Dictionaries dictionaries = 2;
     Meta meta = 3;
+    repeated Warning warnings = 4;
 }
 
 // msgCode: 0051
@@ -145,6 +146,7 @@ message Links {
     string last = 3;
     string flightDates = 4;
     string flightOffers = 5;
+    string flightDestinations = 6;
 }
 
 // msgCode: 0069
@@ -194,5 +196,10 @@ message Distance {
 message Self {
     string href = 1;
     repeated string methods = 2;
+}
+
+// msgCode: 0076
+message Warning {
+    string title = 1;
 }
 
