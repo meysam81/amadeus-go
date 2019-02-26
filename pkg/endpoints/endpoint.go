@@ -16,6 +16,7 @@ type AmadeusEndpointSet struct {
 	FlightCheapestDateSearchEndpoint        endpoint.Endpoint
 	FlightMostSearchedDestinationsEndpoint  endpoint.Endpoint
 	FlightMostSearchedByDestinationEndpoint endpoint.Endpoint
+	FlightCheckInLinksEndpoint              endpoint.Endpoint
 	FlightMostTraveledDestinationsEndpoint  endpoint.Endpoint
 	FlightMostBookedDestinationsEndpoint    endpoint.Endpoint
 	FlightBusiestTravelingPeriodEndpoint    endpoint.Endpoint
@@ -65,6 +66,16 @@ func (s AmadeusEndpointSet) FlightMostSearchedDestinations(ctx context.Context, 
 
 func (s AmadeusEndpointSet) FlightMostSearchedByDestination(ctx context.Context, request *sv.FlightMostSearchedByDestinationRequest) (*sv.Response, error) {
 	resp, err := s.FlightMostSearchedByDestinationEndpoint(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	response := resp.(*sv.Response)
+	return response, nil
+}
+
+func (s AmadeusEndpointSet) FlightCheckInLinks(ctx context.Context, request *sv.FlightCheckInLinksRequest) (*sv.Response, error) {
+	resp, err := s.FlightCheckInLinksEndpoint(ctx, request)
 	if err != nil {
 		return nil, err
 	}
@@ -130,6 +141,7 @@ func NewEndpointSet(srv sv.AmadeusService, logger log.Logger) *AmadeusEndpointSe
 		flightCheapestDateSearchEndpoint        endpoint.Endpoint
 		flightMostSearchedDestinationsEndpoint  endpoint.Endpoint
 		flightMostSearchedByDestinationEndpoint endpoint.Endpoint
+		flightCheckInLinksEndpoint              endpoint.Endpoint
 		flightMostTraveledDestinationsEndpoint  endpoint.Endpoint
 		flightMostBookedDestinationsEndpoint    endpoint.Endpoint
 		flightBusiestTravelingPeriodEndpoint    endpoint.Endpoint
@@ -151,6 +163,9 @@ func NewEndpointSet(srv sv.AmadeusService, logger log.Logger) *AmadeusEndpointSe
 
 	flightMostSearchedByDestinationEndpoint = makeFlightMostSearchedByDestinationEndpoint(srv)
 	flightMostSearchedByDestinationEndpoint = loggingMiddleware(logger, "FlightMostSearchedByDestination")(flightMostSearchedByDestinationEndpoint)
+
+	flightCheckInLinksEndpoint = makeFlightCheckInLinksEndpoint(srv)
+	flightCheckInLinksEndpoint = loggingMiddleware(logger, "FlightCheckInLinks")(flightCheckInLinksEndpoint)
 
 	flightMostTraveledDestinationsEndpoint = makeFlightMostTraveledDestinationsEndpoint(srv)
 	flightMostTraveledDestinationsEndpoint = loggingMiddleware(logger, "FlightMostTraveledDestinations")(flightMostTraveledDestinationsEndpoint)
@@ -238,6 +253,18 @@ func makeFlightMostSearchedByDestinationEndpoint(srv sv.AmadeusService) endpoint
 		}
 
 		resp, err := srv.FlightMostSearchedByDestination(ctx, req)
+		return resp, err
+	}
+}
+
+func makeFlightCheckInLinksEndpoint(srv sv.AmadeusService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req, ok := request.(*sv.FlightCheckInLinksRequest)
+		if !ok {
+			return nil, errors.New("service did not fetch type <FlightCheckInLinksRequest>")
+		}
+
+		resp, err := srv.FlightCheckInLinks(ctx, req)
 		return resp, err
 	}
 }

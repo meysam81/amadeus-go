@@ -79,6 +79,7 @@ func getServicesURLs() (*serviceUrls, error) {
 		flightCheapestDateSearch:        "/v1/shopping/flight-dates",
 		flightMostSearchedDestinations:  "/v1/travel/analytics/air-traffic/searched",
 		flightMostSearchedByDestination: "/v1/travel/analytics/air-traffic/searched/by-destination",
+		flightCheckInLists:              "/v2/reference-data/urls/checkin-links?airlineCode=BA",
 		flightMostTraveledDestinations:  "/v1/travel/analytics/air-traffic/traveled",
 		flightMostBookedDestinations:    "/v1/travel/analytics/air-traffic/booked",
 		flightBusiestTravelingPeriod:    "/v1/travel/analytics/air-traffic/busiest-period",
