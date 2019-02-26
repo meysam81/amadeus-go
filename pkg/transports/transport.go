@@ -12,16 +12,17 @@ import (
 )
 
 type grpcServer struct {
-	FlightLowFareSearchHandler                         grpcTransport.Handler
-	FlightInspirationSearchHandler                     grpcTransport.Handler
-	FlightCheapestDateSearchHandler                    grpcTransport.Handler
-	FlightMostSearchedDestinationsHandler              grpcTransport.Handler
-	FlightMostSearchedDestinationsByDestinationHandler grpcTransport.Handler
-	FlightMostTraveledDestinationsHandler              grpcTransport.Handler
-	FlightMostBookedDestinationsHandler                grpcTransport.Handler
-	FlightBusiestTravelingPeriodHandler                grpcTransport.Handler
-	AirportNearestRelevantHandler                      grpcTransport.Handler
-	AirportAndCitySearchHandler                        grpcTransport.Handler
+	FlightLowFareSearchHandler             grpcTransport.Handler
+	FlightInspirationSearchHandler         grpcTransport.Handler
+	FlightCheapestDateSearchHandler        grpcTransport.Handler
+	FlightMostSearchedDestinationsHandler  grpcTransport.Handler
+	FlightMostSearchedByDestinationHandler grpcTransport.Handler
+	FlightCheckInLinksHandler              grpcTransport.Handler
+	FlightMostTraveledDestinationsHandler  grpcTransport.Handler
+	FlightMostBookedDestinationsHandler    grpcTransport.Handler
+	FlightBusiestTravelingPeriodHandler    grpcTransport.Handler
+	AirportNearestRelevantHandler          grpcTransport.Handler
+	AirportAndCitySearchHandler            grpcTransport.Handler
 }
 
 func (s *grpcServer) FlightLowFareSearch(ctx context.Context, req *pbFunc.FlightLowFareSearchRequest) (*pbType.Response, error) {
@@ -65,7 +66,17 @@ func (s *grpcServer) FlightMostSearchedDestinations(ctx context.Context, req *pb
 }
 
 func (s *grpcServer) FlightMostSearchedByDestination(ctx context.Context, req *pbFunc.FlightMostSearchedByDestinationRequest) (*pbType.Response, error) {
-	_, resp, err := s.FlightMostSearchedDestinationsByDestinationHandler.ServeGRPC(ctx, req)
+	_, resp, err := s.FlightMostSearchedByDestinationHandler.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	response := resp.(*pbType.Response)
+	return response, nil
+}
+
+func (s *grpcServer) FlightCheckInLinks(ctx context.Context, req *pbFunc.FlightCheckInLinksRequest) (*pbType.Response, error) {
+	_, resp, err := s.FlightCheckInLinksHandler.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -151,9 +162,14 @@ func NewGRPCServer(endpoints *endpoints.AmadeusEndpointSet, logger log.Logger) (
 			decodeFlightMostSearchedDestinationsRequest,
 			encodeResponse,
 		),
-		FlightMostSearchedDestinationsByDestinationHandler: grpcTransport.NewServer(
+		FlightMostSearchedByDestinationHandler: grpcTransport.NewServer(
 			endpoints.FlightMostSearchedByDestinationEndpoint,
-			decodeFlightMostSearchedDestinationsByDestinationRequest,
+			decodeFlightMostSearchedByDestinationRequest,
+			encodeResponse,
+		),
+		FlightCheckInLinksHandler: grpcTransport.NewServer(
+			endpoints.FlightCheckInLinksEndpoint,
+			decodeFlightCheckInLinksRequest,
 			encodeResponse,
 		),
 		FlightMostBookedDestinationsHandler: grpcTransport.NewServer(
@@ -365,6 +381,16 @@ func encodeResponse(_ context.Context, response interface{}) (interface{}, error
 			} // endif data.Analytics.Searches != nil
 		} // endif data.Analytics != nil
 
+		params := make(map[string]*pbType.ParamDetail)
+		for k, v := range data.Parameters {
+			p := pbType.ParamDetail{
+				Type:        v.Type,
+				Description: v.Description,
+				Format:      v.Format,
+			}
+			params[k] = &p
+		}
+
 		newData := pbType.Data{
 			Id:             data.Id,
 			Type:           data.Type,
@@ -387,6 +413,9 @@ func encodeResponse(_ context.Context, response interface{}) (interface{}, error
 			Price:          &price,
 			Links:          &links,
 			Self:           &self,
+			Href:           data.Href,
+			Channel:        data.Channel,
+			Parameters:     params,
 		}
 		datas = append(datas, &newData)
 	} // endfor resp.Data
@@ -547,7 +576,7 @@ func decodeFlightMostSearchedDestinationsRequest(_ context.Context, grpcReq inte
 	}, nil
 }
 
-func decodeFlightMostSearchedDestinationsByDestinationRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+func decodeFlightMostSearchedByDestinationRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
 	req, ok := grpcReq.(*pbFunc.FlightMostSearchedByDestinationRequest)
 	if !ok {
 		return nil, errors.New("your request is not of type <FlightMostSearchedByDestination>")
@@ -615,5 +644,15 @@ func decodeAirportAndCitySearchRequest(_ context.Context, grpcReq interface{}) (
 		Keyword:     req.Keyword,
 		SubType:     req.SubType,
 		CountryCode: req.CountryCode,
+	}, nil
+}
+
+func decodeFlightCheckInLinksRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+	req, ok := grpcReq.(*pbFunc.FlightCheckInLinksRequest)
+	if !ok {
+		return nil, errors.New("your request is not of type <FlightCheckInLinksRequest>")
+	}
+	return &sv.FlightCheckInLinksRequest{
+		AirlineCode: req.AirlineCode,
 	}, nil
 }
