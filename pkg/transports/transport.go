@@ -15,6 +15,7 @@ type grpcServer struct {
 	FlightLowFareSearchHandler            grpcTransport.Handler
 	FlightInspirationSearchHandler        grpcTransport.Handler
 	FlightCheapestDateSearchHandler       grpcTransport.Handler
+	FlightMostSearchedDestinationsHandler grpcTransport.Handler
 	FlightMostTraveledDestinationsHandler grpcTransport.Handler
 	FlightMostBookedDestinationsHandler   grpcTransport.Handler
 	FlightBusiestTravelingPeriodHandler   grpcTransport.Handler
@@ -44,6 +45,16 @@ func (s *grpcServer) FlightInspirationSearch(ctx context.Context, req *pbFunc.Fl
 
 func (s *grpcServer) FlightCheapestDateSearch(ctx context.Context, req *pbFunc.FlightCheapestDateSearchRequest) (*pbType.Response, error) {
 	_, resp, err := s.FlightCheapestDateSearchHandler.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	response := resp.(*pbType.Response)
+	return response, nil
+}
+
+func (s *grpcServer) FlightMostSearchedDestinations(ctx context.Context, req *pbFunc.FlightMostSearchedDestinationsRequest) (*pbType.Response, error) {
+	_, resp, err := s.FlightMostSearchedDestinationsHandler.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -123,6 +134,11 @@ func NewGRPCServer(endpoints *endpoints.AmadeusEndpointSet, logger log.Logger) (
 			endpoints.FlightMostTraveledDestinationsEndpoint,
 			decodeFlightMostTraveledDestinationsRequest,
 			encodeFlightMostTraveledDestinationsResponse,
+		),
+		FlightMostSearchedDestinationsHandler: grpcTransport.NewServer(
+			endpoints.FlightMostSearchedDestinationsEndpoint,
+			decodeFlightMostSearchedDestinationsRequest,
+			encodeFlightMostSearchedDestinationsResponse,
 		),
 		FlightMostBookedDestinationsHandler: grpcTransport.NewServer(
 			endpoints.FlightMostBookedDestinationsEndpoint,
@@ -731,3 +747,62 @@ func encodeFlightCheapestDateSearchResponse(_ context.Context, response interfac
 		Warnings:     warnings,
 	}, nil
 }
+
+func decodeFlightMostSearchedDestinationsRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+	req, ok := grpcReq.(*pbFunc.FlightMostSearchedDestinationsRequest)
+	if !ok {
+		return nil, errors.New("your request is not of type <FlightMostSearchedDestinationsRequest>")
+	}
+	return &sv.FlightMostSearchedDestinationsRequest{
+		MarketCountryCode: req.MarketCountryCode,
+		SearchPeriod: req.SearchPeriod,
+		OriginCityCode: req.OriginCityCode,
+	}, nil
+}
+
+func encodeFlightMostSearchedDestinationsResponse(_ context.Context, response interface{}) (interface{}, error) {
+	resp, ok := response.(*sv.Response)
+	if !ok {
+		return nil, errors.New("couldn't convert response to <Response>")
+	}
+
+	var datas []*pbType.Data
+	for _, data := range resp.Data {
+
+		var methods []string
+		for _, method := range data.Self.Methods {
+			methods = append(methods, method)
+		}
+
+		datas = append(datas, &pbType.Data{
+			Destination:   data.Destination,
+			SubType:          data.SubType,
+			Analytics: &pbType.Analytics{
+				Searches: &pbType.Score{
+					Score: data.Analytics.Searches.Score,
+				},
+			},
+		})
+	}
+
+	meta := pbType.Meta{
+		Count: resp.Meta.Count,
+		Links: &pbType.Links{
+			Self: resp.Meta.Links.Self,
+		},
+	}
+
+	var warnings []*pbType.Warning
+	for _, warning := range resp.Warnings {
+		warnings = append(warnings, &pbType.Warning{
+			Title: warning.Title,
+		})
+	}
+
+	return &pbType.Response{
+		Data:         datas,
+		Meta:         &meta,
+		Warnings:     warnings,
+	}, nil
+}
+
