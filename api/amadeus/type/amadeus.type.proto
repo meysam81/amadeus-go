@@ -34,6 +34,9 @@ message Data {
     Price price = 19;
     Links links = 20;
     Self self = 21;
+    string href = 22;
+    string channel = 23;
+    map<string, ParamDetail> parameters = 24;
 
 }
 
@@ -221,5 +224,12 @@ message Source {
 message NumberOfSearches {
     map<string, string> perTripDuration = 1;
     map<string, string> perDaysInAdvance = 2;
+}
+
+// msgCode: 0079
+message ParamDetail {
+    string description = 1;
+    string type = 2;
+    string format = 3;
 }
 

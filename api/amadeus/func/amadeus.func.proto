@@ -17,6 +17,9 @@ service AmadeusService {
     // Which were the most searched destinations from Nice in June 2017?
     rpc FlightMostSearchedDestinations (FlightMostSearchedDestinationsRequest) returns (amadeus.type.Response);
 
+    // What is the URL to my online check-in?
+    rpc FlightCheckInLinks (FlightCheckInLinksRequest) returns (amadeus.type.Response);
+
     // Which were the most searched destinations from Nice in June 2017?
     rpc FlightMostSearchedByDestination (FlightMostSearchedByDestinationRequest) returns (amadeus.type.Response);
 
@@ -61,6 +64,13 @@ message FlightInspirationSearchRequest {
 message FlightCheapestDateSearchRequest {
     string origin = 1;
     string destination = 2;
+}
+
+// msgCode: 0004
+// => amadeus.type.Response (0050)
+// example: ?airlineCode=BA
+message FlightCheckInLinksRequest {
+    string airlineCode = 1;
 }
 
 // msgCode: 0005
