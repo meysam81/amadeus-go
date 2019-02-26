@@ -11,6 +11,9 @@ service AmadeusService {
     // Where can I fly from/to Delhi in the next months for $400?
     rpc FlightInspirationSearch (FlightInspirationSearchRequest) returns (amadeus.type.Response);
 
+    // When is the cheapest date to fly to San Francisco from Miami?
+    rpc FlightCheapestDateSearch (FlightCheapestDateSearchRequest) returns (amadeus.type.Response);
+
     // Where were people flying to the most from London in September 2017?
     rpc FlightMostTraveledDestinations (FlightMostTraveledDestinationsRequest) returns (amadeus.type.Response);
 
@@ -48,13 +51,21 @@ message FlightInspirationSearchRequest {
 
 // msgCode: 0003
 // => amadeus.type.Response (0050)
+// example: ?origin=MIA&destination=SFO
+message FlightCheapestDateSearchRequest {
+    string origin = 1;
+    string destination = 2;
+}
+
+// msgCode: 0004
+// => amadeus.type.Response (0050)
 // example: ?originCityCode=LON&period=2017-09
 message FlightMostTraveledDestinationsRequest {
     string originCityCode = 1;
     string period = 2;
 }
 
-// msgCode: 0004
+// msgCode: 0005
 // => amadeus.type.Response (0050)
 // example: ?originCityCode=BLR&period=2017-11
 message FlightMostBookedDestinationsRequest {
@@ -62,7 +73,7 @@ message FlightMostBookedDestinationsRequest {
     string period = 2;
 }
 
-// msgCode: 0005
+// msgCode: 0006
 // => amadeus.type.Response (0050)
 // example: ?cityCode=NYC&period=2017&direction=ARRIVING
 message FlightBusiestTravelingPeriodRequest {
@@ -71,7 +82,7 @@ message FlightBusiestTravelingPeriodRequest {
     string direction = 3;
 }
 
-// msgCode: 0006
+// msgCode: 0007
 // => amadeus.type.Response (0050)
 // example: ?latitude=49.0000&longitude=2.55&sort=relevance
 message AirportNearestRelevantRequest {
@@ -80,7 +91,7 @@ message AirportNearestRelevantRequest {
     string sort = 3;
 }
 
-// msgCode: 0007
+// msgCode: 0008
 // => amadeus.type.Response (0050)
 // example: ?subType=AIRPORT,CITY&keyword=PAR&countryCode=FR
 message AirportAndCitySearchRequest {
