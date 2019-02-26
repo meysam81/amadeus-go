@@ -12,15 +12,16 @@ import (
 )
 
 type grpcServer struct {
-	FlightLowFareSearchHandler            grpcTransport.Handler
-	FlightInspirationSearchHandler        grpcTransport.Handler
-	FlightCheapestDateSearchHandler       grpcTransport.Handler
-	FlightMostSearchedDestinationsHandler grpcTransport.Handler
-	FlightMostTraveledDestinationsHandler grpcTransport.Handler
-	FlightMostBookedDestinationsHandler   grpcTransport.Handler
-	FlightBusiestTravelingPeriodHandler   grpcTransport.Handler
-	AirportNearestRelevantHandler         grpcTransport.Handler
-	AirportAndCitySearchHandler           grpcTransport.Handler
+	FlightLowFareSearchHandler                         grpcTransport.Handler
+	FlightInspirationSearchHandler                     grpcTransport.Handler
+	FlightCheapestDateSearchHandler                    grpcTransport.Handler
+	FlightMostSearchedDestinationsHandler              grpcTransport.Handler
+	FlightMostSearchedDestinationsByDestinationHandler grpcTransport.Handler
+	FlightMostTraveledDestinationsHandler              grpcTransport.Handler
+	FlightMostBookedDestinationsHandler                grpcTransport.Handler
+	FlightBusiestTravelingPeriodHandler                grpcTransport.Handler
+	AirportNearestRelevantHandler                      grpcTransport.Handler
+	AirportAndCitySearchHandler                        grpcTransport.Handler
 }
 
 func (s *grpcServer) FlightLowFareSearch(ctx context.Context, req *pbFunc.FlightLowFareSearchRequest) (*pbType.Response, error) {
@@ -55,6 +56,16 @@ func (s *grpcServer) FlightCheapestDateSearch(ctx context.Context, req *pbFunc.F
 
 func (s *grpcServer) FlightMostSearchedDestinations(ctx context.Context, req *pbFunc.FlightMostSearchedDestinationsRequest) (*pbType.Response, error) {
 	_, resp, err := s.FlightMostSearchedDestinationsHandler.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	response := resp.(*pbType.Response)
+	return response, nil
+}
+
+func (s *grpcServer) FlightMostSearchedByDestination(ctx context.Context, req *pbFunc.FlightMostSearchedByDestinationRequest) (*pbType.Response, error) {
+	_, resp, err := s.FlightMostSearchedDestinationsByDestinationHandler.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -118,47 +129,52 @@ func NewGRPCServer(endpoints *endpoints.AmadeusEndpointSet, logger log.Logger) (
 		FlightLowFareSearchHandler: grpcTransport.NewServer(
 			endpoints.FlightLowFareSearchEndpoint,
 			decodeFlightLowFareSearchRequest,
-			encodeFlightLowFareSearchResponse,
+			encodeResponse,
 		),
 		FlightInspirationSearchHandler: grpcTransport.NewServer(
 			endpoints.FlightInspirationSearchEndpoint,
 			decodeFlightInspirationSearchRequest,
-			encodeFlightInspirationSearchResponse,
+			encodeResponse,
 		),
 		FlightCheapestDateSearchHandler: grpcTransport.NewServer(
 			endpoints.FlightCheapestDateSearchEndpoint,
 			decodeFlightCheapestDateSearchRequest,
-			encodeFlightCheapestDateSearchResponse,
+			encodeResponse,
 		),
 		FlightMostTraveledDestinationsHandler: grpcTransport.NewServer(
 			endpoints.FlightMostTraveledDestinationsEndpoint,
 			decodeFlightMostTraveledDestinationsRequest,
-			encodeFlightMostTraveledDestinationsResponse,
+			encodeResponse,
 		),
 		FlightMostSearchedDestinationsHandler: grpcTransport.NewServer(
 			endpoints.FlightMostSearchedDestinationsEndpoint,
 			decodeFlightMostSearchedDestinationsRequest,
-			encodeFlightMostSearchedDestinationsResponse,
+			encodeResponse,
+		),
+		FlightMostSearchedDestinationsByDestinationHandler: grpcTransport.NewServer(
+			endpoints.FlightMostSearchedByDestinationEndpoint,
+			decodeFlightMostSearchedDestinationsByDestinationRequest,
+			encodeResponse,
 		),
 		FlightMostBookedDestinationsHandler: grpcTransport.NewServer(
 			endpoints.FlightMostBookedDestinationsEndpoint,
 			decodeFlightMostBookedDestinationsRequest,
-			encodeFlightMostBookedDestinationsResponse,
+			encodeResponse,
 		),
 		FlightBusiestTravelingPeriodHandler: grpcTransport.NewServer(
 			endpoints.FlightBusiestTravelingPeriodEndpoint,
 			decodeFlightBusiestTravelingPeriodRequest,
-			encodeFlightBusiestTravelingPeriodResponse,
+			encodeResponse,
 		),
 		AirportNearestRelevantHandler: grpcTransport.NewServer(
 			endpoints.AirportNearestRelevantEndpoint,
 			decodeAirportNearestRelevantRequest,
-			encodeAirportNearestRelevantResponse,
+			encodeResponse,
 		),
 		AirportAndCitySearchHandler: grpcTransport.NewServer(
 			endpoints.AirportAndCitySearchEndpoint,
 			decodeAirportAndCitySearchRequest,
-			encodeAirportAndCitySearchResponse,
+			encodeResponse,
 		),
 	}
 
@@ -166,6 +182,324 @@ func NewGRPCServer(endpoints *endpoints.AmadeusEndpointSet, logger log.Logger) (
 }
 
 // =============================================================================
+
+// watch out for this method, it is long and hard to understand cause we are
+// refactoring the response from the server to that of a protobuf
+func encodeResponse(_ context.Context, response interface{}) (interface{}, error) {
+	resp, ok := response.(*sv.Response)
+	if !ok {
+		return nil, errors.New("couldn't convert response to <Response>")
+	}
+
+	// ******************** Step 1: Data ********************
+	var datas []*pbType.Data
+	for _, data := range resp.Data {
+
+		var offerItems []*pbType.OfferItem
+		if data.OfferItems != nil {
+			for _, offers := range data.OfferItems {
+
+				var services []*pbType.Service
+				if offers.Services != nil {
+					for _, service := range offers.Services {
+
+						var segments []*pbType.Segment
+						if service.Segments != nil {
+							for _, segment := range service.Segments {
+
+								var pricingDetailPerAdult pbType.PricingDetailPerAdult
+								if segment.PricingDetailPerAdult != nil {
+									pricingDetailPerAdult = pbType.PricingDetailPerAdult{
+										Availability: segment.PricingDetailPerAdult.Availability,
+										FareBasis:    segment.PricingDetailPerAdult.FareBasis,
+										FareClass:    segment.PricingDetailPerAdult.FareClass,
+										TravelClass:  segment.PricingDetailPerAdult.TravelClass,
+									}
+								}
+
+								var flightSegment pbType.FlightSegment
+								if segment.FlightSegment != nil {
+									flightSegment = pbType.FlightSegment{
+										Duration: segment.FlightSegment.Duration,
+										Number:   segment.FlightSegment.Number,
+										Aircraft: &pbType.Aircraft{
+											Code: segment.FlightSegment.Aircraft.Code,
+										},
+										Arrival: &pbType.DepartureArrival{
+											At:       segment.FlightSegment.Arrival.At,
+											IataCode: segment.FlightSegment.Arrival.IataCode,
+											Terminal: segment.FlightSegment.Arrival.Terminal,
+										},
+										Departure: &pbType.DepartureArrival{
+											At:       segment.FlightSegment.Departure.At,
+											IataCode: segment.FlightSegment.Departure.IataCode,
+											Terminal: segment.FlightSegment.Departure.Terminal,
+										},
+										CarrierCode: segment.FlightSegment.CarrierCode,
+										Operating: &pbType.Operating{
+											CarrierCode: segment.FlightSegment.Operating.CarrierCode,
+											Number:      segment.FlightSegment.Operating.Number,
+										},
+									}
+								}
+
+								segments = append(segments, &pbType.Segment{
+									FlightSegment:         &flightSegment,
+									PricingDetailPerAdult: &pricingDetailPerAdult,
+								})
+							} // endfor service.Segments
+						} // endif service.Segments
+
+						services = append(services, &pbType.Service{
+							Segments: segments,
+						})
+					} // endfor offers.Services
+				} // endif offers.Services
+
+				var price, pricePerAdult pbType.Price
+				if offers.Price != nil {
+					price = pbType.Price{
+						Total:      offers.Price.Total,
+						TotalTaxes: offers.Price.TotalTaxes,
+					}
+				}
+				if offers.PricePerAdult != nil {
+					pricePerAdult = pbType.Price{
+						Total:      offers.PricePerAdult.Total,
+						TotalTaxes: offers.PricePerAdult.TotalTaxes,
+					}
+				}
+
+				offerItems = append(offerItems, &pbType.OfferItem{
+					Services:      services,
+					Price:         &price,
+					PricePerAdult: &pricePerAdult,
+				})
+			} // endfor data.OfferItems
+		} // endif data.OfferItems
+
+		var geoCode pbType.GeoCode
+		if data.GeoCode != nil {
+			geoCode = pbType.GeoCode{
+				Latitude:  data.GeoCode.Latitude,
+				Longitude: data.GeoCode.Longitude,
+			}
+		}
+
+		var distance pbType.Distance
+		if data.Distance != nil {
+			distance = pbType.Distance{
+				Unit:  data.Distance.Unit,
+				Value: data.Distance.Value,
+			}
+		}
+
+		var price pbType.Price
+		if data.Price != nil {
+			price = pbType.Price{
+				Total:      data.Price.Total,
+				TotalTaxes: data.Price.TotalTaxes,
+			}
+		}
+
+		var links pbType.Links
+		if data.Links != nil {
+			links = pbType.Links{
+				Self:               data.Links.Self,
+				Next:               data.Links.Next,
+				Last:               data.Links.Last,
+				FlightDates:        data.Links.FlightDates,
+				FlightOffers:       data.Links.FlightOffers,
+				FlightDestinations: data.Links.FlightDestinations,
+			}
+		}
+
+		var self pbType.Self
+		if data.Self != nil {
+			self.Href = data.Self.Href
+			for _, m := range data.Self.Methods {
+				self.Methods = append(self.Methods, m)
+			}
+		}
+
+		var address pbType.Address
+		if data.Address != nil {
+			address = pbType.Address{
+				CityName:    data.Address.CityName,
+				CityCode:    data.Address.CityCode,
+				CountryName: data.Address.CountryName,
+				CountryCode: data.Address.CountryCode,
+				StateCode:   data.Address.StateCode,
+				RegionCode:  data.Address.RegionCode,
+			}
+		}
+
+		var analytics pbType.Analytics
+		if data.Analytics != nil {
+			if data.Analytics.Flights != nil {
+				analytics.Flights.Score = data.Analytics.Flights.Score
+			}
+
+			if data.Analytics.Travelers != nil {
+				analytics.Travelers.Score = data.Analytics.Travelers.Score
+			}
+
+			if data.Analytics.Searches != nil {
+				analytics.Searches.Score = data.Analytics.Searches.Score
+				if data.Analytics.Searches.NumberOfSearches != nil {
+
+					perTripDuration := make(map[string]string)
+					perDaysInAdvance := make(map[string]string)
+					for k, v := range data.Analytics.Searches.NumberOfSearches.PerTripDuration {
+						perTripDuration[k] = v
+					}
+					for k, v := range data.Analytics.Searches.NumberOfSearches.PerDaysInAdvance {
+						perDaysInAdvance[k] = v
+					}
+
+					analytics.Searches.NumberOfSearches = &pbType.NumberOfSearches{
+						PerDaysInAdvance: perDaysInAdvance,
+						PerTripDuration:  perTripDuration,
+					}
+				} // endif data.Analytics.Searches.NumberOfSearches != nil
+			} // endif data.Analytics.Searches != nil
+		} // endif data.Analytics != nil
+
+		newData := pbType.Data{
+			Id:             data.Id,
+			Type:           data.Type,
+			OfferItems:     offerItems,
+			Destination:    data.Destination,
+			SubType:        data.SubType,
+			Analytics:      &analytics,
+			Period:         data.Period,
+			Name:           data.Name,
+			DetailedName:   data.DetailedName,
+			TimeZoneOffset: data.TimeZoneOffset,
+			IataCode:       data.IataCode,
+			GeoCode:        &geoCode,
+			Address:        &address,
+			Distance:       &distance,
+			Relevance:      data.Relevance,
+			Origin:         data.Origin,
+			DepartureDate:  data.DepartureDate,
+			ReturnDate:     data.ReturnDate,
+			Price:          &price,
+			Links:          &links,
+			Self:           &self,
+		}
+		datas = append(datas, &newData)
+	} // endfor resp.Data
+
+	// ******************** Step 2: Dictionary ********************
+	var dictionaries pbType.Dictionaries
+	if resp.Dictionaries != nil {
+		dictionaries.Aircrafts = make(map[string]string)
+		dictionaries.Locations = make(map[string]*pbType.LocationDetail)
+		dictionaries.Carriers = make(map[string]string)
+		dictionaries.Currencies = make(map[string]string)
+		for k, v := range resp.Dictionaries.Aircrafts {
+			dictionaries.Aircrafts[k] = v
+		}
+		for k, v := range resp.Dictionaries.Locations {
+			if _, ok := dictionaries.Locations[k]; !ok {
+				dictionaries.Locations[k] = &pbType.LocationDetail{
+					Detail: make(map[string]string),
+				}
+			}
+			for subK, subV := range v {
+				dictionaries.Locations[k] = &pbType.LocationDetail{
+					Detail: map[string]string{subK: subV},
+				}
+			}
+		}
+		for k, v := range resp.Dictionaries.Carriers {
+			dictionaries.Aircrafts[k] = v
+		}
+		for k, v := range resp.Dictionaries.Currencies {
+			dictionaries.Aircrafts[k] = v
+		}
+	} // endif resp.Dictionaries != nil
+
+	// ******************** Step 3: Meta ********************
+	var meta pbType.Meta
+	if resp.Meta != nil {
+		var links pbType.Links
+		if resp.Meta.Links != nil {
+			links = pbType.Links{
+				Self:               resp.Meta.Links.Self,
+				Next:               resp.Meta.Links.Next,
+				Last:               resp.Meta.Links.Last,
+				FlightDates:        resp.Meta.Links.FlightDates,
+				FlightOffers:       resp.Meta.Links.FlightOffers,
+				FlightDestinations: resp.Meta.Links.FlightDestinations,
+			}
+		}
+
+		var defaults pbType.Defaults
+		if resp.Meta.Defaults != nil {
+			defaults = pbType.Defaults{
+				Adults:  resp.Meta.Defaults.Adults,
+				NonStop: resp.Meta.Defaults.NonStop,
+			}
+		}
+
+		meta = pbType.Meta{
+			Links:    &links,
+			Currency: resp.Meta.Currency,
+			Defaults: &defaults,
+			Count:    resp.Meta.Count,
+		}
+	}
+
+	// ******************** Step 4: Warnings and Erros ********************
+	var errs, warnings []*pbType.ErrorWarning
+	if resp.Warnings != nil {
+		for _, w := range resp.Warnings {
+			warning := pbType.ErrorWarning{
+				Title:  w.Title,
+				Status: w.Status,
+				Code:   w.Code,
+				Detail: w.Detail,
+			}
+			if w.Source != nil {
+				warning.Source = &pbType.Source{
+					Example:   w.Source.Example,
+					Parameter: w.Source.Parameter,
+					Pointer:   w.Source.Pointer,
+				}
+			}
+			warnings = append(warnings, &warning)
+		} // endfor
+	}
+	if resp.Errors != nil {
+		for _, w := range resp.Errors {
+			err := pbType.ErrorWarning{
+				Title:  w.Title,
+				Status: w.Status,
+				Code:   w.Code,
+				Detail: w.Detail,
+			}
+			if w.Source != nil {
+				err.Source = &pbType.Source{
+					Example:   w.Source.Example,
+					Parameter: w.Source.Parameter,
+					Pointer:   w.Source.Pointer,
+				}
+			}
+			errs = append(errs, &err)
+		} // endfor
+	}
+
+	return &pbType.Response{
+		Data:         datas,
+		Dictionaries: &dictionaries,
+		Meta:         &meta,
+		Errors:       errs,
+		Warnings:     warnings,
+	}, nil
+}
+
 func decodeFlightLowFareSearchRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
 	req, ok := grpcReq.(*pbFunc.FlightLowFareSearchRequest)
 	if !ok {
@@ -176,126 +510,6 @@ func decodeFlightLowFareSearchRequest(_ context.Context, grpcReq interface{}) (i
 		DepartureDate: req.DepartureDate,
 		Destination:   req.Destination,
 		ReturnDate:    req.ReturnDate,
-	}, nil
-}
-
-func encodeFlightLowFareSearchResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp, ok := response.(*sv.Response)
-	if !ok {
-		return nil, errors.New("couldn't convert response to <Response>")
-	}
-
-	var datas []*pbType.Data
-	for _, data := range resp.Data {
-
-		var offerItems []*pbType.OfferItem
-		for _, offers := range data.OfferItems {
-
-			var services []*pbType.Service
-			for _, service := range offers.Services {
-
-				var segments []*pbType.Segment
-				for _, segment := range service.Segments {
-
-					segments = append(segments, &pbType.Segment{
-						FlightSegment: &pbType.FlightSegment{
-							Duration: segment.FlightSegment.Duration,
-							Number:   segment.FlightSegment.Number,
-							Aircraft: &pbType.Aircraft{
-								Code: segment.FlightSegment.Aircraft.Code,
-							},
-							Arrival: &pbType.DepartureArrival{
-								At:       segment.FlightSegment.Arrival.At,
-								IataCode: segment.FlightSegment.Arrival.IataCode,
-								Terminal: segment.FlightSegment.Arrival.Terminal,
-							},
-							Departure: &pbType.DepartureArrival{
-								At:       segment.FlightSegment.Departure.At,
-								IataCode: segment.FlightSegment.Departure.IataCode,
-								Terminal: segment.FlightSegment.Departure.Terminal,
-							},
-							CarrierCode: segment.FlightSegment.CarrierCode,
-							Operating: &pbType.Operating{
-								CarrierCode: segment.FlightSegment.Operating.CarrierCode,
-								Number:      segment.FlightSegment.Operating.Number,
-							},
-						},
-						PricingDetailPerAdult: &pbType.PricingDetailPerAdult{
-							Availability: segment.PricingDetailPerAdult.Availability,
-							FareBasis:    segment.PricingDetailPerAdult.FareBasis,
-							FareClass:    segment.PricingDetailPerAdult.FareClass,
-							TravelClass:  segment.PricingDetailPerAdult.TravelClass,
-						},
-					})
-				}
-
-				services = append(services, &pbType.Service{
-					Segments: segments,
-				})
-			}
-
-			offerItems = append(offerItems, &pbType.OfferItem{
-				Services: services,
-				Price: &pbType.Price{
-					Total:      offers.Price.Total,
-					TotalTaxes: offers.Price.TotalTaxes,
-				},
-				PricePerAdult: &pbType.Price{
-					Total:      offers.PricePerAdult.Total,
-					TotalTaxes: offers.PricePerAdult.TotalTaxes,
-				},
-			})
-		}
-
-		datas = append(datas, &pbType.Data{
-			Id:         data.Id,
-			Type:       data.Type,
-			OfferItems: offerItems,
-		})
-	}
-
-	var dictionaries pbType.Dictionaries
-	dictionaries.Aircrafts = make(map[string]string)
-	dictionaries.Locations = make(map[string]*pbType.LocationDetail)
-	dictionaries.Carriers = make(map[string]string)
-	dictionaries.Currencies = make(map[string]string)
-	for k, v := range resp.Dictionaries.Aircrafts {
-		dictionaries.Aircrafts[k] = v
-	}
-	for k, v := range resp.Dictionaries.Locations {
-		if _, ok := dictionaries.Locations[k]; !ok {
-			dictionaries.Locations[k] = &pbType.LocationDetail{
-				Detail: make(map[string]string),
-			}
-		}
-		for subK, subV := range v {
-			dictionaries.Locations[k] = &pbType.LocationDetail{
-				Detail: map[string]string{subK: subV},
-			}
-		}
-	}
-	for k, v := range resp.Dictionaries.Carriers {
-		dictionaries.Aircrafts[k] = v
-	}
-	for k, v := range resp.Dictionaries.Currencies {
-		dictionaries.Aircrafts[k] = v
-	}
-
-	meta := pbType.Meta{
-		Links: &pbType.Links{
-			Self: resp.Meta.Links.Self,
-		},
-		Currency: resp.Meta.Currency,
-		Defaults: &pbType.Defaults{
-			Adults:  resp.Meta.Defaults.Adults,
-			NonStop: resp.Meta.Defaults.NonStop,
-		},
-	}
-
-	return &pbType.Response{
-		Data:         datas,
-		Dictionaries: &dictionaries,
-		Meta:         &meta,
 	}, nil
 }
 
@@ -310,67 +524,39 @@ func decodeFlightInspirationSearchRequest(_ context.Context, grpcReq interface{}
 	}, nil
 }
 
-func encodeFlightInspirationSearchResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp, ok := response.(*sv.Response)
+func decodeFlightCheapestDateSearchRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+	req, ok := grpcReq.(*pbFunc.FlightCheapestDateSearchRequest)
 	if !ok {
-		return nil, errors.New("couldn't convert response to <Response>")
+		return nil, errors.New("your request is not of type <FlightCheapestDateSearchRequest>")
 	}
+	return &sv.FlightCheapestDateSearchRequest{
+		Destination: req.Destination,
+		Origin:      req.Origin,
+	}, nil
+}
 
-	var datas []*pbType.Data
-	for _, data := range resp.Data {
-		datas = append(datas, &pbType.Data{
-			Type:          data.Type,
-			Origin:        data.Origin,
-			Destination:   data.Destination,
-			DepartureDate: data.DepartureDate,
-			ReturnDate:    data.ReturnDate,
-			Price: &pbType.Price{
-				Total: data.Price.Total,
-			},
-			Links: &pbType.Links{
-				FlightDates:  data.Links.FlightDates,
-				FlightOffers: data.Links.FlightOffers,
-			},
-		})
+func decodeFlightMostSearchedDestinationsRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+	req, ok := grpcReq.(*pbFunc.FlightMostSearchedDestinationsRequest)
+	if !ok {
+		return nil, errors.New("your request is not of type <FlightMostSearchedDestinationsRequest>")
 	}
+	return &sv.FlightMostSearchedDestinationsRequest{
+		MarketCountryCode: req.MarketCountryCode,
+		SearchPeriod:      req.SearchPeriod,
+		OriginCityCode:    req.OriginCityCode,
+	}, nil
+}
 
-	var dictionaries pbType.Dictionaries
-	dictionaries.Locations = make(map[string]*pbType.LocationDetail)
-	dictionaries.Currencies = make(map[string]string)
-	for k, v := range resp.Dictionaries.Locations {
-		if _, ok := dictionaries.Locations[k]; !ok {
-			dictionaries.Locations[k] = &pbType.LocationDetail{
-				Detail: make(map[string]string),
-			}
-		}
-		for subK, subV := range v {
-			dictionaries.Locations[k] = &pbType.LocationDetail{
-				Detail: map[string]string{subK: subV},
-			}
-		}
+func decodeFlightMostSearchedDestinationsByDestinationRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+	req, ok := grpcReq.(*pbFunc.FlightMostSearchedByDestinationRequest)
+	if !ok {
+		return nil, errors.New("your request is not of type <FlightMostSearchedByDestination>")
 	}
-	for k, v := range resp.Dictionaries.Currencies {
-		dictionaries.Aircrafts[k] = v
-	}
-
-	meta := pbType.Meta{
-		Links: &pbType.Links{
-			Self: resp.Meta.Links.Self,
-		},
-		Currency: resp.Meta.Currency,
-		Defaults: &pbType.Defaults{
-			DepartureDate: resp.Meta.Defaults.DepartureDate,
-			OneWay:        resp.Meta.Defaults.OneWay,
-			Duration:      resp.Meta.Defaults.Duration,
-			NonStop:       resp.Meta.Defaults.NonStop,
-			ViewBy:        resp.Meta.Defaults.ViewBy,
-		},
-	}
-
-	return &pbType.Response{
-		Data:         datas,
-		Dictionaries: &dictionaries,
-		Meta:         &meta,
+	return &sv.FlightMostSearchedByDestinationRequest{
+		MarketCountryCode:   req.MarketCountryCode,
+		SearchPeriod:        req.SearchPeriod,
+		OriginCityCode:      req.OriginCityCode,
+		DestinationCityCode: req.DestinationCityCode,
 	}, nil
 }
 
@@ -385,42 +571,6 @@ func decodeFlightMostTraveledDestinationsRequest(_ context.Context, grpcReq inte
 	}, nil
 }
 
-func encodeFlightMostTraveledDestinationsResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp, ok := response.(*sv.Response)
-	if !ok {
-		return nil, errors.New("couldn't convert response to <Response>")
-	}
-
-	var datas []*pbType.Data
-	for _, data := range resp.Data {
-		datas = append(datas, &pbType.Data{
-			Type:        data.Type,
-			Destination: data.Destination,
-			SubType:     data.SubType,
-			Analytics: &pbType.Analytics{
-				Flights: &pbType.Score{
-					Score: data.Analytics.Flights.Score,
-				},
-				Travelers: &pbType.Score{
-					Score: data.Analytics.Travelers.Score,
-				},
-			},
-		})
-	}
-
-	meta := pbType.Meta{
-		Links: &pbType.Links{
-			Self: resp.Meta.Links.Self,
-		},
-		Count: resp.Meta.Count,
-	}
-
-	return &pbType.Response{
-		Data: datas,
-		Meta: &meta,
-	}, nil
-}
-
 func decodeFlightMostBookedDestinationsRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
 	req, ok := grpcReq.(*pbFunc.FlightMostBookedDestinationsRequest)
 	if !ok {
@@ -429,42 +579,6 @@ func decodeFlightMostBookedDestinationsRequest(_ context.Context, grpcReq interf
 	return &sv.FlightMostBookedDestinationsRequest{
 		OriginCityCode: req.OriginCityCode,
 		Period:         req.Period,
-	}, nil
-}
-
-func encodeFlightMostBookedDestinationsResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp, ok := response.(*sv.Response)
-	if !ok {
-		return nil, errors.New("couldn't convert response to <Response>")
-	}
-
-	var datas []*pbType.Data
-	for _, data := range resp.Data {
-		datas = append(datas, &pbType.Data{
-			Type:        data.Type,
-			Destination: data.Destination,
-			SubType:     data.SubType,
-			Analytics: &pbType.Analytics{
-				Flights: &pbType.Score{
-					Score: data.Analytics.Flights.Score,
-				},
-				Travelers: &pbType.Score{
-					Score: data.Analytics.Travelers.Score,
-				},
-			},
-		})
-	}
-
-	meta := pbType.Meta{
-		Links: &pbType.Links{
-			Self: resp.Meta.Links.Self,
-		},
-		Count: resp.Meta.Count,
-	}
-
-	return &pbType.Response{
-		Data: datas,
-		Meta: &meta,
 	}, nil
 }
 
@@ -480,41 +594,6 @@ func decodeFlightBusiestTravelingPeriodRequest(_ context.Context, grpcReq interf
 	}, nil
 }
 
-func encodeFlightBusiestTravelingPeriodResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp, ok := response.(*sv.Response)
-	if !ok {
-		return nil, errors.New("couldn't convert response to <Response>")
-	}
-
-	var datas []*pbType.Data
-	for _, data := range resp.Data {
-		datas = append(datas, &pbType.Data{
-			Type:   data.Type,
-			Period: data.Period,
-			Analytics: &pbType.Analytics{
-				Flights: &pbType.Score{
-					Score: data.Analytics.Flights.Score,
-				},
-				Travelers: &pbType.Score{
-					Score: data.Analytics.Travelers.Score,
-				},
-			},
-		})
-	}
-
-	meta := pbType.Meta{
-		Links: &pbType.Links{
-			Self: resp.Meta.Links.Self,
-		},
-		Count: resp.Meta.Count,
-	}
-
-	return &pbType.Response{
-		Data: datas,
-		Meta: &meta,
-	}, nil
-}
-
 func decodeAirportNearestRelevantRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
 	req, ok := grpcReq.(*pbFunc.AirportNearestRelevantRequest)
 	if !ok {
@@ -524,63 +603,6 @@ func decodeAirportNearestRelevantRequest(_ context.Context, grpcReq interface{})
 		Latitude:  req.Latitude,
 		Longitude: req.Longitude,
 		Sort:      req.Sort,
-	}, nil
-}
-
-func encodeAirportNearestRelevantResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp, ok := response.(*sv.Response)
-	if !ok {
-		return nil, errors.New("couldn't convert response to <Response>")
-	}
-
-	var datas []*pbType.Data
-	for _, data := range resp.Data {
-		datas = append(datas, &pbType.Data{
-			Type:           data.Type,
-			SubType:        data.SubType,
-			Name:           data.Name,
-			DetailedName:   data.DetailedName,
-			TimeZoneOffset: data.TimeZoneOffset,
-			IataCode:       data.IataCode,
-			GeoCode: &pbType.GeoCode{
-				Latitude:  data.GeoCode.Latitude,
-				Longitude: data.GeoCode.Longitude,
-			},
-			Address: &pbType.Address{
-				CityName:    data.Address.CityName,
-				CityCode:    data.Address.CityCode,
-				CountryName: data.Address.CountryName,
-				CountryCode: data.Address.CountryCode,
-				RegionCode:  data.Address.RegionCode,
-			},
-			Distance: &pbType.Distance{
-				Value: data.Distance.Value,
-				Unit:  data.Distance.Unit,
-			},
-			Analytics: &pbType.Analytics{
-				Flights: &pbType.Score{
-					Score: data.Analytics.Flights.Score,
-				},
-				Travelers: &pbType.Score{
-					Score: data.Analytics.Travelers.Score,
-				},
-			},
-			Relevance: data.Relevance,
-		})
-	}
-
-	meta := pbType.Meta{
-		Links: &pbType.Links{
-			Self: resp.Meta.Links.Self,
-			Next: resp.Meta.Links.Next,
-			Last: resp.Meta.Links.Last,
-		},
-		Count: resp.Meta.Count,
-	}
-
-	return &pbType.Response{
-		Data: datas,
-		Meta: &meta,
 	}, nil
 }
 
@@ -595,214 +617,3 @@ func decodeAirportAndCitySearchRequest(_ context.Context, grpcReq interface{}) (
 		CountryCode: req.CountryCode,
 	}, nil
 }
-
-func encodeAirportAndCitySearchResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp, ok := response.(*sv.Response)
-	if !ok {
-		return nil, errors.New("couldn't convert response to <Response>")
-	}
-
-	var datas []*pbType.Data
-	for _, data := range resp.Data {
-
-		var methods []string
-		for _, method := range data.Self.Methods {
-			methods = append(methods, method)
-		}
-
-		datas = append(datas, &pbType.Data{
-			Type:         data.Type,
-			SubType:      data.SubType,
-			Name:         data.Name,
-			DetailedName: data.DetailedName,
-			Id:           data.Id,
-			Self: &pbType.Self{
-				Href:    data.Self.Href,
-				Methods: methods,
-			},
-			TimeZoneOffset: data.TimeZoneOffset,
-			IataCode:       data.IataCode,
-			GeoCode: &pbType.GeoCode{
-				Latitude:  data.GeoCode.Latitude,
-				Longitude: data.GeoCode.Longitude,
-			},
-			Address: &pbType.Address{
-				CityName:    data.Address.CityName,
-				CityCode:    data.Address.CityCode,
-				CountryName: data.Address.CountryName,
-				CountryCode: data.Address.CountryCode,
-				StateCode:   data.Address.StateCode,
-				RegionCode:  data.Address.RegionCode,
-			},
-			Analytics: &pbType.Analytics{
-				Travelers: &pbType.Score{
-					Score: data.Analytics.Travelers.Score,
-				},
-			},
-		})
-	}
-
-	meta := pbType.Meta{
-		Links: &pbType.Links{
-			Self: resp.Meta.Links.Self,
-			Next: resp.Meta.Links.Next,
-			Last: resp.Meta.Links.Last,
-		},
-		Count: resp.Meta.Count,
-	}
-
-	return &pbType.Response{
-		Data: datas,
-		Meta: &meta,
-	}, nil
-}
-
-func decodeFlightCheapestDateSearchRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
-	req, ok := grpcReq.(*pbFunc.FlightCheapestDateSearchRequest)
-	if !ok {
-		return nil, errors.New("your request is not of type <FlightCheapestDateSearchRequest>")
-	}
-	return &sv.FlightCheapestDateSearchRequest{
-		Destination: req.Destination,
-		Origin:      req.Origin,
-	}, nil
-}
-
-func encodeFlightCheapestDateSearchResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp, ok := response.(*sv.Response)
-	if !ok {
-		return nil, errors.New("couldn't convert response to <Response>")
-	}
-
-	var datas []*pbType.Data
-	for _, data := range resp.Data {
-
-		var methods []string
-		for _, method := range data.Self.Methods {
-			methods = append(methods, method)
-		}
-
-		datas = append(datas, &pbType.Data{
-			Type:          data.Type,
-			Origin:        data.Origin,
-			Destination:   data.Destination,
-			DepartureDate: data.DepartureDate,
-			ReturnDate:    data.ReturnDate,
-			Price: &pbType.Price{
-				Total: data.Price.Total,
-			},
-			Links: &pbType.Links{
-				FlightDestinations: data.Links.FlightDestinations,
-				FlightOffers:       data.Links.FlightOffers,
-			},
-		})
-	}
-
-	dictionaries := pbType.Dictionaries{}
-	dictionaries.Aircrafts = make(map[string]string)
-	dictionaries.Locations = make(map[string]*pbType.LocationDetail)
-	dictionaries.Carriers = make(map[string]string)
-	dictionaries.Currencies = make(map[string]string)
-	for k, v := range resp.Dictionaries.Locations {
-		if _, ok := dictionaries.Locations[k]; !ok {
-			dictionaries.Locations[k] = &pbType.LocationDetail{
-				Detail: make(map[string]string),
-			}
-		}
-		for subK, subV := range v {
-			dictionaries.Locations[k] = &pbType.LocationDetail{
-				Detail: map[string]string{subK: subV},
-			}
-		}
-	}
-	for k, v := range resp.Dictionaries.Currencies {
-		dictionaries.Aircrafts[k] = v
-	}
-
-	meta := pbType.Meta{
-		Currency: resp.Meta.Currency,
-		Links: &pbType.Links{
-			Self: resp.Meta.Links.Self,
-		},
-		Defaults: &pbType.Defaults{
-			DepartureDate: resp.Meta.Defaults.DepartureDate,
-			OneWay:        resp.Meta.Defaults.OneWay,
-			Duration:      resp.Meta.Defaults.Duration,
-			NonStop:       resp.Meta.Defaults.NonStop,
-			ViewBy:        resp.Meta.Defaults.ViewBy,
-		},
-	}
-
-	var warnings []*pbType.Warning
-	for _, warning := range resp.Warnings {
-		warnings = append(warnings, &pbType.Warning{
-			Title: warning.Title,
-		})
-	}
-
-	return &pbType.Response{
-		Data:         datas,
-		Dictionaries: &dictionaries,
-		Meta:         &meta,
-		Warnings:     warnings,
-	}, nil
-}
-
-func decodeFlightMostSearchedDestinationsRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
-	req, ok := grpcReq.(*pbFunc.FlightMostSearchedDestinationsRequest)
-	if !ok {
-		return nil, errors.New("your request is not of type <FlightMostSearchedDestinationsRequest>")
-	}
-	return &sv.FlightMostSearchedDestinationsRequest{
-		MarketCountryCode: req.MarketCountryCode,
-		SearchPeriod: req.SearchPeriod,
-		OriginCityCode: req.OriginCityCode,
-	}, nil
-}
-
-func encodeFlightMostSearchedDestinationsResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp, ok := response.(*sv.Response)
-	if !ok {
-		return nil, errors.New("couldn't convert response to <Response>")
-	}
-
-	var datas []*pbType.Data
-	for _, data := range resp.Data {
-
-		var methods []string
-		for _, method := range data.Self.Methods {
-			methods = append(methods, method)
-		}
-
-		datas = append(datas, &pbType.Data{
-			Destination:   data.Destination,
-			SubType:          data.SubType,
-			Analytics: &pbType.Analytics{
-				Searches: &pbType.Score{
-					Score: data.Analytics.Searches.Score,
-				},
-			},
-		})
-	}
-
-	meta := pbType.Meta{
-		Count: resp.Meta.Count,
-		Links: &pbType.Links{
-			Self: resp.Meta.Links.Self,
-		},
-	}
-
-	var warnings []*pbType.Warning
-	for _, warning := range resp.Warnings {
-		warnings = append(warnings, &pbType.Warning{
-			Title: warning.Title,
-		})
-	}
-
-	return &pbType.Response{
-		Data:         datas,
-		Meta:         &meta,
-		Warnings:     warnings,
-	}, nil
-}
-
