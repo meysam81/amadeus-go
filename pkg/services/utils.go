@@ -73,16 +73,17 @@ func getTokenFromAmadeus() (*amadeusToken, error) {
 func getServicesURLs() (*serviceUrls, error) {
 	// TODO read from config file
 	urls := serviceUrls{
-		apiBaseUrl:                     "https://test.api.amadeus.com",
-		flightLowFareSearch:            "/v1/shopping/flight-offers",
-		flightInspirationSearch:        "/v1/shopping/flight-destinations",
-		flightCheapestDateSearch:       "/v1/shopping/flight-dates",
-		flightMostSearchedDestinations: "/v1/travel/analytics/air-traffic/searched",
-		flightMostTraveledDestinations: "/v1/travel/analytics/air-traffic/traveled",
-		flightMostBookedDestinations:   "/v1/travel/analytics/air-traffic/booked",
-		flightBusiestTravelingPeriod:   "/v1/travel/analytics/air-traffic/busiest-period",
-		airportNearestRelevant:         "/v1/reference-data/locations/airports",
-		airportAndCitySearch:           "/v1/reference-data/locations",
+		apiBaseUrl:                      "https://test.api.amadeus.com",
+		flightLowFareSearch:             "/v1/shopping/flight-offers",
+		flightInspirationSearch:         "/v1/shopping/flight-destinations",
+		flightCheapestDateSearch:        "/v1/shopping/flight-dates",
+		flightMostSearchedDestinations:  "/v1/travel/analytics/air-traffic/searched",
+		flightMostSearchedByDestination: "/v1/travel/analytics/air-traffic/searched/by-destination",
+		flightMostTraveledDestinations:  "/v1/travel/analytics/air-traffic/traveled",
+		flightMostBookedDestinations:    "/v1/travel/analytics/air-traffic/booked",
+		flightBusiestTravelingPeriod:    "/v1/travel/analytics/air-traffic/busiest-period",
+		airportNearestRelevant:          "/v1/reference-data/locations/airports",
+		airportAndCitySearch:            "/v1/reference-data/locations",
 	}
 	return &urls, nil
 }

@@ -2,10 +2,11 @@ package services
 
 // ==================================== RPC ====================================
 type Response struct {
-	Data         []*Data       `json:"data,omitempty"`
-	Dictionaries *Dictionaries `json:"dictionaries,omitempty"`
-	Meta         *Meta         `json:"meta,omitempty"`
-	Warnings     []*Warning    `json:"warnings,omitempty"`
+	Data         []*Data         `json:"data,omitempty"`
+	Dictionaries *Dictionaries   `json:"dictionaries,omitempty"`
+	Meta         *Meta           `json:"meta,omitempty"`
+	Warnings     []*ErrorWarning `json:"warnings,omitempty"`
+	Errors       []*ErrorWarning `json:"errors,omitempty"`
 }
 
 type FlightLowFareSearchRequest struct {
@@ -29,6 +30,13 @@ type FlightMostSearchedDestinationsRequest struct {
 	OriginCityCode    string
 	SearchPeriod      string
 	MarketCountryCode string
+}
+
+type FlightMostSearchedByDestinationRequest struct {
+	OriginCityCode      string
+	DestinationCityCode string
+	SearchPeriod        string
+	MarketCountryCode   string
 }
 
 type FlightMostTraveledDestinationsRequest struct {
@@ -66,22 +74,22 @@ type Data struct {
 	OfferItems     []*OfferItem `json:"offerItems,omitempty"`
 	Destination    string       `json:"destination,omitempty"`
 	SubType        string       `json:"subType,omitempty"`
-	Analytics      Analytics    `json:"analytics,omitempty"`
+	Analytics      *Analytics   `json:"analytics,omitempty"`
 	Period         string       `json:"period,omitempty"`
 	Name           string       `json:"name,omitempty"`
 	DetailedName   string       `json:"detailedName,omitempty"`
 	TimeZoneOffset string       `json:"timeZoneOffset,omitempty"`
 	IataCode       string       `json:"iataCode,omitempty"`
-	GeoCode        GeoCode      `json:"geoCode,omitempty"`
-	Address        Address      `json:"address,omitempty"`
-	Distance       Distance     `json:"distance,omitempty"`
+	GeoCode        *GeoCode     `json:"geoCode,omitempty"`
+	Address        *Address     `json:"address,omitempty"`
+	Distance       *Distance    `json:"distance,omitempty"`
 	Relevance      float32      `json:"relevance,omitempty"`
 	Origin         string       `json:"origin,omitempty"`
 	DepartureDate  string       `json:"departureDate,omitempty"`
 	ReturnDate     string       `json:"returnDate,omitempty"`
-	Price          Price        `json:"price,omitempty"`
-	Links          Links        `json:"links,omitempty"`
-	Self           Self         `json:"links,omitempty"`
+	Price          *Price       `json:"price,omitempty"`
+	Links          *Links       `json:"links,omitempty"`
+	Self           *Self        `json:"links,omitempty"`
 }
 
 type OfferItem struct {
@@ -137,13 +145,14 @@ type Price struct {
 }
 
 type Analytics struct {
-	Flights   Score `json:"flights,omitempty"`
-	Travelers Score `json:"travelers,omitempty"`
-	Searches  Score `json:"searches,omitemtpy"`
+	Flights   *Score `json:"flights,omitempty"`
+	Travelers *Score `json:"travelers,omitempty"`
+	Searches  *Score `json:"searches,omitemtpy"`
 }
 
 type Score struct {
-	Score int32 `json:"score,omitempty"`
+	Score            int32             `json:"score,omitempty"`
+	NumberOfSearches *NumberOfSearches `json:"numberOfSearches,omitempty"`
 }
 
 type GeoCode struct {
@@ -202,6 +211,21 @@ type Defaults struct {
 	ViewBy        string `json:"viewBy,omitempty"`
 }
 
-type Warning struct {
-	Title string `json:"title,omitempty"`
+type ErrorWarning struct {
+	Status int32   `json:"status,omitempty"`
+	Code   int32   `json:"code,omitempty"`
+	Title  string  `json:"title,omitempty"`
+	Detail string  `json:"title,omitempty"`
+	Source *Source `json:"source,omitempty"`
+}
+
+type Source struct {
+	Pointer   string `json:"pointer,omitempty"`
+	Parameter string `json:"parameter,omitempty"`
+	Example   string `json:"example,omitempty"`
+}
+
+type NumberOfSearches struct {
+	PerTripDuration  map[string]string `json:"perTripDuration,omitempty"`
+	PerDaysInAdvance map[string]string `json:"perDaysInAdvance,omitempty"`
 }
