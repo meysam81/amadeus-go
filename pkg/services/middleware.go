@@ -66,6 +66,22 @@ func (mw logmw) FlightCheapestDateSearch(ctx context.Context, req *FlightCheapes
 	return
 }
 
+func (mw logmw) FlightMostSearchedDestinations(ctx context.Context, req *FlightMostSearchedDestinationsRequest) (resp *Response, err error) {
+	defer func(begin time.Time) {
+		_ = mw.logger.Log(
+			"layer", "service",
+			"method", "FlightMostSearchedDestinations",
+			"input", req,
+			"output", resp,
+			"error", err,
+			"took", time.Since(begin),
+		)
+	}(time.Now())
+
+	resp, err = mw.sv.FlightMostSearchedDestinations(ctx, req)
+	return
+}
+
 func (mw logmw) FlightMostTraveledDestinations(ctx context.Context, req *FlightMostTraveledDestinationsRequest) (resp *Response, err error) {
 	defer func(begin time.Time) {
 		_ = mw.logger.Log(
