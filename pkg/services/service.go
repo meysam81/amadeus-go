@@ -15,6 +15,7 @@ type AmadeusService interface {
 	FlightLowFareSearch(context.Context, *FlightLowFareSearchRequest) (*Response, error)
 	FlightInspirationSearch(context.Context, *FlightInspirationSearchRequest) (*Response, error)
 	FlightCheapestDateSearch(context.Context, *FlightCheapestDateSearchRequest) (*Response, error)
+	FlightMostSearchedDestinations(context.Context, *FlightMostSearchedDestinationsRequest) (*Response, error)
 	FlightMostTraveledDestinations(context.Context, *FlightMostTraveledDestinationsRequest) (*Response, error)
 	FlightMostBookedDestinations(context.Context, *FlightMostBookedDestinationsRequest) (*Response, error)
 	FlightBusiestTravelingPeriod(context.Context, *FlightBusiestTravelingPeriodRequest) (*Response, error)
@@ -109,6 +110,44 @@ func (aSrv amadeusService) FlightCheapestDateSearch(_ context.Context, request *
 	q := req.URL.Query()
 	q.Add("origin", request.Origin)
 	q.Add("destination", string(request.Destination))
+	req.URL.RawQuery = q.Encode()
+
+	bearer := getBearer(aSrv.token)
+	req.Header.Add("Authorization", bearer)
+	req.Header.Add("Accept", "application/json")
+
+	client := http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(b, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return
+}
+
+func (aSrv amadeusService) FlightMostSearchedDestinations(_ context.Context, request *FlightMostSearchedDestinationsRequest) (response *Response, err error) {
+	url := cleanUrl(aSrv.urls.apiBaseUrl, aSrv.urls.flightMostSearchedDestinations)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// this is the way to send body of mime-type: application/x-www-form-urlencoded
+	q := req.URL.Query()
+	q.Add("originCityCode", request.OriginCityCode)
+	q.Add("searchPeriod", request.SearchPeriod)
+	q.Add("marketCountryCode", request.MarketCountryCode)
 	req.URL.RawQuery = q.Encode()
 
 	bearer := getBearer(aSrv.token)
@@ -364,6 +403,7 @@ type serviceUrls struct {
 	flightLowFareSearch            string
 	flightInspirationSearch        string
 	flightCheapestDateSearch       string
+	flightMostSearchedDestinations string
 	flightMostTraveledDestinations string
 	flightMostBookedDestinations   string
 	flightBusiestTravelingPeriod   string

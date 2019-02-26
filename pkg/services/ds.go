@@ -25,6 +25,12 @@ type FlightCheapestDateSearchRequest struct {
 	Destination string
 }
 
+type FlightMostSearchedDestinationsRequest struct {
+	OriginCityCode    string
+	SearchPeriod      string
+	MarketCountryCode string
+}
+
 type FlightMostTraveledDestinationsRequest struct {
 	OriginCityCode string
 	Period         string
@@ -133,6 +139,7 @@ type Price struct {
 type Analytics struct {
 	Flights   Score `json:"flights,omitempty"`
 	Travelers Score `json:"travelers,omitempty"`
+	Searches  Score `json:"searches,omitemtpy"`
 }
 
 type Score struct {
