@@ -193,3 +193,19 @@ func (mw logmw) AirportAndCitySearch(ctx context.Context, req *AirportAndCitySea
 	resp, err = mw.sv.AirportAndCitySearch(ctx, req)
 	return
 }
+
+func (mw logmw) AirlineCodeLookup(ctx context.Context, req *AirlineCodeLookupRequest) (resp *Response, err error) {
+	defer func(begin time.Time) {
+		_ = mw.logger.Log(
+			"layer", "service",
+			"method", "AirlineCodeLookup",
+			"input", req,
+			"output", resp,
+			"error", err,
+			"took", time.Since(begin),
+		)
+	}(time.Now())
+
+	resp, err = mw.sv.AirlineCodeLookup(ctx, req)
+	return
+}
