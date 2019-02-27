@@ -49,8 +49,8 @@ service AmadeusService {
 message FlightLowFareSearchRequest {
     string origin = 1;
     string destination = 2;
-    string departure_date = 3;
-    string return_date = 4;
+    string departureDate = 3;
+    string returnDate = 4;
 }
 
 // msgCode: 0002
