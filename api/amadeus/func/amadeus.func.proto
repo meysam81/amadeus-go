@@ -1,21 +1,147 @@
 syntax = "proto3";
 
 import "amadeus-go/api/amadeus/type/amadeus.type.proto";
-//import "comn/comn.type.proto";
 
 package amadeus.func;
 
 service AmadeusService {
     // I know where I want to fly, the dates and duration, what are the best flight deals?
-    rpc FlightLowFareSearch (FlightLowFareSearchRequest) returns (amadeus.type.FlightLowFareSearchResult);
+    rpc FlightLowFareSearch (FlightLowFareSearchRequest) returns (amadeus.type.Response);
+
+    // Where can I fly from/to Delhi in the next months for $400?
+    rpc FlightInspirationSearch (FlightInspirationSearchRequest) returns (amadeus.type.Response);
+
+    // When is the cheapest date to fly to San Francisco from Miami?
+    rpc FlightCheapestDateSearch (FlightCheapestDateSearchRequest) returns (amadeus.type.Response);
+
+    // Which were the most searched destinations from Nice in June 2017?
+    rpc FlightMostSearchedDestinations (FlightMostSearchedDestinationsRequest) returns (amadeus.type.Response);
+
+    // What is the URL to my online check-in?
+    rpc FlightCheckInLinks (FlightCheckInLinksRequest) returns (amadeus.type.Response);
+
+    // Which were the most searched destinations from Nice in June 2017?
+    rpc FlightMostSearchedByDestination (FlightMostSearchedByDestinationRequest) returns (amadeus.type.Response);
+
+    // Where were people flying to the most from London in September 2017?
+    rpc FlightMostTraveledDestinations (FlightMostTraveledDestinationsRequest) returns (amadeus.type.Response);
+
+    // Where were the most number of bookings made to from Bangalore last November?
+    rpc FlightMostBookedDestinations (FlightMostBookedDestinationsRequest) returns (amadeus.type.Response);
+
+    // What was the busiest travel period for New York, based on either arrivals or departures?
+    rpc FlightBusiestTravelingPeriod (FlightBusiestTravelingPeriodRequest) returns (amadeus.type.Response);
+
+    // What relevant airports are there around a specific location?
+    rpc AirportNearestRelevant (AirportNearestRelevantRequest) returns (amadeus.type.Response);
+
+    // Which cities and/or airports start with ‘PA’ characters?
+    rpc AirportAndCitySearch (AirportAndCitySearchRequest) returns (amadeus.type.Response);
+
+    // Which airline has IATA code BA?
+    rpc AirlineCodeLookup (AirlineCodeLookupRequest) returns (amadeus.type.Response);
+
 }
 
 // msgCode: 0001
-// => amadeus.type.FlightOffersResult (0050)
-// => amadeus.comn.BadRequest (0950)
+// => amadeus.type.Response (0050)
+// example: ?origin=PAR&destination=LON&departureDate=2018-09-25&returnDate=2018-09-28
 message FlightLowFareSearchRequest {
     string origin = 1;
     string destination = 2;
-    string departure_date = 3;
-    string return_date = 4;
+    string departureDate = 3;
+    string returnDate = 4;
 }
+
+// msgCode: 0002
+// => amadeus.type.Response (0050)
+// example: ?origin=DEL&maxPrice=400
+message FlightInspirationSearchRequest {
+    string origin = 1;
+    int32 maxPrice = 2;
+}
+
+// msgCode: 0003
+// => amadeus.type.Response (0050)
+// example: ?origin=MIA&destination=SFO
+message FlightCheapestDateSearchRequest {
+    string origin = 1;
+    string destination = 2;
+}
+
+// msgCode: 0004
+// => amadeus.type.Response (0050)
+// example: ?airlineCode=BA
+message FlightCheckInLinksRequest {
+    string airlineCode = 1;
+}
+
+// msgCode: 0005
+// => amadeus.type.Response (0050)
+// example: ?originCityCode=MAD&searchPeriod=2017-08&marketCountryCode=ES
+message FlightMostSearchedDestinationsRequest {
+    string originCityCode = 1;
+    string searchPeriod = 2;
+    string marketCountryCode = 3;
+}
+
+// msgCode: 0006
+// => amadeus.type.Response (0050)
+// example: ?originCityCode=LON&period=2017-09
+message FlightMostTraveledDestinationsRequest {
+    string originCityCode = 1;
+    string period = 2;
+}
+
+// msgCode: 0007
+// => amadeus.type.Response (0050)
+// example: ?originCityCode=BLR&period=2017-11
+message FlightMostBookedDestinationsRequest {
+    string originCityCode = 1;
+    string period = 2;
+}
+
+// msgCode: 0008
+// => amadeus.type.Response (0050)
+// example: ?cityCode=NYC&period=2017&direction=ARRIVING
+message FlightBusiestTravelingPeriodRequest {
+    string cityCode = 1;
+    string period = 2;
+    string direction = 3;
+}
+
+// msgCode: 0009
+// => amadeus.type.Response (0050)
+// example: ?latitude=49.0000&longitude=2.55&sort=relevance
+message AirportNearestRelevantRequest {
+    float latitude = 1;
+    float longitude = 2;
+    string sort = 3;
+}
+
+// msgCode: 0010
+// => amadeus.type.Response (0050)
+// example: ?subType=AIRPORT,CITY&keyword=PAR&countryCode=FR
+message AirportAndCitySearchRequest {
+    string subType = 1;
+    string keyword = 2;
+    string countryCode = 3;
+}
+
+// msgCode: 0011
+// => amadeus.type.Response (0050)
+// example: ?airlineCodes=BA
+message AirlineCodeLookupRequest {
+    string airlineCodes = 1;
+}
+
+// msgCode: 0013
+// => amadeus.type.Response (0050)
+// example: ?originCityCode=MAD&destinationCityCode=NYC&searchPeriod=2017-09&marketCountryCode=ES
+message FlightMostSearchedByDestinationRequest {
+    string originCityCode = 1;
+    string destinationCityCode = 2;
+    string searchPeriod = 3;
+    string marketCountryCode = 4;
+}
+

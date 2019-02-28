@@ -1,9 +1,0 @@
-syntax = "proto3";
-
-package amadeus.comn;
-
-// msgCode: 0950
-message Exception {
-    string code = 1;
-    string description = 2;
-}

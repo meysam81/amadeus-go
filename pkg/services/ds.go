@@ -1,6 +1,14 @@
 package services
 
-// ======================= Data Structures =======================
+// ==================================== RPC ====================================
+type Response struct {
+	Data         []*Data         `json:"data"`
+	Dictionaries *Dictionaries   `json:"dictionaries"`
+	Meta         *Meta           `json:"meta"`
+	Warnings     []*ErrorWarning `json:"warnings"`
+	Errors       []*ErrorWarning `json:"errors"`
+}
+
 type FlightLowFareSearchRequest struct {
 	Origin        string
 	Destination   string
@@ -8,17 +16,94 @@ type FlightLowFareSearchRequest struct {
 	ReturnDate    string
 }
 
-type FlightLowFareSearchResponse struct {
-	Data         []*Data       `json:"data"`
-	Dictionaries *Dictionaries `json:"dictionaries"`
-	Meta         *Meta         `json:"meta"`
+type FlightInspirationSearchRequest struct {
+	Origin   string
+	MaxPrice int32
 }
 
-// ===============================================================
+type FlightCheapestDateSearchRequest struct {
+	Origin      string
+	Destination string
+}
+
+type FlightMostSearchedDestinationsRequest struct {
+	OriginCityCode    string
+	SearchPeriod      string
+	MarketCountryCode string
+}
+
+type FlightMostSearchedByDestinationRequest struct {
+	OriginCityCode      string
+	DestinationCityCode string
+	SearchPeriod        string
+	MarketCountryCode   string
+}
+
+type FlightCheckInLinksRequest struct {
+	AirlineCode string
+}
+
+type FlightMostTraveledDestinationsRequest struct {
+	OriginCityCode string
+	Period         string
+}
+
+type FlightMostBookedDestinationsRequest struct {
+	OriginCityCode string
+	Period         string
+}
+
+type FlightBusiestTravelingPeriodRequest struct {
+	CityCode  string
+	Period    string
+	Direction string
+}
+
+type AirportNearestRelevantRequest struct {
+	Latitude  float32
+	Longitude float32
+	Sort      string
+}
+
+type AirportAndCitySearchRequest struct {
+	SubType     string
+	Keyword     string
+	CountryCode string
+}
+
+type AirlineCodeLookupRequest struct {
+	AirlineCodes string
+}
+
+// ============================== Data Structures ==============================
 type Data struct {
-	Type       string       `json:"type"`
-	Id         string       `json:"id"`
-	OfferItems []*OfferItem `json:"offerItems"`
+	Type           string                  `json:"type"`
+	Id             string                  `json:"id"`
+	OfferItems     []*OfferItem            `json:"offerItems"`
+	Destination    string                  `json:"destination"`
+	SubType        string                  `json:"subType"`
+	Analytics      *Analytics              `json:"analytics"`
+	Period         string                  `json:"period"`
+	Name           string                  `json:"name"`
+	DetailedName   string                  `json:"detailedName"`
+	TimeZoneOffset string                  `json:"timeZoneOffset"`
+	IataCode       string                  `json:"iataCode"`
+	GeoCode        *GeoCode                `json:"geoCode"`
+	Address        *Address                `json:"address"`
+	Distance       *Distance               `json:"distance"`
+	Relevance      float32                 `json:"relevance"`
+	Origin         string                  `json:"origin"`
+	DepartureDate  string                  `json:"departureDate"`
+	ReturnDate     string                  `json:"returnDate"`
+	Price          *Price                  `json:"price"`
+	Links          *Links                  `json:"links"`
+	Self           *Self                   `json:"links"`
+	Href           string                  `json:"href"`
+	Channel        string                  `json:"channel"`
+	Parameters     map[string]*ParamDetail `json:"parameters"`
+	IcaoCode       string                  `json:"icaoCode"`
+	BusinessName   string                  `json:"businessName"`
+	CommonName     string                  `json:"commonName"`
 }
 
 type OfferItem struct {
@@ -73,26 +158,94 @@ type Price struct {
 	TotalTaxes string `json:"totalTaxes"`
 }
 
-// ===============================================================
+type Analytics struct {
+	Flights   *Score `json:"flights"`
+	Travelers *Score `json:"travelers"`
+	Searches  *Score `json:"searches,omitemtpy"`
+}
+
+type Score struct {
+	Score            int32             `json:"score"`
+	NumberOfSearches *NumberOfSearches `json:"numberOfSearches"`
+}
+
+type GeoCode struct {
+	Latitude  float32 `json:"Latitude"`
+	Longitude float32 `json:"Longitude"`
+}
+
+type Address struct {
+	CityName    string `json:"cityName"`
+	CityCode    string `json:"cityCode"`
+	CountryName string `json:"countryName"`
+	CountryCode string `json:"countryCode"`
+	StateCode   string `json:"stateCode"`
+	RegionCode  string `json:"regionCode"`
+}
+
+type Distance struct {
+	Value int32  `json:"value"`
+	Unit  string `json:"unit"`
+}
+
+type Self struct {
+	Href    string   `json:"href"`
+	Methods []string `json:"methods"`
+}
+
 type Dictionaries struct {
-	Carriers   map[string]string `json:"carriers"`
-	Currencies map[string]string `json:"currencies"`
-	Aircraft   map[string]string `json:"aircraft"`
+	Carriers   map[string]string            `json:"carriers"`
+	Currencies map[string]string            `json:"currencies"`
+	Aircrafts  map[string]string            `json:"aircraft"`
 	Locations  map[string]map[string]string `json:"locations"`
 }
 
-// ===============================================================
 type Meta struct {
 	Links    *Links    `json:"links"`
 	Currency string    `json:"currency"`
 	Defaults *Defaults `json:"defaults"`
+	Count    int32     `json:"count"`
 }
 
 type Links struct {
-	Self string `json:"self"`
+	Self               string `json:"self"`
+	Next               string `json:"next"`
+	Last               string `json:"last"`
+	FlightDates        string `json:"flightDates"`
+	FlightOffers       string `json:"flightOffers"`
+	FlightDestinations string `json:"flightDestinations"`
 }
 
 type Defaults struct {
-	NonStop bool  `json:"nonStop"`
-	Adults  int32 `json:"adults"`
+	NonStop       bool   `json:"nonStop"`
+	Adults        int32  `json:"adults"`
+	DepartureDate string `json:"departureDate"`
+	OneWay        bool   `json:"oneWay"`
+	Duration      string `json:"duration"`
+	ViewBy        string `json:"viewBy"`
+}
+
+type ErrorWarning struct {
+	Status int32   `json:"status"`
+	Code   int32   `json:"code"`
+	Title  string  `json:"title"`
+	Detail string  `json:"title"`
+	Source *Source `json:"source"`
+}
+
+type Source struct {
+	Pointer   string `json:"pointer"`
+	Parameter string `json:"parameter"`
+	Example   string `json:"example"`
+}
+
+type NumberOfSearches struct {
+	PerTripDuration  map[string]string `json:"perTripDuration"`
+	PerDaysInAdvance map[string]string `json:"perDaysInAdvance"`
+}
+
+type ParamDetail struct {
+	Description string `json:"description"`
+	Type        string `json:"type"`
+	Format      string `json:"format"`
 }

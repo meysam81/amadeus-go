@@ -8,20 +8,21 @@ import (
 	"github.com/go-kit/kit/log"
 )
 
-func loggingMiddleware(logger log.Logger) endpoint.Middleware {
+func loggingMiddleware(logger log.Logger, methodName string) endpoint.Middleware {
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
-		return func(ctx context.Context, req interface{}) (resp interface{}, err error) {
+		return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 			defer func(begin time.Time) {
 				_ = logger.Log(
 					"layer", "endpoint",
-					"method", "FlightLowFareSearch",
-					"input", req,
-					"output", resp,
+					"method", methodName,
+					"input", request,
+					"output", response,
 					"error", err,
 					"took", time.Since(begin),
 				)
 			}(time.Now())
-			return next(ctx, req)
+
+			return next(ctx, request)
 		}
 	}
 }
