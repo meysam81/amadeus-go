@@ -1,0 +1,16 @@
+{
+  "ApiBaseUrl":                      "https://test.api.amadeus.com",
+  "AuthUrl":                         "/v1/security/oauth2/token",
+  "FlightLowFareSearch":             "/v1/shopping/flight-offers",
+  "FlightInspirationSearch":         "/v1/shopping/flight-destinations",
+  "FlightCheapestDateSearch":        "/v1/shopping/flight-dates",
+  "FlightMostSearchedDestinations":  "/v1/travel/analytics/air-traffic/searched",
+  "FlightMostSearchedByDestination": "/v1/travel/analytics/air-traffic/searched/by-destination",
+  "FlightCheckInLists":              "/v2/reference-data/urls/checkin-links?airlineCode=BA",
+  "FlightMostTraveledDestinations":  "/v1/travel/analytics/air-traffic/traveled",
+  "FlightMostBookedDestinations":    "/v1/travel/analytics/air-traffic/booked",
+  "FlightBusiestTravelingPeriod":    "/v1/travel/analytics/air-traffic/busiest-period",
+  "AirportNearestRelevant":          "/v1/reference-data/locations/airports",
+  "AirportAndCitySearch":            "/v1/reference-data/locations",
+  "AirlineCodeLookup":               "/v1/reference-data/airlines"
+}

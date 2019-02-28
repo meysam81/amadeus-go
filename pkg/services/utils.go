@@ -47,7 +47,7 @@ func getTokenFromAmadeus(configFilename string, urls *serviceUrls) (*amadeusToke
 	body.Set("grant_type", "client_credentials")
 
 	contentType := "application/x-www-form-urlencoded"
-	urlStr := cleanUrl(urls.apiBaseUrl, urls.authUrl)
+	urlStr := cleanUrl(urls.ApiBaseUrl, urls.AuthUrl)
 	resp, err := http.Post(urlStr, contentType, strings.NewReader(body.Encode()))
 	defer resp.Body.Close()
 	if err != nil {
@@ -67,24 +67,14 @@ func getTokenFromAmadeus(configFilename string, urls *serviceUrls) (*amadeusToke
 	return &token, nil
 }
 
-func getServicesURLs() (*serviceUrls, error) {
-	// TODO read from config file
-	urls := serviceUrls{
-		apiBaseUrl:                      "https://test.api.amadeus.com",
-		authUrl:                         "/v1/security/oauth2/token",
-		flightLowFareSearch:             "/v1/shopping/flight-offers",
-		flightInspirationSearch:         "/v1/shopping/flight-destinations",
-		flightCheapestDateSearch:        "/v1/shopping/flight-dates",
-		flightMostSearchedDestinations:  "/v1/travel/analytics/air-traffic/searched",
-		flightMostSearchedByDestination: "/v1/travel/analytics/air-traffic/searched/by-destination",
-		flightCheckInLists:              "/v2/reference-data/urls/checkin-links?airlineCode=BA",
-		flightMostTraveledDestinations:  "/v1/travel/analytics/air-traffic/traveled",
-		flightMostBookedDestinations:    "/v1/travel/analytics/air-traffic/booked",
-		flightBusiestTravelingPeriod:    "/v1/travel/analytics/air-traffic/busiest-period",
-		airportNearestRelevant:          "/v1/reference-data/locations/airports",
-		airportAndCitySearch:            "/v1/reference-data/locations",
-		airlineCodeLookup:               "/v1/reference-data/airlines",
+func getServicesURLs(urlsFilename string) (*serviceUrls, error) {
+	var urls serviceUrls
+
+	err := readConf(urlsFilename, &urls)
+	if err != nil {
+		return nil, err
 	}
+
 	return &urls, nil
 }
 

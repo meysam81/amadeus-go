@@ -27,7 +27,7 @@ type AmadeusService interface {
 }
 
 func (aSrv amadeusService) FlightLowFareSearch(_ context.Context, request *FlightLowFareSearchRequest) (response *Response, err error) {
-	url := cleanUrl(aSrv.urls.apiBaseUrl, aSrv.urls.flightLowFareSearch)
+	url := cleanUrl(aSrv.urls.ApiBaseUrl, aSrv.urls.FlightLowFareSearch)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -66,7 +66,7 @@ func (aSrv amadeusService) FlightLowFareSearch(_ context.Context, request *Fligh
 }
 
 func (aSrv amadeusService) FlightInspirationSearch(_ context.Context, request *FlightInspirationSearchRequest) (response *Response, err error) {
-	url := cleanUrl(aSrv.urls.apiBaseUrl, aSrv.urls.flightInspirationSearch)
+	url := cleanUrl(aSrv.urls.ApiBaseUrl, aSrv.urls.FlightInspirationSearch)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -103,7 +103,7 @@ func (aSrv amadeusService) FlightInspirationSearch(_ context.Context, request *F
 }
 
 func (aSrv amadeusService) FlightCheapestDateSearch(_ context.Context, request *FlightCheapestDateSearchRequest) (response *Response, err error) {
-	url := cleanUrl(aSrv.urls.apiBaseUrl, aSrv.urls.flightCheapestDateSearch)
+	url := cleanUrl(aSrv.urls.ApiBaseUrl, aSrv.urls.FlightCheapestDateSearch)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -140,7 +140,7 @@ func (aSrv amadeusService) FlightCheapestDateSearch(_ context.Context, request *
 }
 
 func (aSrv amadeusService) FlightMostSearchedDestinations(_ context.Context, request *FlightMostSearchedDestinationsRequest) (response *Response, err error) {
-	url := cleanUrl(aSrv.urls.apiBaseUrl, aSrv.urls.flightMostSearchedDestinations)
+	url := cleanUrl(aSrv.urls.ApiBaseUrl, aSrv.urls.FlightMostSearchedDestinations)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -178,7 +178,7 @@ func (aSrv amadeusService) FlightMostSearchedDestinations(_ context.Context, req
 }
 
 func (aSrv amadeusService) FlightMostSearchedByDestination(_ context.Context, request *FlightMostSearchedByDestinationRequest) (response *Response, err error) {
-	url := cleanUrl(aSrv.urls.apiBaseUrl, aSrv.urls.flightMostSearchedByDestination)
+	url := cleanUrl(aSrv.urls.ApiBaseUrl, aSrv.urls.FlightMostSearchedByDestination)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -217,7 +217,7 @@ func (aSrv amadeusService) FlightMostSearchedByDestination(_ context.Context, re
 }
 
 func (aSrv amadeusService) FlightCheckInLinks(_ context.Context, request *FlightCheckInLinksRequest) (response *Response, err error) {
-	url := cleanUrl(aSrv.urls.apiBaseUrl, aSrv.urls.flightCheckInLists)
+	url := cleanUrl(aSrv.urls.ApiBaseUrl, aSrv.urls.FlightCheckInLists)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -253,7 +253,7 @@ func (aSrv amadeusService) FlightCheckInLinks(_ context.Context, request *Flight
 }
 
 func (aSrv amadeusService) FlightMostTraveledDestinations(_ context.Context, request *FlightMostTraveledDestinationsRequest) (response *Response, err error) {
-	url := cleanUrl(aSrv.urls.apiBaseUrl, aSrv.urls.flightMostTraveledDestinations)
+	url := cleanUrl(aSrv.urls.ApiBaseUrl, aSrv.urls.FlightMostTraveledDestinations)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -290,7 +290,7 @@ func (aSrv amadeusService) FlightMostTraveledDestinations(_ context.Context, req
 }
 
 func (aSrv amadeusService) FlightMostBookedDestinations(_ context.Context, request *FlightMostBookedDestinationsRequest) (response *Response, err error) {
-	url := cleanUrl(aSrv.urls.apiBaseUrl, aSrv.urls.flightMostBookedDestinations)
+	url := cleanUrl(aSrv.urls.ApiBaseUrl, aSrv.urls.FlightMostBookedDestinations)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -327,7 +327,7 @@ func (aSrv amadeusService) FlightMostBookedDestinations(_ context.Context, reque
 }
 
 func (aSrv amadeusService) FlightBusiestTravelingPeriod(_ context.Context, request *FlightBusiestTravelingPeriodRequest) (response *Response, err error) {
-	url := cleanUrl(aSrv.urls.apiBaseUrl, aSrv.urls.flightBusiestTravelingPeriod)
+	url := cleanUrl(aSrv.urls.ApiBaseUrl, aSrv.urls.FlightBusiestTravelingPeriod)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -365,7 +365,7 @@ func (aSrv amadeusService) FlightBusiestTravelingPeriod(_ context.Context, reque
 }
 
 func (aSrv amadeusService) AirportNearestRelevant(_ context.Context, request *AirportNearestRelevantRequest) (response *Response, err error) {
-	url := cleanUrl(aSrv.urls.apiBaseUrl, aSrv.urls.flightBusiestTravelingPeriod)
+	url := cleanUrl(aSrv.urls.ApiBaseUrl, aSrv.urls.FlightBusiestTravelingPeriod)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -403,7 +403,7 @@ func (aSrv amadeusService) AirportNearestRelevant(_ context.Context, request *Ai
 }
 
 func (aSrv amadeusService) AirportAndCitySearch(_ context.Context, request *AirportAndCitySearchRequest) (response *Response, err error) {
-	url := cleanUrl(aSrv.urls.apiBaseUrl, aSrv.urls.flightBusiestTravelingPeriod)
+	url := cleanUrl(aSrv.urls.ApiBaseUrl, aSrv.urls.FlightBusiestTravelingPeriod)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -441,7 +441,7 @@ func (aSrv amadeusService) AirportAndCitySearch(_ context.Context, request *Airp
 }
 
 func (aSrv amadeusService) AirlineCodeLookup(_ context.Context, request *AirlineCodeLookupRequest) (response *Response, err error) {
-	url := cleanUrl(aSrv.urls.apiBaseUrl, aSrv.urls.airlineCodeLookup)
+	url := cleanUrl(aSrv.urls.ApiBaseUrl, aSrv.urls.AirlineCodeLookup)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -476,13 +476,13 @@ func (aSrv amadeusService) AirlineCodeLookup(_ context.Context, request *Airline
 	return
 }
 
-func NewBasicService(port int, configFilename string, logger log.Logger) (AmadeusService, error) {
+func NewBasicService(port int, configFilename string, urlsFilename string, logger log.Logger) (AmadeusService, error) {
 	s, err := registerService("amadeus-go", port, time.Second*15)
 	if err != nil {
 		return nil, err
 	}
 
-	urls, err := getServicesURLs()
+	urls, err := getServicesURLs(urlsFilename)
 	if err != nil {
 		return nil, err
 	}
@@ -513,18 +513,18 @@ type amadeusService struct {
 }
 
 type serviceUrls struct {
-	apiBaseUrl                      string
-	authUrl                         string
-	flightLowFareSearch             string
-	flightInspirationSearch         string
-	flightCheapestDateSearch        string
-	flightMostSearchedDestinations  string
-	flightMostSearchedByDestination string
-	flightCheckInLists              string
-	flightMostTraveledDestinations  string
-	flightMostBookedDestinations    string
-	flightBusiestTravelingPeriod    string
-	airportNearestRelevant          string
-	airportAndCitySearch            string
-	airlineCodeLookup               string
+	ApiBaseUrl                      string
+	AuthUrl                         string
+	FlightLowFareSearch             string
+	FlightInspirationSearch         string
+	FlightCheapestDateSearch        string
+	FlightMostSearchedDestinations  string
+	FlightMostSearchedByDestination string
+	FlightCheckInLists              string
+	FlightMostTraveledDestinations  string
+	FlightMostBookedDestinations    string
+	FlightBusiestTravelingPeriod    string
+	AirportNearestRelevant          string
+	AirportAndCitySearch            string
+	AirlineCodeLookup               string
 }
