@@ -7,6 +7,7 @@ import (
 	"github.com/go-kit/kit/log"
 )
 
+// ============================= logger middleware =============================
 func loggingMiddleware(logger log.Logger) serviceMiddleware {
 	return func(next AmadeusService) AmadeusService {
 		return logmw{logger, next}
