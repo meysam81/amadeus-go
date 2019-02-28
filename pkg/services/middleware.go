@@ -210,4 +210,3 @@ func (mw logmw) AirlineCodeLookup(ctx context.Context, req *AirlineCodeLookupReq
 	resp, err = mw.sv.AirlineCodeLookup(ctx, req)
 	return
 }
-

@@ -17,15 +17,15 @@ type authentication struct {
 }
 
 type amadeusToken struct {
-	Type        string        `json:"type"`
-	Username    string        `json:"username"`
-	AppName     string        `json:"application_name"`
-	ClientId    string        `json:"client_id"`
-	TokenType   string        `json:"token_type"`
-	AccessToken string        `json:"access_token"`
-	ExpiresIn   time.Duration `json:"expires_in"`
-	State       string        `json:"state"`
-	Scope       string        `json:"scope"`
+	Type           string        `json:"type"`
+	Username       string        `json:"username"`
+	AppName        string        `json:"application_name"`
+	ClientId       string        `json:"client_id"`
+	TokenType      string        `json:"token_type"`
+	AccessToken    string        `json:"access_token"`
+	ExpiresIn      time.Duration `json:"expires_in"`
+	State          string        `json:"state"`
+	Scope          string        `json:"scope"`
 	TokenFetchTime time.Duration
 }
 

@@ -554,11 +554,11 @@ func NewBasicService(port int, configFilename string, urlsFilename string, logge
 
 	var srv AmadeusService
 	aSrv := amadeusService{
-		urls:         urls,
-		token:        token,
-		registerInfo: s,
+		urls:           urls,
+		token:          token,
+		registerInfo:   s,
 		configFilename: configFilename,
-		urlsFilename: urlsFilename,
+		urlsFilename:   urlsFilename,
 	}
 
 	srv = loggingMiddleware(logger)(aSrv)
@@ -569,11 +569,11 @@ func NewBasicService(port int, configFilename string, urlsFilename string, logge
 type serviceMiddleware func(service AmadeusService) AmadeusService
 
 type amadeusService struct {
-	token        *amadeusToken
-	urls         *serviceUrls
-	registerInfo *serviceReg
-	configFilename  string
-	urlsFilename string
+	token          *amadeusToken
+	urls           *serviceUrls
+	registerInfo   *serviceReg
+	configFilename string
+	urlsFilename   string
 }
 
 type serviceUrls struct {
