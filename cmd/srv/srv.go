@@ -5,7 +5,6 @@ import (
 	"amadeus-go/pkg/endpoints"
 	"amadeus-go/pkg/services"
 	"amadeus-go/pkg/transports"
-
 	"flag"
 	defaultLogger "log"
 	"net"
@@ -39,7 +38,7 @@ func main() {
 	logger = log.NewLogfmtLogger(os.Stderr)
 	logger = log.With(logger, "caller", log.DefaultCaller)
 
-	srv, err := services.NewBasicService(port, logger)
+	srv, err := services.NewBasicService(port, "config/config.dev.json", "config/API-urls.json", logger)
 	if err != nil {
 		panic(err)
 	}
