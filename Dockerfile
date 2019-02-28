@@ -17,16 +17,6 @@ RUN apk --no-cache add ca-certificates
 WORKDIR /go/bin/
 COPY --from=builder /go/src/amadeus-go/amadeus-go .
 
-# api token retrieval information
-ENV API_KEY kDy2Detv2VNmS6pyf6AFFSQbJVtPLSVe
-ENV API_SECRET mt52fS9wcGRn2RHE
-
-## authorization url
-ENV API_URL https://test.api.amadeus.com/v1/security/oauth2/token
-
-## url for every service in the server
-ENV API_BASE_URL https://test.api.amadeus.com
-
 EXPOSE 8000
 
 CMD ["./amadeus-go"]
