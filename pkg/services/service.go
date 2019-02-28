@@ -27,6 +27,11 @@ type AmadeusService interface {
 }
 
 func (aSrv amadeusService) FlightLowFareSearch(_ context.Context, request *FlightLowFareSearchRequest) (response *Response, err error) {
+	err = checkTokenExpiry(&aSrv)
+	if err != nil {
+		return nil, err
+	}
+
 	url := cleanUrl(aSrv.urls.ApiBaseUrl, aSrv.urls.FlightLowFareSearch)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -66,6 +71,11 @@ func (aSrv amadeusService) FlightLowFareSearch(_ context.Context, request *Fligh
 }
 
 func (aSrv amadeusService) FlightInspirationSearch(_ context.Context, request *FlightInspirationSearchRequest) (response *Response, err error) {
+	err = checkTokenExpiry(&aSrv)
+	if err != nil {
+		return nil, err
+	}
+
 	url := cleanUrl(aSrv.urls.ApiBaseUrl, aSrv.urls.FlightInspirationSearch)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -103,6 +113,11 @@ func (aSrv amadeusService) FlightInspirationSearch(_ context.Context, request *F
 }
 
 func (aSrv amadeusService) FlightCheapestDateSearch(_ context.Context, request *FlightCheapestDateSearchRequest) (response *Response, err error) {
+	err = checkTokenExpiry(&aSrv)
+	if err != nil {
+		return nil, err
+	}
+
 	url := cleanUrl(aSrv.urls.ApiBaseUrl, aSrv.urls.FlightCheapestDateSearch)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -140,6 +155,11 @@ func (aSrv amadeusService) FlightCheapestDateSearch(_ context.Context, request *
 }
 
 func (aSrv amadeusService) FlightMostSearchedDestinations(_ context.Context, request *FlightMostSearchedDestinationsRequest) (response *Response, err error) {
+	err = checkTokenExpiry(&aSrv)
+	if err != nil {
+		return nil, err
+	}
+
 	url := cleanUrl(aSrv.urls.ApiBaseUrl, aSrv.urls.FlightMostSearchedDestinations)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -178,6 +198,11 @@ func (aSrv amadeusService) FlightMostSearchedDestinations(_ context.Context, req
 }
 
 func (aSrv amadeusService) FlightMostSearchedByDestination(_ context.Context, request *FlightMostSearchedByDestinationRequest) (response *Response, err error) {
+	err = checkTokenExpiry(&aSrv)
+	if err != nil {
+		return nil, err
+	}
+
 	url := cleanUrl(aSrv.urls.ApiBaseUrl, aSrv.urls.FlightMostSearchedByDestination)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -217,6 +242,11 @@ func (aSrv amadeusService) FlightMostSearchedByDestination(_ context.Context, re
 }
 
 func (aSrv amadeusService) FlightCheckInLinks(_ context.Context, request *FlightCheckInLinksRequest) (response *Response, err error) {
+	err = checkTokenExpiry(&aSrv)
+	if err != nil {
+		return nil, err
+	}
+
 	url := cleanUrl(aSrv.urls.ApiBaseUrl, aSrv.urls.FlightCheckInLists)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -253,6 +283,11 @@ func (aSrv amadeusService) FlightCheckInLinks(_ context.Context, request *Flight
 }
 
 func (aSrv amadeusService) FlightMostTraveledDestinations(_ context.Context, request *FlightMostTraveledDestinationsRequest) (response *Response, err error) {
+	err = checkTokenExpiry(&aSrv)
+	if err != nil {
+		return nil, err
+	}
+
 	url := cleanUrl(aSrv.urls.ApiBaseUrl, aSrv.urls.FlightMostTraveledDestinations)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -290,6 +325,11 @@ func (aSrv amadeusService) FlightMostTraveledDestinations(_ context.Context, req
 }
 
 func (aSrv amadeusService) FlightMostBookedDestinations(_ context.Context, request *FlightMostBookedDestinationsRequest) (response *Response, err error) {
+	err = checkTokenExpiry(&aSrv)
+	if err != nil {
+		return nil, err
+	}
+
 	url := cleanUrl(aSrv.urls.ApiBaseUrl, aSrv.urls.FlightMostBookedDestinations)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -327,6 +367,11 @@ func (aSrv amadeusService) FlightMostBookedDestinations(_ context.Context, reque
 }
 
 func (aSrv amadeusService) FlightBusiestTravelingPeriod(_ context.Context, request *FlightBusiestTravelingPeriodRequest) (response *Response, err error) {
+	err = checkTokenExpiry(&aSrv)
+	if err != nil {
+		return nil, err
+	}
+
 	url := cleanUrl(aSrv.urls.ApiBaseUrl, aSrv.urls.FlightBusiestTravelingPeriod)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -365,6 +410,11 @@ func (aSrv amadeusService) FlightBusiestTravelingPeriod(_ context.Context, reque
 }
 
 func (aSrv amadeusService) AirportNearestRelevant(_ context.Context, request *AirportNearestRelevantRequest) (response *Response, err error) {
+	err = checkTokenExpiry(&aSrv)
+	if err != nil {
+		return nil, err
+	}
+
 	url := cleanUrl(aSrv.urls.ApiBaseUrl, aSrv.urls.FlightBusiestTravelingPeriod)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -403,6 +453,11 @@ func (aSrv amadeusService) AirportNearestRelevant(_ context.Context, request *Ai
 }
 
 func (aSrv amadeusService) AirportAndCitySearch(_ context.Context, request *AirportAndCitySearchRequest) (response *Response, err error) {
+	err = checkTokenExpiry(&aSrv)
+	if err != nil {
+		return nil, err
+	}
+
 	url := cleanUrl(aSrv.urls.ApiBaseUrl, aSrv.urls.FlightBusiestTravelingPeriod)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -441,6 +496,11 @@ func (aSrv amadeusService) AirportAndCitySearch(_ context.Context, request *Airp
 }
 
 func (aSrv amadeusService) AirlineCodeLookup(_ context.Context, request *AirlineCodeLookupRequest) (response *Response, err error) {
+	err = checkTokenExpiry(&aSrv)
+	if err != nil {
+		return nil, err
+	}
+
 	url := cleanUrl(aSrv.urls.ApiBaseUrl, aSrv.urls.AirlineCodeLookup)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -497,6 +557,8 @@ func NewBasicService(port int, configFilename string, urlsFilename string, logge
 		urls:         urls,
 		token:        token,
 		registerInfo: s,
+		configFilename: configFilename,
+		urlsFilename: urlsFilename,
 	}
 
 	srv = loggingMiddleware(logger)(aSrv)
@@ -510,6 +572,8 @@ type amadeusService struct {
 	token        *amadeusToken
 	urls         *serviceUrls
 	registerInfo *serviceReg
+	configFilename  string
+	urlsFilename string
 }
 
 type serviceUrls struct {

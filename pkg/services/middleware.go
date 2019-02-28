@@ -7,6 +7,7 @@ import (
 	"github.com/go-kit/kit/log"
 )
 
+// ============================= logger middleware =============================
 func loggingMiddleware(logger log.Logger) serviceMiddleware {
 	return func(next AmadeusService) AmadeusService {
 		return logmw{logger, next}
@@ -209,3 +210,4 @@ func (mw logmw) AirlineCodeLookup(ctx context.Context, req *AirlineCodeLookupReq
 	resp, err = mw.sv.AirlineCodeLookup(ctx, req)
 	return
 }
+

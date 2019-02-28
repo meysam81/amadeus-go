@@ -26,6 +26,7 @@ type amadeusToken struct {
 	ExpiresIn   time.Duration `json:"expires_in"`
 	State       string        `json:"state"`
 	Scope       string        `json:"scope"`
+	TokenFetchTime time.Duration
 }
 
 func getTokenFromAmadeus(configFilename string, urls *serviceUrls) (*amadeusToken, error) {
@@ -49,6 +50,10 @@ func getTokenFromAmadeus(configFilename string, urls *serviceUrls) (*amadeusToke
 	contentType := "application/x-www-form-urlencoded"
 	urlStr := cleanUrl(urls.ApiBaseUrl, urls.AuthUrl)
 	resp, err := http.Post(urlStr, contentType, strings.NewReader(body.Encode()))
+
+	// fetch token when time expires
+	now := time.Now().Unix()
+
 	defer resp.Body.Close()
 	if err != nil {
 		return nil, err
@@ -64,7 +69,27 @@ func getTokenFromAmadeus(configFilename string, urls *serviceUrls) (*amadeusToke
 		return nil, err
 	}
 
+	token.TokenFetchTime = time.Duration(now)
 	return &token, nil
+}
+
+func checkTokenExpiry(sv *amadeusService) error {
+	now := time.Duration(time.Now().Unix())
+	tokenExpiry := (*sv).token.ExpiresIn + (*sv).token.TokenFetchTime
+
+	if now > tokenExpiry {
+		var urls serviceUrls
+		configFilename := (*sv).configFilename
+
+		token, err := getTokenFromAmadeus(configFilename, &urls)
+		if err != nil {
+			return err
+		}
+
+		(*sv).token = token
+	}
+
+	return nil
 }
 
 func getServicesURLs(urlsFilename string) (*serviceUrls, error) {
