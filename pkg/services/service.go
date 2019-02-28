@@ -476,18 +476,18 @@ func (aSrv amadeusService) AirlineCodeLookup(_ context.Context, request *Airline
 	return
 }
 
-func NewBasicService(port int, logger log.Logger) (AmadeusService, error) {
+func NewBasicService(port int, configFilename string, logger log.Logger) (AmadeusService, error) {
 	s, err := registerService("amadeus-go", port, time.Second*15)
 	if err != nil {
 		return nil, err
 	}
 
-	token, err := getTokenFromAmadeus()
+	urls, err := getServicesURLs()
 	if err != nil {
 		return nil, err
 	}
 
-	urls, err := getServicesURLs()
+	token, err := getTokenFromAmadeus(configFilename, urls)
 	if err != nil {
 		return nil, err
 	}
@@ -514,6 +514,7 @@ type amadeusService struct {
 
 type serviceUrls struct {
 	apiBaseUrl                      string
+	authUrl                         string
 	flightLowFareSearch             string
 	flightInspirationSearch         string
 	flightCheapestDateSearch        string

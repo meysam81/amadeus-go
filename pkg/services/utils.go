@@ -5,17 +5,15 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"time"
-
-	"github.com/kelseyhightower/envconfig"
 	//_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
 type authentication struct {
-	ApiUrl    string `envconfig:"API_URL" required:"true"`
-	ApiKey    string `envconfig:"API_KEY" required:"true"`
-	ApiSecret string `envconfig:"API_SECRET" required:"true"`
+	ApiKey    string `json:"API_KEY"`
+	ApiSecret string `json:"API_SECRET"`
 }
 
 type amadeusToken struct {
@@ -30,14 +28,14 @@ type amadeusToken struct {
 	Scope       string        `json:"scope"`
 }
 
-func getTokenFromAmadeus() (*amadeusToken, error) {
+func getTokenFromAmadeus(configFilename string, urls *serviceUrls) (*amadeusToken, error) {
 	var (
 		auth  authentication
 		err   error
 		token amadeusToken
 	)
 
-	err = envconfig.Process("auth", &auth)
+	err = readConf(configFilename, &auth)
 	if err != nil {
 		return nil, err
 	}
@@ -49,9 +47,8 @@ func getTokenFromAmadeus() (*amadeusToken, error) {
 	body.Set("grant_type", "client_credentials")
 
 	contentType := "application/x-www-form-urlencoded"
-	resp, err := http.Post(auth.ApiUrl,
-		contentType,
-		strings.NewReader(body.Encode()))
+	urlStr := cleanUrl(urls.apiBaseUrl, urls.authUrl)
+	resp, err := http.Post(urlStr, contentType, strings.NewReader(body.Encode()))
 	defer resp.Body.Close()
 	if err != nil {
 		return nil, err
@@ -74,6 +71,7 @@ func getServicesURLs() (*serviceUrls, error) {
 	// TODO read from config file
 	urls := serviceUrls{
 		apiBaseUrl:                      "https://test.api.amadeus.com",
+		authUrl:                         "/v1/security/oauth2/token",
 		flightLowFareSearch:             "/v1/shopping/flight-offers",
 		flightInspirationSearch:         "/v1/shopping/flight-destinations",
 		flightCheapestDateSearch:        "/v1/shopping/flight-dates",
@@ -96,6 +94,16 @@ func cleanUrl(base, route string) string {
 
 func getBearer(token *amadeusToken) string {
 	return token.TokenType + " " + token.AccessToken
+}
+
+func readConf(filename string, config interface{}) error {
+	file, err := os.Open(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	return json.NewDecoder(file).Decode(&config)
 }
 
 /* TODO put this somewhere later (don't remove them before that)
