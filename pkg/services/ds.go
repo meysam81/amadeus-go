@@ -13,7 +13,21 @@ type FlightLowFareSearchRequest struct {
 	Origin        string
 	Destination   string
 	DepartureDate string
-	ReturnDate    string
+
+	ReturnDate      string
+	ArrivalBy       string
+	ReturnBy        string
+	Adults          int32
+	Children        int32
+	Infants         int32
+	Seniors         int32
+	TravelClass     TravelClass
+	IncludeAirlines string
+	ExcludeAirlines string
+	NonStop         bool
+	Currency        string
+	MaxPrice        int32
+	Max             int32
 }
 
 type FlightInspirationSearchRequest struct {
@@ -249,3 +263,18 @@ type ParamDetail struct {
 	Type        string `json:"type"`
 	Format      string `json:"format"`
 }
+
+type TravelClass int
+
+const (
+	None TravelClass = iota
+	ECONOMY
+	PREMIUM_ECONOMY
+	BUSINESS
+	FIRST
+)
+
+func (t TravelClass) String() string {
+	return [...]string{"None", "ECONOMY", "PREMIUM_ECONOMY", "BUSINESS", "FIRST"}[t]
+}
+
