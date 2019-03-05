@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-kit/kit/log"
@@ -43,7 +45,55 @@ func (aSrv amadeusService) FlightLowFareSearch(_ context.Context, request *Fligh
 	q.Add("origin", request.Origin)
 	q.Add("destination", request.Destination)
 	q.Add("departureDate", request.DepartureDate)
-	q.Add("returnDate", request.ReturnDate)
+	if !emptyString(request.ReturnDate) {
+		q.Add("returnDate", request.ReturnDate)
+	}
+	if !emptyString(request.ArrivalBy) {
+		q.Add("arrivalBy", request.ArrivalBy)
+	}
+	if !emptyString(request.ReturnBy) {
+		q.Add("returnBy", request.ReturnBy)
+	}
+	if request.Adults > 0 {
+		num := strconv.Itoa(int(request.Adults))
+		q.Add("adults", num)
+	}
+	if request.Children > 0 {
+		num := strconv.Itoa(int(request.Children))
+		q.Add("children", num)
+	}
+	if request.Infants > 0 {
+		num := strconv.Itoa(int(request.Infants))
+		q.Add("infants", num)
+	}
+	if request.Seniors > 0 {
+		num := strconv.Itoa(int(request.Seniors))
+		q.Add("seniors", num)
+	}
+	if request.TravelClass != None {
+		t := string(request.TravelClass)
+		q.Add("travelClass", t)
+	}
+	if !emptyString(request.IncludeAirlines) {
+		q.Add("includeAirlines", request.IncludeAirlines)
+	}
+	if !emptyString(request.ExcludeAirlines) {
+		q.Add("excludeAirlines", request.ExcludeAirlines)
+	}
+	if request.NonStop {
+		q.Add("nonStop", "true")
+	}
+	if !emptyString(request.Currency) {
+		q.Add("currency", request.Currency)
+	}
+	if request.MaxPrice > 0 {
+		num := strconv.Itoa(int(request.MaxPrice))
+		q.Add("maxPrice", num)
+	}
+	if request.Max > 0 && request.Max <= 250 {
+		num := strconv.Itoa(int(request.Max))
+		q.Add("max", num)
+	}
 	req.URL.RawQuery = q.Encode()
 
 	bearer := getBearer(aSrv.token)
@@ -592,3 +642,9 @@ type serviceUrls struct {
 	AirportAndCitySearch            string
 	AirlineCodeLookup               string
 }
+
+// =============================================================================
+func emptyString(s string) bool {
+	return strings.Compare(s, "") == 0
+}
+

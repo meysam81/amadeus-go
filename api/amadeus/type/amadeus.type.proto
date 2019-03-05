@@ -236,3 +236,12 @@ message ParamDetail {
     string format = 3;
 }
 
+// msgCode: 0080
+enum TravelClass {
+    NONE = 0;
+    ECONOMY = 1;
+    PREMIUM_ECONOMY = 2;
+    BUSINESS = 3;
+    FIRST = 4;
+}
+

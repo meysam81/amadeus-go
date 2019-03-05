@@ -5,12 +5,11 @@ import (
 	pbType "amadeus-go/api/amadeus/type"
 	"amadeus-go/pkg/endpoints"
 	sv "amadeus-go/pkg/services"
-	
 	"context"
 	"errors"
-	
 	"github.com/go-kit/kit/log"
 	grpcTransport "github.com/go-kit/kit/transport/grpc"
+	"strings"
 )
 
 type grpcServer struct {
@@ -552,12 +551,77 @@ func decodeFlightLowFareSearchRequest(_ context.Context, grpcReq interface{}) (i
 	if !ok {
 		return nil, errors.New("your request is not of type <FlightLowFareSearchRequest>")
 	}
-	return &sv.FlightLowFareSearchRequest{
-		Origin:        req.Origin,
+
+	// check required fields
+	if emptyString(req.Origin) {
+		return nil, errors.New("origin is a required field")
+	}
+	if emptyString(req.Destination) {
+		return nil, errors.New("destination is a required field")
+	}
+	if emptyString(req.DepartureDate) {
+		return nil, errors.New("departureDate is a required field")
+	}
+
+	request := sv.FlightLowFareSearchRequest{
+		Origin: req.Origin,
+		Destination: req.Destination,
 		DepartureDate: req.DepartureDate,
-		Destination:   req.Destination,
-		ReturnDate:    req.ReturnDate,
-	}, nil
+	}
+
+	// check optional fields
+	if !emptyString(req.ReturnDate) {
+		request.ReturnDate = req.ReturnDate
+	}
+	if !emptyString(req.ArrivalBy) {
+		request.ArrivalBy = req.ArrivalBy
+	}
+	if !emptyString(req.ReturnBy) {
+		request.ReturnBy = req.ReturnBy
+	}
+	if req.Adults > 0 {
+		request.Adults = req.Adults
+	}
+	if req.Children > 0 {
+		request.Children = req.Children
+	}
+	if req.Infants > 0 {
+		request.Infants = req.Infants
+	}
+	if req.Seniors > 0 {
+		request.Seniors = req.Seniors
+	}
+	switch req.TravelClass {
+	case pbType.TravelClass_ECONOMY:
+		request.TravelClass = sv.ECONOMY
+	case pbType.TravelClass_PREMIUM_ECONOMY:
+		request.TravelClass = sv.PREMIUM_ECONOMY
+	case pbType.TravelClass_BUSINESS:
+		request.TravelClass = sv.BUSINESS
+	case pbType.TravelClass_FIRST:
+		request.TravelClass = sv.FIRST
+	default:
+	}
+	if !emptyString(req.IncludeAirlines) {
+		request.IncludeAirlines = req.IncludeAirlines
+	}
+	if !emptyString(req.ExcludeAirlines) {
+		request.ExcludeAirlines = req.ExcludeAirlines
+	}
+	if req.NonStop {
+		request.NonStop = req.NonStop
+	}
+	if !emptyString(req.Currency) {
+		request.Currency = req.Currency
+	}
+	if req.MaxPrice > 0 {
+		request.MaxPrice = req.MaxPrice
+	}
+	if req.Max > 0 && req.Max <= 250 {
+		request.Max = req.Max
+	}
+
+	return &request, nil
 }
 
 func decodeFlightInspirationSearchRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
@@ -684,3 +748,8 @@ func decodeAirlineCodeLookupRequest(_ context.Context, grpcReq interface{}) (int
 		AirlineCodes: req.AirlineCodes,
 	}, nil
 }
+
+func emptyString(s string) bool {
+	return strings.Compare(s, "") == 0
+}
+

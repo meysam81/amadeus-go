@@ -47,10 +47,26 @@ service AmadeusService {
 // => amadeus.type.Response (0050)
 // example: ?origin=PAR&destination=LON&departureDate=2018-09-25&returnDate=2018-09-28
 message FlightLowFareSearchRequest {
-    string origin = 1;
-    string destination = 2;
-    string departureDate = 3;
-    string returnDate = 4;
+    // required
+    string origin = 1; // city/airport IATA code
+    string destination = 2; // city/airport IATA code
+    string departureDate = 3; // ISO 8601 YYYY-MM-DD
+
+    // optional
+    string returnDate = 4; // ISO 8601 YYYY-MM-DD
+    string arrivalBy = 5; // ISO 8601 YYYY-MM-ddThh:mm
+    string returnBy = 6; // ISO 8601 YYYY-MM-ddThh:mm
+    int32 adults = 7; // age 12 or older
+    int32 children = 8; // age 2 to 12
+    int32 infants = 9; // age under 2
+    int32 seniors = 10; // age 65 or older
+    amadeus.type.TravelClass travelClass = 11;
+    string includeAirlines = 12; // comma-separated IATA airline codes
+    string excludeAirlines = 13; // comma-separated IATA airline codes
+    bool nonStop = 14; // false by default
+    string currency = 15; // ISO 4217 format, e.g. EUR for Euro
+    int32 maxPrice = 16; // positive number with no decimals (EUR by default)
+    int32 max = 17; // maximum result between 1 and 250 (50 by default)
 }
 
 // msgCode: 0002
