@@ -23,6 +23,14 @@ make proto
 ```
 This command will generate the compiled proto files for you in their right directory. **this command has to be entered before going any futher**
 
+You should also enter your `API_KEY` and `API_SECRET` to the corresponding [config files](config/) which looks like the following:
+```
+{
+  "API_KEY": "<API_KEY>",
+  "API_SECRET": "<API_SECRET>"
+}
+```
+
 You can now run the server using the following command:
 ```bash
 make dev_run
