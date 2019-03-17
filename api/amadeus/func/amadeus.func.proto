@@ -183,9 +183,13 @@ message AirlineCodeLookupRequest {
 // => amadeus.type.Response (0050)
 // example: ?originCityCode=MAD&destinationCityCode=NYC&searchPeriod=2017-09&marketCountryCode=ES
 message FlightMostSearchedByDestinationRequest {
+    // required
     string originCityCode = 1;
     string destinationCityCode = 2;
-    string searchPeriod = 3;
+    string searchPeriod = 3; // e.g. 2015-05; valid from date 2011-01
     string marketCountryCode = 4;
+
+    // optional
+    string fields = 5; // comma-separated
 }
 
