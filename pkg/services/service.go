@@ -686,4 +686,3 @@ type serviceUrls struct {
 func emptyString(s string) bool {
 	return strings.Compare(s, "") == 0
 }
-

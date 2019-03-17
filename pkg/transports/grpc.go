@@ -564,8 +564,8 @@ func decodeFlightLowFareSearchRequest(_ context.Context, grpcReq interface{}) (i
 	}
 
 	request := sv.FlightLowFareSearchRequest{
-		Origin: req.Origin,
-		Destination: req.Destination,
+		Origin:        req.Origin,
+		Destination:   req.Destination,
 		DepartureDate: req.DepartureDate,
 	}
 
@@ -815,4 +815,3 @@ func decodeAirlineCodeLookupRequest(_ context.Context, grpcReq interface{}) (int
 func emptyString(s string) bool {
 	return strings.Compare(s, "") == 0
 }
-

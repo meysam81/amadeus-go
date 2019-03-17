@@ -292,6 +292,7 @@ func (t TravelClass) String() string {
 }
 
 type ViewBy int
+
 const (
 	ViewBy_DATE ViewBy = iota
 	ViewBy_DURATION
