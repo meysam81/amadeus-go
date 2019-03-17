@@ -21,7 +21,7 @@ type FlightLowFareSearchRequest struct {
 	Children        int32
 	Infants         int32
 	Seniors         int32
-	TravelClass     TravelClass
+	TravelClass     *TravelClass
 	IncludeAirlines string
 	ExcludeAirlines string
 	NonStop         bool
@@ -267,14 +267,13 @@ type ParamDetail struct {
 type TravelClass int
 
 const (
-	None TravelClass = iota
-	ECONOMY
+	ECONOMY TravelClass = iota
 	PREMIUM_ECONOMY
 	BUSINESS
 	FIRST
 )
 
 func (t TravelClass) String() string {
-	return [...]string{"None", "ECONOMY", "PREMIUM_ECONOMY", "BUSINESS", "FIRST"}[t]
+	return [...]string{"ECONOMY", "PREMIUM_ECONOMY", "BUSINESS", "FIRST"}[t]
 }
 
