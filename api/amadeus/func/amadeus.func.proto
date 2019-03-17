@@ -115,9 +115,18 @@ message FlightCheckInLinksRequest {
 // => amadeus.type.Response (0050)
 // example: ?originCityCode=MAD&searchPeriod=2017-08&marketCountryCode=ES
 message FlightMostSearchedDestinationsRequest {
+    // required
     string originCityCode = 1;
     string searchPeriod = 2;
     string marketCountryCode = 3;
+
+    // optional
+    int32 max = 4; // between 10-50
+    // list of attributes desired in the response or list of
+    // attributes to remove from the response (with "-" before fields)
+    string fields = 5; // absolute path; comma-separated
+    int32 pageLimit = 6; // default: 10
+    int32 pageOffset = 7; // default: 0
 }
 
 // msgCode: 0006
