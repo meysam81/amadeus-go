@@ -45,6 +45,7 @@ func (aSrv amadeusService) FlightLowFareSearch(_ context.Context, request *Fligh
 	q.Add("origin", request.Origin)
 	q.Add("destination", request.Destination)
 	q.Add("departureDate", request.DepartureDate)
+
 	if !emptyString(request.ReturnDate) {
 		q.Add("returnDate", request.ReturnDate)
 	}
@@ -94,6 +95,7 @@ func (aSrv amadeusService) FlightLowFareSearch(_ context.Context, request *Fligh
 		num := strconv.Itoa(int(request.Max))
 		q.Add("max", num)
 	}
+
 	req.URL.RawQuery = q.Encode()
 
 	bearer := getBearer(aSrv.token)
@@ -135,6 +137,7 @@ func (aSrv amadeusService) FlightInspirationSearch(_ context.Context, request *F
 	// this is the way to send body of mime-type: application/x-www-form-urlencoded
 	q := req.URL.Query()
 	q.Add("origin", request.Origin)
+
 	if !emptyString(request.DepartureDate) {
 		q.Add("departureDate", request.DepartureDate)
 	}
@@ -153,6 +156,7 @@ func (aSrv amadeusService) FlightInspirationSearch(_ context.Context, request *F
 	if !emptyString(request.Currency) {
 		q.Add("currency", request.Currency)
 	}
+
 	req.URL.RawQuery = q.Encode()
 
 	bearer := getBearer(aSrv.token)
@@ -195,6 +199,7 @@ func (aSrv amadeusService) FlightCheapestDateSearch(_ context.Context, request *
 	q := req.URL.Query()
 	q.Add("origin", request.Origin)
 	q.Add("destination", string(request.Destination))
+
 	if !emptyString(request.DepartureDate) {
 		q.Add("departureDate", request.DepartureDate)
 	}
@@ -216,6 +221,7 @@ func (aSrv amadeusService) FlightCheapestDateSearch(_ context.Context, request *
 	if request.ViewBy != nil {
 		q.Add("viewBy", string(*request.ViewBy))
 	}
+
 	req.URL.RawQuery = q.Encode()
 
 	bearer := getBearer(aSrv.token)
