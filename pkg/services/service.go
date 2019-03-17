@@ -259,6 +259,20 @@ func (aSrv amadeusService) FlightMostSearchedDestinations(_ context.Context, req
 	q.Add("originCityCode", request.OriginCityCode)
 	q.Add("searchPeriod", request.SearchPeriod)
 	q.Add("marketCountryCode", request.MarketCountryCode)
+
+	if request.Max > 0 {
+		q.Add("max", string(request.Max))
+	}
+	if !emptyString(request.Fields) {
+		q.Add("fields", request.Fields)
+	}
+	if request.PageLimit > 0 {
+		q.Add("page[limit]", string(request.PageLimit))
+	}
+	if request.PageOffset > 0 {
+		q.Add("page[offset]", string(request.PageOffset))
+	}
+
 	req.URL.RawQuery = q.Encode()
 
 	bearer := getBearer(aSrv.token)
