@@ -668,10 +668,48 @@ func decodeFlightCheapestDateSearchRequest(_ context.Context, grpcReq interface{
 	if !ok {
 		return nil, errors.New("your request is not of type <FlightCheapestDateSearchRequest>")
 	}
-	return &sv.FlightCheapestDateSearchRequest{
-		Destination: req.Destination,
+
+	if emptyString(req.Origin) {
+		return nil, errors.New("origin is a required field")
+	}
+	if emptyString(req.Destination) {
+		return nil, errors.New("destination is a required field")
+	}
+
+	request := sv.FlightCheapestDateSearchRequest{
 		Origin:      req.Origin,
-	}, nil
+		Destination: req.Destination,
+	}
+
+	if !emptyString(req.DepartureDate) {
+		request.DepartureDate = req.DepartureDate
+	}
+	if req.OneWay {
+		request.OneWay = req.OneWay
+	}
+	if !emptyString(req.Duration) {
+		request.Duration = req.Duration
+	}
+	if req.NonStop {
+		request.NonStop = req.NonStop
+	}
+	if req.MaxPrice > 0 {
+		request.MaxPrice = req.MaxPrice
+	}
+	if !emptyString(req.Currency) {
+		request.Currency = req.Currency
+	}
+	switch req.ViewBy {
+	case pbType.ViewBy_DATE:
+		*request.ViewBy = sv.ViewBy_DATE
+	case pbType.ViewBy_DURATION:
+		*request.ViewBy = sv.ViewBy_DURATION
+	case pbType.ViewBy_WEEK:
+		*request.ViewBy = sv.ViewBy_WEEK
+	default:
+	}
+
+	return &request, nil
 }
 
 func decodeFlightMostSearchedDestinationsRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
