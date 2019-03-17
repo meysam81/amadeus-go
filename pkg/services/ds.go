@@ -281,10 +281,10 @@ type ParamDetail struct {
 type TravelClass int
 
 const (
-	ECONOMY TravelClass = iota
-	PREMIUM_ECONOMY
-	BUSINESS
-	FIRST
+	TravelClass_ECONOMY TravelClass = iota
+	TravelClass_PREMIUM_ECONOMY
+	TravelClass_BUSINESS
+	TravelClass_FIRST
 )
 
 func (t TravelClass) String() string {
