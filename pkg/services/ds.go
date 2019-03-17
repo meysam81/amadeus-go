@@ -59,11 +59,10 @@ type FlightMostSearchedDestinationsRequest struct {
 	SearchPeriod      string
 	MarketCountryCode string
 
-	Max int32
-	Fields string
-	PageLimit int32
+	Max        int32
+	Fields     string
+	PageLimit  int32
 	PageOffset int32
-
 }
 
 type FlightMostSearchedByDestinationRequest struct {
