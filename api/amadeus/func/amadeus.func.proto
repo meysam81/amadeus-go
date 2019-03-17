@@ -65,7 +65,7 @@ message FlightLowFareSearchRequest {
     string excludeAirlines = 13; // comma-separated IATA airline codes
     bool nonStop = 14; // false by default
     string currency = 15; // ISO 4217 format, e.g. EUR for Euro
-    int32 maxPrice = 16; // positive number with no decimals (EUR by default)
+    int64 maxPrice = 16; // positive number with no decimals (EUR by default)
     int32 max = 17; // maximum result between 1 and 250 (50 by default)
 }
 
@@ -82,7 +82,7 @@ message FlightInspirationSearchRequest {
     // don't set duration if oneWay == true. range: eg 2,8. between: 1-15
     string duration = 4;
     bool nonStop = 5; // default: false
-    int32 maxPrice = 6;
+    int64 maxPrice = 6;
     string currency = 7; // eg EUR
 }
 
