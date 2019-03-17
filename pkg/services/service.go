@@ -317,6 +317,11 @@ func (aSrv amadeusService) FlightMostSearchedByDestination(_ context.Context, re
 	q.Add("destinationCityCode", request.DestinationCityCode)
 	q.Add("searchPeriod", request.SearchPeriod)
 	q.Add("marketCountryCode", request.MarketCountryCode)
+
+	if !emptyString(request.Fields) {
+		q.Add("fields", request.Fields)
+	}
+
 	req.URL.RawQuery = q.Encode()
 
 	bearer := getBearer(aSrv.token)
