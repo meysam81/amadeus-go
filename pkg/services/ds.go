@@ -26,7 +26,7 @@ type FlightLowFareSearchRequest struct {
 	ExcludeAirlines string
 	NonStop         bool
 	Currency        string
-	MaxPrice        int32
+	MaxPrice        int64
 	Max             int32
 }
 
@@ -37,7 +37,7 @@ type FlightInspirationSearchRequest struct {
 	OneWay        bool
 	Duration      string
 	NonStop       bool
-	MaxPrice      int32
+	MaxPrice      int64
 	Currency      string
 }
 
