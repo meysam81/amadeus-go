@@ -593,13 +593,13 @@ func decodeFlightLowFareSearchRequest(_ context.Context, grpcReq interface{}) (i
 	}
 	switch req.TravelClass {
 	case pbType.TravelClass_ECONOMY:
-		request.TravelClass = sv.ECONOMY
+		*request.TravelClass = sv.ECONOMY
 	case pbType.TravelClass_PREMIUM_ECONOMY:
-		request.TravelClass = sv.PREMIUM_ECONOMY
+		*request.TravelClass = sv.PREMIUM_ECONOMY
 	case pbType.TravelClass_BUSINESS:
-		request.TravelClass = sv.BUSINESS
+		*request.TravelClass = sv.BUSINESS
 	case pbType.TravelClass_FIRST:
-		request.TravelClass = sv.FIRST
+		*request.TravelClass = sv.FIRST
 	default:
 	}
 	if !emptyString(req.IncludeAirlines) {
