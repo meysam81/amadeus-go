@@ -251,3 +251,9 @@ enum ViewBy {
     WEEK = 2;
 }
 
+// msgCode: 0082
+enum Sort { // both descending
+    FLIGHTS = 0;
+    TRAVELERS = 1;
+}
+
