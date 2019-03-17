@@ -301,7 +301,7 @@ const (
 )
 
 func (t TravelClass) String() string {
-	return [...]string{"TravelClass_ECONOMY", "TravelClass_PREMIUM_ECONOMY", "TravelClass_BUSINESS", "TravelClass_FIRST"}[t]
+	return [...]string{"ECONOMY", "PREMIUM_ECONOMY", "BUSINESS", "FIRST"}[t]
 }
 
 type ViewBy int
@@ -313,7 +313,7 @@ const (
 )
 
 func (v ViewBy) String() string {
-	return [...]string{"ViewBy_DATE", "ViewBy_DURATION", "ViewBy_WEEK"}[v]
+	return [...]string{"DATE", "DURATION", "WEEK"}[v]
 }
 
 type Sort int
