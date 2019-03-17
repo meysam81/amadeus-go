@@ -73,8 +73,17 @@ message FlightLowFareSearchRequest {
 // => amadeus.type.Response (0050)
 // example: ?origin=DEL&maxPrice=400
 message FlightInspirationSearchRequest {
+    // required
     string origin = 1;
-    int32 maxPrice = 2;
+
+    // optional
+    string departureDate = 2; // e.g. 2017-12-25
+    bool oneWay = 3; // default: false
+    // don't set duration if oneWay == true. range: eg 2,8. between: 1-15
+    string duration = 4;
+    bool nonStop = 5; // default: false
+    int32 maxPrice = 6;
+    string currency = 7; // eg EUR
 }
 
 // msgCode: 0003
