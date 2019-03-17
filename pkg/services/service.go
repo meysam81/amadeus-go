@@ -603,8 +603,9 @@ func (aSrv amadeusService) AirlineCodeLookup(_ context.Context, request *Airline
 	return
 }
 
-func NewBasicService(port int, configFilename string, urlsFilename string, logger log.Logger) (AmadeusService, error) {
-	s, err := registerService("amadeus-go", port, time.Second*15)
+func NewBasicService(port int, configFilename string, urlsFilename string,
+	serviceName string, logger log.Logger) (AmadeusService, error) {
+	s, err := registerService(serviceName, port, time.Second*15)
 	if err != nil {
 		return nil, err
 	}
