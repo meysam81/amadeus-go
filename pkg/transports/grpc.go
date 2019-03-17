@@ -657,10 +657,7 @@ func decodeFlightInspirationSearchRequest(_ context.Context, grpcReq interface{}
 		request.Currency = req.Currency
 	}
 
-	return &sv.FlightInspirationSearchRequest{
-		Origin:   req.Origin,
-		MaxPrice: req.MaxPrice,
-	}, nil
+	return &request, nil
 }
 
 func decodeFlightCheapestDateSearchRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
