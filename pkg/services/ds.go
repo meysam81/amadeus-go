@@ -71,6 +71,8 @@ type FlightMostSearchedByDestinationRequest struct {
 	DestinationCityCode string
 	SearchPeriod        string
 	MarketCountryCode   string
+
+	Fields string
 }
 
 type FlightCheckInLinksRequest struct {
