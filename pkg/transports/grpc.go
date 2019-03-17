@@ -726,8 +726,8 @@ func decodeFlightMostSearchedDestinationsRequest(_ context.Context, grpcReq inte
 	}
 
 	request := sv.FlightMostSearchedDestinationsRequest{
-		OriginCityCode: req.OriginCityCode,
-		SearchPeriod: req.SearchPeriod,
+		OriginCityCode:    req.OriginCityCode,
+		SearchPeriod:      req.SearchPeriod,
 		MarketCountryCode: req.MarketCountryCode,
 	}
 
