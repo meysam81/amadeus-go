@@ -44,6 +44,14 @@ type FlightInspirationSearchRequest struct {
 type FlightCheapestDateSearchRequest struct {
 	Origin      string
 	Destination string
+
+	DepartureDate string
+	OneWay        bool
+	Duration      string
+	NonStop       bool
+	MaxPrice      int64
+	Currency      string
+	ViewBy        *ViewBy
 }
 
 type FlightMostSearchedDestinationsRequest struct {
@@ -280,5 +288,16 @@ const (
 )
 
 func (t TravelClass) String() string {
-	return [...]string{"ECONOMY", "PREMIUM_ECONOMY", "BUSINESS", "FIRST"}[t]
+	return [...]string{"TravelClass_ECONOMY", "TravelClass_PREMIUM_ECONOMY", "TravelClass_BUSINESS", "TravelClass_FIRST"}[t]
+}
+
+type ViewBy int
+const (
+	ViewBy_DATE ViewBy = iota
+	ViewBy_DURATION
+	ViewBy_WEEK
+)
+
+func (v ViewBy) String() string {
+	return [...]string{"ViewBy_DATE", "ViewBy_DURATION", "ViewBy_WEEK"}[v]
 }
