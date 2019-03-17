@@ -195,6 +195,27 @@ func (aSrv amadeusService) FlightCheapestDateSearch(_ context.Context, request *
 	q := req.URL.Query()
 	q.Add("origin", request.Origin)
 	q.Add("destination", string(request.Destination))
+	if !emptyString(request.DepartureDate) {
+		q.Add("departureDate", request.DepartureDate)
+	}
+	if request.OneWay {
+		q.Add("oneWay", "true")
+	}
+	if !emptyString(request.Duration) {
+		q.Add("duration", request.Duration)
+	}
+	if request.NonStop {
+		q.Add("nonStop", "true")
+	}
+	if request.MaxPrice > 0 {
+		q.Add("maxPrice", string(request.MaxPrice))
+	}
+	if !emptyString(request.Currency) {
+		q.Add("currency", request.Currency)
+	}
+	if request.ViewBy != nil {
+		q.Add("viewBy", string(*request.ViewBy))
+	}
 	req.URL.RawQuery = q.Encode()
 
 	bearer := getBearer(aSrv.token)
