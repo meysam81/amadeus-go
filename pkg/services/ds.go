@@ -31,8 +31,14 @@ type FlightLowFareSearchRequest struct {
 }
 
 type FlightInspirationSearchRequest struct {
-	Origin   string
-	MaxPrice int32
+	Origin string
+
+	DepartureDate string
+	OneWay        bool
+	Duration      string
+	NonStop       bool
+	MaxPrice      int32
+	Currency      string
 }
 
 type FlightCheapestDateSearchRequest struct {
@@ -276,4 +282,3 @@ const (
 func (t TravelClass) String() string {
 	return [...]string{"ECONOMY", "PREMIUM_ECONOMY", "BUSINESS", "FIRST"}[t]
 }
-
