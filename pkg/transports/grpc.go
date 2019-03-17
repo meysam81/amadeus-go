@@ -714,11 +714,37 @@ func decodeFlightMostSearchedDestinationsRequest(_ context.Context, grpcReq inte
 	if !ok {
 		return nil, errors.New("your request is not of type <FlightMostSearchedDestinationsRequest>")
 	}
-	return &sv.FlightMostSearchedDestinationsRequest{
+
+	if emptyString(req.OriginCityCode) {
+		return nil, errors.New("originCityCode is a required field")
+	}
+	if emptyString(req.SearchPeriod) {
+		return nil, errors.New("searchPeriod is a required field")
+	}
+	if emptyString(req.MarketCountryCode) {
+		return nil, errors.New("marketCountryCode is a required field")
+	}
+
+	request := sv.FlightMostSearchedDestinationsRequest{
+		OriginCityCode: req.OriginCityCode,
+		SearchPeriod: req.SearchPeriod,
 		MarketCountryCode: req.MarketCountryCode,
-		SearchPeriod:      req.SearchPeriod,
-		OriginCityCode:    req.OriginCityCode,
-	}, nil
+	}
+
+	if req.Max > 0 {
+		request.Max = req.Max
+	}
+	if !emptyString(req.Fields) {
+		request.Fields = req.Fields
+	}
+	if request.PageLimit > 0 {
+		request.PageLimit = req.PageLimit
+	}
+	if request.PageOffset > 0 {
+		request.PageOffset = req.PageOffset
+	}
+
+	return &request, nil
 }
 
 func decodeFlightMostSearchedByDestinationRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
