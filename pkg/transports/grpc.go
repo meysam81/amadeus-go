@@ -629,6 +629,34 @@ func decodeFlightInspirationSearchRequest(_ context.Context, grpcReq interface{}
 	if !ok {
 		return nil, errors.New("your request is not of type <FlightInspirationSearchRequest>")
 	}
+
+	if emptyString(req.Origin) {
+		return nil, errors.New("origin is a required field")
+	}
+
+	request := sv.FlightInspirationSearchRequest{
+		Origin: req.Origin,
+	}
+
+	if !emptyString(req.DepartureDate) {
+		request.DepartureDate = req.DepartureDate
+	}
+	if req.OneWay {
+		request.OneWay = req.OneWay
+	}
+	if !emptyString(req.Duration) {
+		request.Duration = req.Duration
+	}
+	if req.NonStop {
+		request.NonStop = req.NonStop
+	}
+	if req.MaxPrice > 0 {
+		request.MaxPrice = req.MaxPrice
+	}
+	if !emptyString(req.Currency) {
+		request.Currency = req.Currency
+	}
+
 	return &sv.FlightInspirationSearchRequest{
 		Origin:   req.Origin,
 		MaxPrice: req.MaxPrice,
