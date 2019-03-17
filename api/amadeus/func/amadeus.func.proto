@@ -90,8 +90,18 @@ message FlightInspirationSearchRequest {
 // => amadeus.type.Response (0050)
 // example: ?origin=MIA&destination=SFO
 message FlightCheapestDateSearchRequest {
+    // required
     string origin = 1;
     string destination = 2;
+
+    // optional
+    string departureDate = 3;
+    bool oneWay = 4;
+    string duration = 5; // same as inspiration-search
+    bool nonStop = 6;
+    int64 maxPrice = 7;
+    string currency = 8;
+    amadeus.type.ViewBy viewBy = 9;
 }
 
 // msgCode: 0004
