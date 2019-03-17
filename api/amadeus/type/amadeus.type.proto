@@ -238,10 +238,9 @@ message ParamDetail {
 
 // msgCode: 0080
 enum TravelClass {
-    NONE = 0;
-    ECONOMY = 1;
-    PREMIUM_ECONOMY = 2;
-    BUSINESS = 3;
-    FIRST = 4;
+    ECONOMY = 0;
+    PREMIUM_ECONOMY = 1;
+    BUSINESS = 2;
+    FIRST = 3;
 }
 
