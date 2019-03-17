@@ -70,8 +70,8 @@ func (aSrv amadeusService) FlightLowFareSearch(_ context.Context, request *Fligh
 		num := strconv.Itoa(int(request.Seniors))
 		q.Add("seniors", num)
 	}
-	if request.TravelClass != None {
-		t := string(request.TravelClass)
+	if request.TravelClass != nil {
+		t := string(*request.TravelClass)
 		q.Add("travelClass", t)
 	}
 	if !emptyString(request.IncludeAirlines) {
