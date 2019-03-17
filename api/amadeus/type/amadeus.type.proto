@@ -244,3 +244,10 @@ enum TravelClass {
     FIRST = 3;
 }
 
+// msgCode: 0081
+enum ViewBy {
+    DATE = 0;
+    DURATION = 1;
+    WEEK = 2;
+}
+
