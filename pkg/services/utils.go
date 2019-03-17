@@ -2,10 +2,10 @@ package services
 
 import (
 	"encoding/json"
+	"github.com/tkanos/gonfig"
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 	"time"
 	//_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -112,13 +112,7 @@ func getBearer(token *amadeusToken) string {
 }
 
 func readConf(filename string, config interface{}) error {
-	file, err := os.Open(filename)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	return json.NewDecoder(file).Decode(&config)
+	return gonfig.GetConf(filename, config)
 }
 
 /* TODO put this somewhere later (don't remove them before that)
