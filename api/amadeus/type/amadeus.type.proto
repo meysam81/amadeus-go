@@ -257,3 +257,9 @@ enum Sort { // both descending
     TRAVELERS = 1;
 }
 
+// msgCode: 0083
+enum Direction {
+    ARRIVING = 0;
+    DEPARTING = 1;
+}
+
