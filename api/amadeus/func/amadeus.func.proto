@@ -165,9 +165,9 @@ message FlightMostBookedDestinationsRequest {
 // => amadeus.type.Response (0050)
 // example: ?cityCode=NYC&period=2017&direction=ARRIVING
 message FlightBusiestTravelingPeriodRequest {
-    string cityCode = 1;
-    string period = 2;
-    string direction = 3;
+    string cityCode = 1; // IATA standard
+    string period = 2; // ISO 8601
+    amadeus.type.Direction direction = 3;
 }
 
 // msgCode: 0009
