@@ -925,9 +925,20 @@ func decodeFlightCheckInLinksRequest(_ context.Context, grpcReq interface{}) (in
 	if !ok {
 		return nil, errors.New("your request is not of type <FlightCheckInLinksRequest>")
 	}
-	return &sv.FlightCheckInLinksRequest{
+
+	if emptyString(req.AirlineCode) {
+		return nil, errors.New("airlineCode is a required field")
+	}
+
+	request := sv.FlightCheckInLinksRequest{
 		AirlineCode: req.AirlineCode,
-	}, nil
+	}
+
+	if !emptyString(req.Language) {
+		request.Language = req.Language
+	}
+
+	return &request, nil
 }
 
 func decodeAirlineCodeLookupRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
