@@ -872,11 +872,28 @@ func decodeFlightBusiestTravelingPeriodRequest(_ context.Context, grpcReq interf
 	if !ok {
 		return nil, errors.New("your request is not of type <FlightBusiestTravelingPeriodRequest>")
 	}
-	return &sv.FlightBusiestTravelingPeriodRequest{
-		CityCode:  req.CityCode,
-		Period:    req.Period,
-		Direction: req.Direction,
-	}, nil
+
+	if emptyString(req.CityCode) {
+		return nil, errors.New("cityCode is a required field")
+	}
+	if emptyString(req.Period) {
+		return nil, errors.New("period is a required field")
+	}
+
+	request := sv.FlightBusiestTravelingPeriodRequest{
+		CityCode: req.CityCode,
+		Period:   req.Period,
+	}
+
+	switch req.Direction {
+	case pbType.Direction_ARRIVING:
+		*request.Direction = sv.Direction_ARRIVING
+	case pbType.Direction_DEPARTING:
+		*request.Direction = sv.Direction_DEPARTING
+	default:
+	}
+
+	return &request, nil
 }
 
 func decodeAirportNearestRelevantRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
