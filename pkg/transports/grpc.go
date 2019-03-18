@@ -828,10 +828,40 @@ func decodeFlightMostBookedDestinationsRequest(_ context.Context, grpcReq interf
 	if !ok {
 		return nil, errors.New("your request is not of type <FlightMostBookedDestinationsRequest>")
 	}
-	return &sv.FlightMostBookedDestinationsRequest{
+
+	if emptyString(req.OriginCityCode) {
+		return nil, errors.New("originCityCode is a required field")
+	}
+	if emptyString(req.Period) {
+		return nil, errors.New("period is a required field")
+	}
+
+	request := sv.FlightMostBookedDestinationsRequest{
 		OriginCityCode: req.OriginCityCode,
 		Period:         req.Period,
-	}, nil
+	}
+
+	if req.Max > 0 {
+		request.Max = req.Max
+	}
+	if !emptyString(req.Fields) {
+		request.Fields = req.Fields
+	}
+	if req.PageLimit > 0 {
+		request.PageLimit = req.PageLimit
+	}
+	if req.PageOffset > 0 {
+		request.PageOffset = req.PageOffset
+	}
+	switch req.Sort {
+	case pbType.Sort_FLIGHTS:
+		*request.Sort = sv.Sort_FLIGHTS
+	case pbType.Sort_TRAVELERS:
+		*request.Sort = sv.Sort_TRAVELERS
+	default:
+	}
+
+	return &request, nil
 }
 
 func decodeFlightBusiestTravelingPeriodRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
