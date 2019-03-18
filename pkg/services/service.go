@@ -465,8 +465,26 @@ func (aSrv amadeusService) FlightMostBookedDestinations(_ context.Context, reque
 
 	// this is the way to send body of mime-type: application/x-www-form-urlencoded
 	q := req.URL.Query()
+
 	q.Add("originCityCode", request.OriginCityCode)
 	q.Add("period", string(request.Period))
+
+	if request.Max > 0 {
+		q.Add("max", string(request.Max))
+	}
+	if !emptyString(request.Fields) {
+		q.Add("fields", request.Fields)
+	}
+	if request.PageLimit > 0 {
+		q.Add("page[limit]", string(request.PageLimit))
+	}
+	if request.PageOffset > 0 {
+		q.Add("page[offset]", string(request.PageOffset))
+	}
+	if request.Sort != nil {
+		q.Add("sort", string(*request.Sort))
+	}
+
 	req.URL.RawQuery = q.Encode()
 
 	bearer := getBearer(aSrv.token)
