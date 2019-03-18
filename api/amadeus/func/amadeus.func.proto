@@ -208,6 +208,7 @@ message AirportAndCitySearchRequest {
 // => amadeus.type.Response (0050)
 // example: ?airlineCodes=BA
 message AirlineCodeLookupRequest {
+    // required
     string airlineCodes = 1; // comma-separated
 }
 
