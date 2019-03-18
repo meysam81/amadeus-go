@@ -149,8 +149,16 @@ message FlightMostTraveledDestinationsRequest {
 // => amadeus.type.Response (0050)
 // example: ?originCityCode=BLR&period=2017-11
 message FlightMostBookedDestinationsRequest {
+    // required
     string originCityCode = 1;
     string period = 2;
+
+    // optional
+    int32 max = 3; // between 10-50
+    string fields = 4; // comma-separated
+    int32 pageLimit = 5;
+    int32 pageOffset = 6;
+    amadeus.type.Sort sort = 7; // default: TRAVELERS
 }
 
 // msgCode: 0008
