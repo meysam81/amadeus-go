@@ -177,8 +177,11 @@ message FlightBusiestTravelingPeriodRequest {
 // => amadeus.type.Response (0050)
 // example: ?latitude=49.0000&longitude=2.55&sort=relevance
 message AirportNearestRelevantRequest {
+    // required
     float latitude = 1;
     float longitude = 2;
+
+    // optional
     int32 radius = 3; // between 0-500
     int32 pageLimit = 4;
     int32 pageOffset = 5;
@@ -189,9 +192,16 @@ message AirportNearestRelevantRequest {
 // => amadeus.type.Response (0050)
 // example: ?subType=AIRPORT,CITY&keyword=PAR&countryCode=FR
 message AirportAndCitySearchRequest {
-    string subType = 1;
+    // required
+    repeated amadeus.type.SubType subType = 1;
     string keyword = 2;
-    string countryCode = 3;
+
+    // optional
+    string countryCode = 3; // ISO 3166-1 alpha-2 (e.g. US)
+    int32 pageLimit = 4;
+    int32 pageOffset = 5;
+    amadeus.type.View view = 6; // level of information
+
 }
 
 // msgCode: 0011

@@ -945,11 +945,42 @@ func decodeAirportAndCitySearchRequest(_ context.Context, grpcReq interface{}) (
 	if !ok {
 		return nil, errors.New("your request is not of type <AirportAndCitySearchRequest>")
 	}
-	return &sv.AirportAndCitySearchRequest{
-		Keyword:     req.Keyword,
-		SubType:     req.SubType,
-		CountryCode: req.CountryCode,
-	}, nil
+
+	if len(req.SubType) == 0 {
+		return nil, errors.New("subType is a required field")
+	}
+	if emptyString(req.Keyword) {
+		return nil, errors.New("keyword is a required field")
+	}
+
+	var subType []string
+	for i := range req.SubType {
+		subType = append(subType, string(i))
+	}
+
+	request := sv.AirportAndCitySearchRequest{
+		SubType: strings.Join(subType, ","),
+		Keyword: req.Keyword,
+	}
+
+	if !emptyString(req.CountryCode) {
+		request.CountryCode = req.CountryCode
+	}
+	if req.PageLimit > 0 {
+		request.PageLimit = req.PageLimit
+	}
+	if req.PageOffset > 0 {
+		request.PageOffset = req.PageOffset
+	}
+	switch req.View {
+	case pbType.View_LIGHT:
+		*request.View = sv.View_LIGHT
+	case pbType.View_FULL:
+		*request.View = sv.View_FULL
+	default:
+	}
+
+	return &request, nil
 }
 
 func decodeFlightCheckInLinksRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
