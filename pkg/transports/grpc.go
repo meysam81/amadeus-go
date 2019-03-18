@@ -812,7 +812,10 @@ func decodeFlightMostTraveledDestinationsRequest(_ context.Context, grpcReq inte
 	if req.PageLimit > 0 {
 		request.PageLimit = req.PageLimit
 	}
-	switch req.Sort{
+	if req.PageOffset > 0 {
+		request.PageOffset = req.PageOffset
+	}
+	switch req.Sort {
 	case pbType.Sort_FLIGHTS:
 		*request.Sort = sv.Sort_FLIGHTS
 	case pbType.Sort_TRAVELERS:
