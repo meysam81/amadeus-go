@@ -92,6 +92,12 @@ type FlightMostTraveledDestinationsRequest struct {
 type FlightMostBookedDestinationsRequest struct {
 	OriginCityCode string
 	Period         string
+
+	Max        int32
+	Fields     string
+	PageLimit  int32
+	PageOffset int32
+	Sort       *Sort
 }
 
 type FlightBusiestTravelingPeriodRequest struct {
