@@ -108,9 +108,12 @@ type FlightBusiestTravelingPeriodRequest struct {
 }
 
 type AirportNearestRelevantRequest struct {
-	Latitude  float32
-	Longitude float32
-	Sort      string
+	Latitude   float32
+	Longitude  float32
+	Radius     int32
+	PageLimit  int32
+	PageOffset int32
+	Sort       *RelevantSort
 }
 
 type AirportAndCitySearchRequest struct {
@@ -343,4 +346,22 @@ const (
 
 func (v Direction) String() string {
 	return [...]string{"ARRIVING", "DEPARTING"}[v]
+}
+
+type RelevantSort int
+
+const (
+	RelevantSort_RELEVANCE RelevantSort = iota
+	RelevantSort_DISTANCE
+	RelevantSort_FLIGHTS
+	RelevantSort_TRAVELERS
+)
+
+func (v RelevantSort) String() string {
+	return [...]string{
+		"relevance",
+		"distance",
+		"analytics.flights.score",
+		"analytics.travelers.score",
+	}[v]
 }
