@@ -582,9 +582,23 @@ func (aSrv amadeusService) AirportNearestRelevant(_ context.Context, request *Ai
 
 	// this is the way to send body of mime-type: application/x-www-form-urlencoded
 	q := req.URL.Query()
+
 	q.Add("latitude", fmt.Sprintf("%f", request.Latitude))
 	q.Add("longitude", fmt.Sprintf("%f", request.Longitude))
-	q.Add("sort", request.Sort)
+
+	if request.Radius > 0 {
+		q.Add("radius", string(request.Radius))
+	}
+	if request.PageLimit > 0 {
+		q.Add("page[limit]", string(request.PageLimit))
+	}
+	if request.PageOffset > 0 {
+		q.Add("page[offset]", string(request.PageOffset))
+	}
+	if request.Sort != nil {
+		q.Add("sort", string(*request.Sort))
+	}
+
 	req.URL.RawQuery = q.Encode()
 
 	bearer := getBearer(aSrv.token)
