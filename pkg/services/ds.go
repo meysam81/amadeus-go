@@ -76,6 +76,7 @@ type FlightMostSearchedByDestinationRequest struct {
 
 type FlightCheckInLinksRequest struct {
 	AirlineCode string
+	Language    string
 }
 
 type FlightMostTraveledDestinationsRequest struct {
