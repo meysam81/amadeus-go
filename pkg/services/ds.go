@@ -103,7 +103,7 @@ type FlightMostBookedDestinationsRequest struct {
 type FlightBusiestTravelingPeriodRequest struct {
 	CityCode  string
 	Period    string
-	Direction string
+	Direction *Direction
 }
 
 type AirportNearestRelevantRequest struct {
@@ -331,4 +331,15 @@ const (
 
 func (v Sort) String() string {
 	return [...]string{"analytics.flights.score", "analytics.travelers.score"}[v]
+}
+
+type Direction int
+
+const (
+	Direction_ARRIVING Direction = iota
+	Direction_DEPARTING
+)
+
+func (v Direction) String() string {
+	return [...]string{"ARRIVING", "DEPARTING"}[v]
 }
