@@ -82,11 +82,11 @@ type FlightMostTraveledDestinationsRequest struct {
 	OriginCityCode string
 	Period         string
 
-	Max int32
-	Fields string
-	PageLimit int32
+	Max        int32
+	Fields     string
+	PageLimit  int32
 	PageOffset int32
-	Sort *Sort
+	Sort       *Sort
 }
 
 type FlightMostBookedDestinationsRequest struct {
@@ -332,4 +332,3 @@ const (
 func (v Sort) String() string {
 	return [...]string{"analytics.flights.score", "analytics.travelers.score"}[v]
 }
-
