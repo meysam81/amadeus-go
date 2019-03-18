@@ -421,6 +421,9 @@ func (aSrv amadeusService) FlightMostTraveledDestinations(_ context.Context, req
 	if request.PageLimit > 0 {
 		q.Add("page[limit]", string(request.PageLimit))
 	}
+	if request.PageOffset > 0 {
+		q.Add("page[offset]", string(request.PageOffset))
+	}
 	if request.Sort != nil {
 		q.Add("sort", string(*request.Sort))
 	}
