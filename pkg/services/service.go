@@ -368,7 +368,13 @@ func (aSrv amadeusService) FlightCheckInLinks(_ context.Context, request *Flight
 
 	// this is the way to send body of mime-type: application/x-www-form-urlencoded
 	q := req.URL.Query()
+
 	q.Add("airlineCode", request.AirlineCode)
+
+	if !emptyString(request.Language) {
+		q.Add("language", request.Language)
+	}
+
 	req.URL.RawQuery = q.Encode()
 
 	bearer := getBearer(aSrv.token)
