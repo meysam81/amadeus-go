@@ -263,3 +263,11 @@ enum Direction {
     DEPARTING = 1;
 }
 
+// msgCode: 0082
+enum RelevantSort { // all descending
+    RELEVANCE = 0;
+    DISTANCE = 1;
+    FLIGHTS_SCORE = 2;
+    TRAVELERS_SCORE = 3;
+}
+
