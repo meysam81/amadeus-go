@@ -108,7 +108,10 @@ message FlightCheapestDateSearchRequest {
 // => amadeus.type.Response (0050)
 // example: ?airlineCode=BA
 message FlightCheckInLinksRequest {
-    string airlineCode = 1;
+    string airlineCode = 1; //  IATA or ICAO standard
+    // one of the following patterns 'languageCode' (e.g. EN), or
+    // 'languageCode-IATAcountryCode' (e.g. en-GB).
+    string language = 2; // default: en-GB
 }
 
 // msgCode: 0005
