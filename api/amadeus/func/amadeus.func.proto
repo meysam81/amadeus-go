@@ -179,7 +179,10 @@ message FlightBusiestTravelingPeriodRequest {
 message AirportNearestRelevantRequest {
     float latitude = 1;
     float longitude = 2;
-    string sort = 3;
+    int32 radius = 3; // between 0-500
+    int32 pageLimit = 4;
+    int32 pageOffset = 5;
+    amadeus.type.RelevantSort sort = 6; // default: RELEVANCE
 }
 
 // msgCode: 0010
