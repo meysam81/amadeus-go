@@ -528,9 +528,14 @@ func (aSrv amadeusService) FlightBusiestTravelingPeriod(_ context.Context, reque
 
 	// this is the way to send body of mime-type: application/x-www-form-urlencoded
 	q := req.URL.Query()
+
 	q.Add("cityCode", request.CityCode)
 	q.Add("period", string(request.Period))
-	q.Add("direction", string(request.Direction))
+
+	if request.Direction != nil {
+		q.Add("direction", string(*request.Direction))
+	}
+
 	req.URL.RawQuery = q.Encode()
 
 	bearer := getBearer(aSrv.token)
