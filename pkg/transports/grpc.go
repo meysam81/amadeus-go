@@ -901,11 +901,43 @@ func decodeAirportNearestRelevantRequest(_ context.Context, grpcReq interface{})
 	if !ok {
 		return nil, errors.New("your request is not of type <AirportNearestRelevantRequest>")
 	}
-	return &sv.AirportNearestRelevantRequest{
-		Latitude:  req.Latitude,
+
+	if req.Latitude == 0 {
+		return nil, errors.New("latitude is a required field")
+	}
+	if req.Longitude == 0 {
+		return nil, errors.New("longitude is a required field")
+	}
+
+	request := sv.AirportNearestRelevantRequest{
+		Latitude: req.Latitude,
 		Longitude: req.Longitude,
-		Sort:      req.Sort,
-	}, nil
+	}
+
+	if req.Radius >= 0 && req.Radius <= 500 {
+		request.Radius = req.Radius
+	} else {
+		return nil, errors.New("radius must be between 0-500")
+	}
+	if req.PageLimit > 0 {
+		request.PageLimit = req.PageLimit
+	}
+	if req.PageOffset > 0 {
+		request.PageOffset = req.PageOffset
+	}
+	switch req.Sort {
+	case pbType.RelevantSort_RELEVANCE:
+		*request.Sort = sv.RelevantSort_RELEVANCE
+	case pbType.RelevantSort_DISTANCE:
+		*request.Sort = sv.RelevantSort_DISTANCE
+	case pbType.RelevantSort_FLIGHTS_SCORE:
+		*request.Sort = sv.RelevantSort_FLIGHTS
+	case pbType.RelevantSort_TRAVELERS_SCORE:
+		*request.Sort = sv.RelevantSort_TRAVELERS
+	default:
+	}
+
+	return &request, nil
 }
 
 func decodeAirportAndCitySearchRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
