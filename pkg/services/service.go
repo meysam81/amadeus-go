@@ -639,9 +639,23 @@ func (aSrv amadeusService) AirportAndCitySearch(_ context.Context, request *Airp
 
 	// this is the way to send body of mime-type: application/x-www-form-urlencoded
 	q := req.URL.Query()
-	q.Add("countryCode", request.CountryCode)
+
 	q.Add("subType", request.SubType)
 	q.Add("keyword", request.Keyword)
+
+	if !emptyString(request.CountryCode) {
+		q.Add("countryCode", request.CountryCode)
+	}
+	if request.PageLimit > 0 {
+		q.Add("page[limit]", string(request.PageLimit))
+	}
+	if request.PageOffset > 0 {
+		q.Add("page[offset]", string(request.PageOffset))
+	}
+	if request.View != nil {
+		q.Add("view", string(*request.View))
+	}
+
 	req.URL.RawQuery = q.Encode()
 
 	bearer := getBearer(aSrv.token)

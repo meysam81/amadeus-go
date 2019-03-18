@@ -110,6 +110,7 @@ type FlightBusiestTravelingPeriodRequest struct {
 type AirportNearestRelevantRequest struct {
 	Latitude   float32
 	Longitude  float32
+
 	Radius     int32
 	PageLimit  int32
 	PageOffset int32
@@ -119,7 +120,11 @@ type AirportNearestRelevantRequest struct {
 type AirportAndCitySearchRequest struct {
 	SubType     string
 	Keyword     string
+
 	CountryCode string
+	PageLimit int32
+	PageOffset int32
+	View *View
 }
 
 type AirlineCodeLookupRequest struct {
@@ -365,3 +370,18 @@ func (v RelevantSort) String() string {
 		"analytics.travelers.score",
 	}[v]
 }
+
+type View int
+
+const (
+	View_LIGHT View = iota
+	View_FULL
+)
+
+func (v View) String() string {
+	return [...]string{
+		"LIGHT",
+		"FULL",
+	}[v]
+}
+
