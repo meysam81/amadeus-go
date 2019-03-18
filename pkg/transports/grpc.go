@@ -800,7 +800,7 @@ func decodeFlightMostTraveledDestinationsRequest(_ context.Context, grpcReq inte
 
 	request := sv.FlightMostTraveledDestinationsRequest{
 		OriginCityCode: req.OriginCityCode,
-		Period: req.Period,
+		Period:         req.Period,
 	}
 
 	if req.Max > 0 {
