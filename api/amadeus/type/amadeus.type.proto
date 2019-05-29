@@ -238,48 +238,55 @@ message ParamDetail {
 
 // msgCode: 0080
 enum TravelClass {
-    ECONOMY = 0;
-    PREMIUM_ECONOMY = 1;
-    BUSINESS = 2;
-    FIRST = 3;
+    NONE = 0;
+    ECONOMY = 1;
+    PREMIUM_ECONOMY = 2;
+    BUSINESS = 3;
+    FIRST = 4;
 }
 
 // msgCode: 0081
 enum ViewBy {
-    DATE = 0;
-    DURATION = 1;
-    WEEK = 2;
+    NONE = 0;
+    DATE = 1;
+    DURATION = 2;
+    WEEK = 3;
 }
 
 // msgCode: 0082
 enum Sort { // both descending
-    FLIGHTS = 0;
-    TRAVELERS = 1;
+    NONE = 0;
+    FLIGHTS = 1;
+    TRAVELERS = 2;
 }
 
 // msgCode: 0083
 enum Direction {
-    ARRIVING = 0;
-    DEPARTING = 1;
+    NONE = 0;
+    ARRIVING = 1;
+    DEPARTING = 2;
 }
 
 // msgCode: 0084
 enum RelevantSort { // all descending
-    RELEVANCE = 0;
-    DISTANCE = 1;
-    FLIGHTS_SCORE = 2;
-    TRAVELERS_SCORE = 3;
+    NONE = 0;
+    RELEVANCE = 1;
+    DISTANCE = 2;
+    FLIGHTS_SCORE = 3;
+    TRAVELERS_SCORE = 4;
 }
 
 // msgCode: 0085
 enum SubType { // all descending
-    AIRPORT = 0;
-    CITY = 1;
+    NONE = 0;
+    AIRPORT = 1;
+    CITY = 2;
 }
 
 // msgCode: 0086
 enum View { // all descending
-    LIGHT = 0;
-    FULL = 1;
+    NONE = 0;
+    LIGHT = 1;
+    FULL = 2;
 }
 
