@@ -564,8 +564,8 @@ func decodeFlightLowFareSearchRequest(_ context.Context, grpcReq interface{}) (i
 	}
 
 	request := sv.FlightLowFareSearchRequest{
-		Origin: req.Origin,
-		Destination: req.Destination,
+		Origin:        req.Origin,
+		Destination:   req.Destination,
 		DepartureDate: req.DepartureDate,
 	}
 
@@ -593,13 +593,13 @@ func decodeFlightLowFareSearchRequest(_ context.Context, grpcReq interface{}) (i
 	}
 	switch req.TravelClass {
 	case pbType.TravelClass_ECONOMY:
-		*request.TravelClass = sv.ECONOMY
+		*request.TravelClass = sv.TravelClass_ECONOMY
 	case pbType.TravelClass_PREMIUM_ECONOMY:
-		*request.TravelClass = sv.PREMIUM_ECONOMY
+		*request.TravelClass = sv.TravelClass_PREMIUM_ECONOMY
 	case pbType.TravelClass_BUSINESS:
-		*request.TravelClass = sv.BUSINESS
+		*request.TravelClass = sv.TravelClass_BUSINESS
 	case pbType.TravelClass_FIRST:
-		*request.TravelClass = sv.FIRST
+		*request.TravelClass = sv.TravelClass_FIRST
 	default:
 	}
 	if !emptyString(req.IncludeAirlines) {
@@ -629,10 +629,35 @@ func decodeFlightInspirationSearchRequest(_ context.Context, grpcReq interface{}
 	if !ok {
 		return nil, errors.New("your request is not of type <FlightInspirationSearchRequest>")
 	}
-	return &sv.FlightInspirationSearchRequest{
-		Origin:   req.Origin,
-		MaxPrice: req.MaxPrice,
-	}, nil
+
+	if emptyString(req.Origin) {
+		return nil, errors.New("origin is a required field")
+	}
+
+	request := sv.FlightInspirationSearchRequest{
+		Origin: req.Origin,
+	}
+
+	if !emptyString(req.DepartureDate) {
+		request.DepartureDate = req.DepartureDate
+	}
+	if req.OneWay {
+		request.OneWay = req.OneWay
+	}
+	if !emptyString(req.Duration) {
+		request.Duration = req.Duration
+	}
+	if req.NonStop {
+		request.NonStop = req.NonStop
+	}
+	if req.MaxPrice > 0 {
+		request.MaxPrice = req.MaxPrice
+	}
+	if !emptyString(req.Currency) {
+		request.Currency = req.Currency
+	}
+
+	return &request, nil
 }
 
 func decodeFlightCheapestDateSearchRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
@@ -640,10 +665,48 @@ func decodeFlightCheapestDateSearchRequest(_ context.Context, grpcReq interface{
 	if !ok {
 		return nil, errors.New("your request is not of type <FlightCheapestDateSearchRequest>")
 	}
-	return &sv.FlightCheapestDateSearchRequest{
-		Destination: req.Destination,
+
+	if emptyString(req.Origin) {
+		return nil, errors.New("origin is a required field")
+	}
+	if emptyString(req.Destination) {
+		return nil, errors.New("destination is a required field")
+	}
+
+	request := sv.FlightCheapestDateSearchRequest{
 		Origin:      req.Origin,
-	}, nil
+		Destination: req.Destination,
+	}
+
+	if !emptyString(req.DepartureDate) {
+		request.DepartureDate = req.DepartureDate
+	}
+	if req.OneWay {
+		request.OneWay = req.OneWay
+	}
+	if !emptyString(req.Duration) {
+		request.Duration = req.Duration
+	}
+	if req.NonStop {
+		request.NonStop = req.NonStop
+	}
+	if req.MaxPrice > 0 {
+		request.MaxPrice = req.MaxPrice
+	}
+	if !emptyString(req.Currency) {
+		request.Currency = req.Currency
+	}
+	switch req.ViewBy {
+	case pbType.ViewBy_DATE:
+		*request.ViewBy = sv.ViewBy_DATE
+	case pbType.ViewBy_DURATION:
+		*request.ViewBy = sv.ViewBy_DURATION
+	case pbType.ViewBy_WEEK:
+		*request.ViewBy = sv.ViewBy_WEEK
+	default:
+	}
+
+	return &request, nil
 }
 
 func decodeFlightMostSearchedDestinationsRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
@@ -651,11 +714,37 @@ func decodeFlightMostSearchedDestinationsRequest(_ context.Context, grpcReq inte
 	if !ok {
 		return nil, errors.New("your request is not of type <FlightMostSearchedDestinationsRequest>")
 	}
-	return &sv.FlightMostSearchedDestinationsRequest{
-		MarketCountryCode: req.MarketCountryCode,
-		SearchPeriod:      req.SearchPeriod,
+
+	if emptyString(req.OriginCityCode) {
+		return nil, errors.New("originCityCode is a required field")
+	}
+	if emptyString(req.SearchPeriod) {
+		return nil, errors.New("searchPeriod is a required field")
+	}
+	if emptyString(req.MarketCountryCode) {
+		return nil, errors.New("marketCountryCode is a required field")
+	}
+
+	request := sv.FlightMostSearchedDestinationsRequest{
 		OriginCityCode:    req.OriginCityCode,
-	}, nil
+		SearchPeriod:      req.SearchPeriod,
+		MarketCountryCode: req.MarketCountryCode,
+	}
+
+	if req.Max > 0 {
+		request.Max = req.Max
+	}
+	if !emptyString(req.Fields) {
+		request.Fields = req.Fields
+	}
+	if request.PageLimit > 0 {
+		request.PageLimit = req.PageLimit
+	}
+	if request.PageOffset > 0 {
+		request.PageOffset = req.PageOffset
+	}
+
+	return &request, nil
 }
 
 func decodeFlightMostSearchedByDestinationRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
@@ -663,6 +752,31 @@ func decodeFlightMostSearchedByDestinationRequest(_ context.Context, grpcReq int
 	if !ok {
 		return nil, errors.New("your request is not of type <FlightMostSearchedByDestination>")
 	}
+
+	if emptyString(req.OriginCityCode) {
+		return nil, errors.New("originCityCode is a required field")
+	}
+	if emptyString(req.DestinationCityCode) {
+		return nil, errors.New("destinationCityCode is a required field")
+	}
+	if emptyString(req.SearchPeriod) {
+		return nil, errors.New("searchPeriod is a required field")
+	}
+	if emptyString(req.MarketCountryCode) {
+		return nil, errors.New("marketCountryCode is a required field")
+	}
+
+	request := sv.FlightMostSearchedByDestinationRequest{
+		OriginCityCode:      req.OriginCityCode,
+		DestinationCityCode: req.DestinationCityCode,
+		SearchPeriod:        req.SearchPeriod,
+		MarketCountryCode:   req.MarketCountryCode,
+	}
+
+	if !emptyString(req.Fields) {
+		request.Fields = req.Fields
+	}
+
 	return &sv.FlightMostSearchedByDestinationRequest{
 		MarketCountryCode:   req.MarketCountryCode,
 		SearchPeriod:        req.SearchPeriod,
@@ -676,10 +790,40 @@ func decodeFlightMostTraveledDestinationsRequest(_ context.Context, grpcReq inte
 	if !ok {
 		return nil, errors.New("your request is not of type <FlightMostTraveledDestinationsRequest>")
 	}
-	return &sv.FlightMostTraveledDestinationsRequest{
+
+	if emptyString(req.OriginCityCode) {
+		return nil, errors.New("originCityCode is a required field")
+	}
+	if emptyString(req.Period) {
+		return nil, errors.New("period is a required field")
+	}
+
+	request := sv.FlightMostTraveledDestinationsRequest{
 		OriginCityCode: req.OriginCityCode,
 		Period:         req.Period,
-	}, nil
+	}
+
+	if req.Max > 0 {
+		request.Max = req.Max
+	}
+	if !emptyString(req.Fields) {
+		request.Fields = req.Fields
+	}
+	if req.PageLimit > 0 {
+		request.PageLimit = req.PageLimit
+	}
+	if req.PageOffset > 0 {
+		request.PageOffset = req.PageOffset
+	}
+	switch req.Sort {
+	case pbType.Sort_FLIGHTS:
+		*request.Sort = sv.Sort_FLIGHTS
+	case pbType.Sort_TRAVELERS:
+		*request.Sort = sv.Sort_TRAVELERS
+	default:
+	}
+
+	return &request, nil
 }
 
 func decodeFlightMostBookedDestinationsRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
@@ -687,10 +831,40 @@ func decodeFlightMostBookedDestinationsRequest(_ context.Context, grpcReq interf
 	if !ok {
 		return nil, errors.New("your request is not of type <FlightMostBookedDestinationsRequest>")
 	}
-	return &sv.FlightMostBookedDestinationsRequest{
+
+	if emptyString(req.OriginCityCode) {
+		return nil, errors.New("originCityCode is a required field")
+	}
+	if emptyString(req.Period) {
+		return nil, errors.New("period is a required field")
+	}
+
+	request := sv.FlightMostBookedDestinationsRequest{
 		OriginCityCode: req.OriginCityCode,
 		Period:         req.Period,
-	}, nil
+	}
+
+	if req.Max > 0 {
+		request.Max = req.Max
+	}
+	if !emptyString(req.Fields) {
+		request.Fields = req.Fields
+	}
+	if req.PageLimit > 0 {
+		request.PageLimit = req.PageLimit
+	}
+	if req.PageOffset > 0 {
+		request.PageOffset = req.PageOffset
+	}
+	switch req.Sort {
+	case pbType.Sort_FLIGHTS:
+		*request.Sort = sv.Sort_FLIGHTS
+	case pbType.Sort_TRAVELERS:
+		*request.Sort = sv.Sort_TRAVELERS
+	default:
+	}
+
+	return &request, nil
 }
 
 func decodeFlightBusiestTravelingPeriodRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
@@ -698,11 +872,28 @@ func decodeFlightBusiestTravelingPeriodRequest(_ context.Context, grpcReq interf
 	if !ok {
 		return nil, errors.New("your request is not of type <FlightBusiestTravelingPeriodRequest>")
 	}
-	return &sv.FlightBusiestTravelingPeriodRequest{
-		CityCode:  req.CityCode,
-		Period:    req.Period,
-		Direction: req.Direction,
-	}, nil
+
+	if emptyString(req.CityCode) {
+		return nil, errors.New("cityCode is a required field")
+	}
+	if emptyString(req.Period) {
+		return nil, errors.New("period is a required field")
+	}
+
+	request := sv.FlightBusiestTravelingPeriodRequest{
+		CityCode: req.CityCode,
+		Period:   req.Period,
+	}
+
+	switch req.Direction {
+	case pbType.Direction_ARRIVING:
+		*request.Direction = sv.Direction_ARRIVING
+	case pbType.Direction_DEPARTING:
+		*request.Direction = sv.Direction_DEPARTING
+	default:
+	}
+
+	return &request, nil
 }
 
 func decodeAirportNearestRelevantRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
@@ -710,11 +901,43 @@ func decodeAirportNearestRelevantRequest(_ context.Context, grpcReq interface{})
 	if !ok {
 		return nil, errors.New("your request is not of type <AirportNearestRelevantRequest>")
 	}
-	return &sv.AirportNearestRelevantRequest{
-		Latitude:  req.Latitude,
+
+	if req.Latitude == 0 {
+		return nil, errors.New("latitude is a required field")
+	}
+	if req.Longitude == 0 {
+		return nil, errors.New("longitude is a required field")
+	}
+
+	request := sv.AirportNearestRelevantRequest{
+		Latitude: req.Latitude,
 		Longitude: req.Longitude,
-		Sort:      req.Sort,
-	}, nil
+	}
+
+	if req.Radius >= 0 && req.Radius <= 500 {
+		request.Radius = req.Radius
+	} else {
+		return nil, errors.New("radius must be between 0-500")
+	}
+	if req.PageLimit > 0 {
+		request.PageLimit = req.PageLimit
+	}
+	if req.PageOffset > 0 {
+		request.PageOffset = req.PageOffset
+	}
+	switch req.Sort {
+	case pbType.RelevantSort_RELEVANCE:
+		*request.Sort = sv.RelevantSort_RELEVANCE
+	case pbType.RelevantSort_DISTANCE:
+		*request.Sort = sv.RelevantSort_DISTANCE
+	case pbType.RelevantSort_FLIGHTS_SCORE:
+		*request.Sort = sv.RelevantSort_FLIGHTS
+	case pbType.RelevantSort_TRAVELERS_SCORE:
+		*request.Sort = sv.RelevantSort_TRAVELERS
+	default:
+	}
+
+	return &request, nil
 }
 
 func decodeAirportAndCitySearchRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
@@ -722,11 +945,42 @@ func decodeAirportAndCitySearchRequest(_ context.Context, grpcReq interface{}) (
 	if !ok {
 		return nil, errors.New("your request is not of type <AirportAndCitySearchRequest>")
 	}
-	return &sv.AirportAndCitySearchRequest{
-		Keyword:     req.Keyword,
-		SubType:     req.SubType,
-		CountryCode: req.CountryCode,
-	}, nil
+
+	if len(req.SubType) == 0 {
+		return nil, errors.New("subType is a required field")
+	}
+	if emptyString(req.Keyword) {
+		return nil, errors.New("keyword is a required field")
+	}
+
+	var subType []string
+	for i := range req.SubType {
+		subType = append(subType, string(i))
+	}
+
+	request := sv.AirportAndCitySearchRequest{
+		SubType: strings.Join(subType, ","),
+		Keyword: req.Keyword,
+	}
+
+	if !emptyString(req.CountryCode) {
+		request.CountryCode = req.CountryCode
+	}
+	if req.PageLimit > 0 {
+		request.PageLimit = req.PageLimit
+	}
+	if req.PageOffset > 0 {
+		request.PageOffset = req.PageOffset
+	}
+	switch req.View {
+	case pbType.View_LIGHT:
+		*request.View = sv.View_LIGHT
+	case pbType.View_FULL:
+		*request.View = sv.View_FULL
+	default:
+	}
+
+	return &request, nil
 }
 
 func decodeFlightCheckInLinksRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
@@ -734,9 +988,20 @@ func decodeFlightCheckInLinksRequest(_ context.Context, grpcReq interface{}) (in
 	if !ok {
 		return nil, errors.New("your request is not of type <FlightCheckInLinksRequest>")
 	}
-	return &sv.FlightCheckInLinksRequest{
+
+	if emptyString(req.AirlineCode) {
+		return nil, errors.New("airlineCode is a required field")
+	}
+
+	request := sv.FlightCheckInLinksRequest{
 		AirlineCode: req.AirlineCode,
-	}, nil
+	}
+
+	if !emptyString(req.Language) {
+		request.Language = req.Language
+	}
+
+	return &request, nil
 }
 
 func decodeAirlineCodeLookupRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
@@ -752,4 +1017,3 @@ func decodeAirlineCodeLookupRequest(_ context.Context, grpcReq interface{}) (int
 func emptyString(s string) bool {
 	return strings.Compare(s, "") == 0
 }
-

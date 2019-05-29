@@ -245,3 +245,48 @@ enum TravelClass {
     FIRST = 4;
 }
 
+// msgCode: 0081
+enum ViewBy {
+    NONE = 0;
+    DATE = 1;
+    DURATION = 2;
+    WEEK = 3;
+}
+
+// msgCode: 0082
+enum Sort { // both descending
+    NONE = 0;
+    FLIGHTS = 1;
+    TRAVELERS = 2;
+}
+
+// msgCode: 0083
+enum Direction {
+    NONE = 0;
+    ARRIVING = 1;
+    DEPARTING = 2;
+}
+
+// msgCode: 0084
+enum RelevantSort { // all descending
+    NONE = 0;
+    RELEVANCE = 1;
+    DISTANCE = 2;
+    FLIGHTS_SCORE = 3;
+    TRAVELERS_SCORE = 4;
+}
+
+// msgCode: 0085
+enum SubType { // all descending
+    NONE = 0;
+    AIRPORT = 1;
+    CITY = 2;
+}
+
+// msgCode: 0086
+enum View { // all descending
+    NONE = 0;
+    LIGHT = 1;
+    FULL = 2;
+}
+

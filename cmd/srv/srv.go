@@ -38,7 +38,8 @@ func main() {
 	logger = log.NewLogfmtLogger(os.Stderr)
 	logger = log.With(logger, "caller", log.DefaultCaller)
 
-	srv, err := services.NewBasicService(port, "config/config.dev.json", "config/API-urls.json", logger)
+	srv, err := services.NewBasicService(port, "config/config.dev.json",
+		"config/API-urls.json", "amadeus-go", logger)
 	if err != nil {
 		panic(err)
 	}

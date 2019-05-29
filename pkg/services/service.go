@@ -45,6 +45,7 @@ func (aSrv amadeusService) FlightLowFareSearch(_ context.Context, request *Fligh
 	q.Add("origin", request.Origin)
 	q.Add("destination", request.Destination)
 	q.Add("departureDate", request.DepartureDate)
+
 	if !emptyString(request.ReturnDate) {
 		q.Add("returnDate", request.ReturnDate)
 	}
@@ -70,8 +71,8 @@ func (aSrv amadeusService) FlightLowFareSearch(_ context.Context, request *Fligh
 		num := strconv.Itoa(int(request.Seniors))
 		q.Add("seniors", num)
 	}
-	if request.TravelClass != None {
-		t := string(request.TravelClass)
+	if request.TravelClass != nil {
+		t := string(*request.TravelClass)
 		q.Add("travelClass", t)
 	}
 	if !emptyString(request.IncludeAirlines) {
@@ -94,6 +95,7 @@ func (aSrv amadeusService) FlightLowFareSearch(_ context.Context, request *Fligh
 		num := strconv.Itoa(int(request.Max))
 		q.Add("max", num)
 	}
+
 	req.URL.RawQuery = q.Encode()
 
 	bearer := getBearer(aSrv.token)
@@ -135,7 +137,26 @@ func (aSrv amadeusService) FlightInspirationSearch(_ context.Context, request *F
 	// this is the way to send body of mime-type: application/x-www-form-urlencoded
 	q := req.URL.Query()
 	q.Add("origin", request.Origin)
-	q.Add("maxPrice", string(request.MaxPrice))
+
+	if !emptyString(request.DepartureDate) {
+		q.Add("departureDate", request.DepartureDate)
+	}
+	if request.OneWay {
+		q.Add("oneWay", "true")
+	}
+	if !emptyString(request.Duration) {
+		q.Add("duration", request.Duration)
+	}
+	if request.NonStop {
+		q.Add("nonStop", "true")
+	}
+	if request.MaxPrice > 0 {
+		q.Add("maxPrice", string(request.MaxPrice))
+	}
+	if !emptyString(request.Currency) {
+		q.Add("currency", request.Currency)
+	}
+
 	req.URL.RawQuery = q.Encode()
 
 	bearer := getBearer(aSrv.token)
@@ -178,6 +199,29 @@ func (aSrv amadeusService) FlightCheapestDateSearch(_ context.Context, request *
 	q := req.URL.Query()
 	q.Add("origin", request.Origin)
 	q.Add("destination", string(request.Destination))
+
+	if !emptyString(request.DepartureDate) {
+		q.Add("departureDate", request.DepartureDate)
+	}
+	if request.OneWay {
+		q.Add("oneWay", "true")
+	}
+	if !emptyString(request.Duration) {
+		q.Add("duration", request.Duration)
+	}
+	if request.NonStop {
+		q.Add("nonStop", "true")
+	}
+	if request.MaxPrice > 0 {
+		q.Add("maxPrice", string(request.MaxPrice))
+	}
+	if !emptyString(request.Currency) {
+		q.Add("currency", request.Currency)
+	}
+	if request.ViewBy != nil {
+		q.Add("viewBy", string(*request.ViewBy))
+	}
+
 	req.URL.RawQuery = q.Encode()
 
 	bearer := getBearer(aSrv.token)
@@ -221,6 +265,20 @@ func (aSrv amadeusService) FlightMostSearchedDestinations(_ context.Context, req
 	q.Add("originCityCode", request.OriginCityCode)
 	q.Add("searchPeriod", request.SearchPeriod)
 	q.Add("marketCountryCode", request.MarketCountryCode)
+
+	if request.Max > 0 {
+		q.Add("max", string(request.Max))
+	}
+	if !emptyString(request.Fields) {
+		q.Add("fields", request.Fields)
+	}
+	if request.PageLimit > 0 {
+		q.Add("page[limit]", string(request.PageLimit))
+	}
+	if request.PageOffset > 0 {
+		q.Add("page[offset]", string(request.PageOffset))
+	}
+
 	req.URL.RawQuery = q.Encode()
 
 	bearer := getBearer(aSrv.token)
@@ -265,6 +323,11 @@ func (aSrv amadeusService) FlightMostSearchedByDestination(_ context.Context, re
 	q.Add("destinationCityCode", request.DestinationCityCode)
 	q.Add("searchPeriod", request.SearchPeriod)
 	q.Add("marketCountryCode", request.MarketCountryCode)
+
+	if !emptyString(request.Fields) {
+		q.Add("fields", request.Fields)
+	}
+
 	req.URL.RawQuery = q.Encode()
 
 	bearer := getBearer(aSrv.token)
@@ -305,7 +368,13 @@ func (aSrv amadeusService) FlightCheckInLinks(_ context.Context, request *Flight
 
 	// this is the way to send body of mime-type: application/x-www-form-urlencoded
 	q := req.URL.Query()
+
 	q.Add("airlineCode", request.AirlineCode)
+
+	if !emptyString(request.Language) {
+		q.Add("language", request.Language)
+	}
+
 	req.URL.RawQuery = q.Encode()
 
 	bearer := getBearer(aSrv.token)
@@ -348,6 +417,23 @@ func (aSrv amadeusService) FlightMostTraveledDestinations(_ context.Context, req
 	q := req.URL.Query()
 	q.Add("originCityCode", request.OriginCityCode)
 	q.Add("period", string(request.Period))
+
+	if request.Max > 0 {
+		q.Add("max", string(request.Max))
+	}
+	if !emptyString(request.Fields) {
+		q.Add("fields", request.Fields)
+	}
+	if request.PageLimit > 0 {
+		q.Add("page[limit]", string(request.PageLimit))
+	}
+	if request.PageOffset > 0 {
+		q.Add("page[offset]", string(request.PageOffset))
+	}
+	if request.Sort != nil {
+		q.Add("sort", string(*request.Sort))
+	}
+
 	req.URL.RawQuery = q.Encode()
 
 	bearer := getBearer(aSrv.token)
@@ -388,8 +474,26 @@ func (aSrv amadeusService) FlightMostBookedDestinations(_ context.Context, reque
 
 	// this is the way to send body of mime-type: application/x-www-form-urlencoded
 	q := req.URL.Query()
+
 	q.Add("originCityCode", request.OriginCityCode)
 	q.Add("period", string(request.Period))
+
+	if request.Max > 0 {
+		q.Add("max", string(request.Max))
+	}
+	if !emptyString(request.Fields) {
+		q.Add("fields", request.Fields)
+	}
+	if request.PageLimit > 0 {
+		q.Add("page[limit]", string(request.PageLimit))
+	}
+	if request.PageOffset > 0 {
+		q.Add("page[offset]", string(request.PageOffset))
+	}
+	if request.Sort != nil {
+		q.Add("sort", string(*request.Sort))
+	}
+
 	req.URL.RawQuery = q.Encode()
 
 	bearer := getBearer(aSrv.token)
@@ -430,9 +534,14 @@ func (aSrv amadeusService) FlightBusiestTravelingPeriod(_ context.Context, reque
 
 	// this is the way to send body of mime-type: application/x-www-form-urlencoded
 	q := req.URL.Query()
+
 	q.Add("cityCode", request.CityCode)
 	q.Add("period", string(request.Period))
-	q.Add("direction", string(request.Direction))
+
+	if request.Direction != nil {
+		q.Add("direction", string(*request.Direction))
+	}
+
 	req.URL.RawQuery = q.Encode()
 
 	bearer := getBearer(aSrv.token)
@@ -473,9 +582,23 @@ func (aSrv amadeusService) AirportNearestRelevant(_ context.Context, request *Ai
 
 	// this is the way to send body of mime-type: application/x-www-form-urlencoded
 	q := req.URL.Query()
+
 	q.Add("latitude", fmt.Sprintf("%f", request.Latitude))
 	q.Add("longitude", fmt.Sprintf("%f", request.Longitude))
-	q.Add("sort", request.Sort)
+
+	if request.Radius > 0 {
+		q.Add("radius", string(request.Radius))
+	}
+	if request.PageLimit > 0 {
+		q.Add("page[limit]", string(request.PageLimit))
+	}
+	if request.PageOffset > 0 {
+		q.Add("page[offset]", string(request.PageOffset))
+	}
+	if request.Sort != nil {
+		q.Add("sort", string(*request.Sort))
+	}
+
 	req.URL.RawQuery = q.Encode()
 
 	bearer := getBearer(aSrv.token)
@@ -516,9 +639,23 @@ func (aSrv amadeusService) AirportAndCitySearch(_ context.Context, request *Airp
 
 	// this is the way to send body of mime-type: application/x-www-form-urlencoded
 	q := req.URL.Query()
-	q.Add("countryCode", request.CountryCode)
+
 	q.Add("subType", request.SubType)
 	q.Add("keyword", request.Keyword)
+
+	if !emptyString(request.CountryCode) {
+		q.Add("countryCode", request.CountryCode)
+	}
+	if request.PageLimit > 0 {
+		q.Add("page[limit]", string(request.PageLimit))
+	}
+	if request.PageOffset > 0 {
+		q.Add("page[offset]", string(request.PageOffset))
+	}
+	if request.View != nil {
+		q.Add("view", string(*request.View))
+	}
+
 	req.URL.RawQuery = q.Encode()
 
 	bearer := getBearer(aSrv.token)
@@ -586,8 +723,9 @@ func (aSrv amadeusService) AirlineCodeLookup(_ context.Context, request *Airline
 	return
 }
 
-func NewBasicService(port int, configFilename string, urlsFilename string, logger log.Logger) (AmadeusService, error) {
-	s, err := registerService("amadeus-go", port, time.Second*15)
+func NewBasicService(port int, configFilename string, urlsFilename string,
+	serviceName string, logger log.Logger) (AmadeusService, error) {
+	s, err := registerService(serviceName, port, time.Second*15)
 	if err != nil {
 		return nil, err
 	}
@@ -647,4 +785,3 @@ type serviceUrls struct {
 func emptyString(s string) bool {
 	return strings.Compare(s, "") == 0
 }
-

@@ -26,24 +26,43 @@ type FlightLowFareSearchRequest struct {
 	ExcludeAirlines string
 	NonStop         bool
 	Currency        string
-	MaxPrice        int32
+	MaxPrice        int64
 	Max             int32
 }
 
 type FlightInspirationSearchRequest struct {
-	Origin   string
-	MaxPrice int32
+	Origin string
+
+	DepartureDate string
+	OneWay        bool
+	Duration      string
+	NonStop       bool
+	MaxPrice      int64
+	Currency      string
 }
 
 type FlightCheapestDateSearchRequest struct {
 	Origin      string
 	Destination string
+
+	DepartureDate string
+	OneWay        bool
+	Duration      string
+	NonStop       bool
+	MaxPrice      int64
+	Currency      string
+	ViewBy        *ViewBy
 }
 
 type FlightMostSearchedDestinationsRequest struct {
 	OriginCityCode    string
 	SearchPeriod      string
 	MarketCountryCode string
+
+	Max        int32
+	Fields     string
+	PageLimit  int32
+	PageOffset int32
 }
 
 type FlightMostSearchedByDestinationRequest struct {
@@ -51,38 +70,61 @@ type FlightMostSearchedByDestinationRequest struct {
 	DestinationCityCode string
 	SearchPeriod        string
 	MarketCountryCode   string
+
+	Fields string
 }
 
 type FlightCheckInLinksRequest struct {
 	AirlineCode string
+	Language    string
 }
 
 type FlightMostTraveledDestinationsRequest struct {
 	OriginCityCode string
 	Period         string
+
+	Max        int32
+	Fields     string
+	PageLimit  int32
+	PageOffset int32
+	Sort       *Sort
 }
 
 type FlightMostBookedDestinationsRequest struct {
 	OriginCityCode string
 	Period         string
+
+	Max        int32
+	Fields     string
+	PageLimit  int32
+	PageOffset int32
+	Sort       *Sort
 }
 
 type FlightBusiestTravelingPeriodRequest struct {
 	CityCode  string
 	Period    string
-	Direction string
+	Direction *Direction
 }
 
 type AirportNearestRelevantRequest struct {
-	Latitude  float32
-	Longitude float32
-	Sort      string
+	Latitude   float32
+	Longitude  float32
+
+	Radius     int32
+	PageLimit  int32
+	PageOffset int32
+	Sort       *RelevantSort
 }
 
 type AirportAndCitySearchRequest struct {
 	SubType     string
 	Keyword     string
+
 	CountryCode string
+	PageLimit int32
+	PageOffset int32
+	View *View
 }
 
 type AirlineCodeLookupRequest struct {
@@ -267,13 +309,79 @@ type ParamDetail struct {
 type TravelClass int
 
 const (
-	ECONOMY TravelClass = iota
-	PREMIUM_ECONOMY
-	BUSINESS
-	FIRST
+	TravelClass_ECONOMY TravelClass = iota
+	TravelClass_PREMIUM_ECONOMY
+	TravelClass_BUSINESS
+	TravelClass_FIRST
 )
 
 func (t TravelClass) String() string {
 	return [...]string{"ECONOMY", "PREMIUM_ECONOMY", "BUSINESS", "FIRST"}[t]
+}
+
+type ViewBy int
+
+const (
+	ViewBy_DATE ViewBy = iota
+	ViewBy_DURATION
+	ViewBy_WEEK
+)
+
+func (v ViewBy) String() string {
+	return [...]string{"DATE", "DURATION", "WEEK"}[v]
+}
+
+type Sort int
+
+const (
+	Sort_FLIGHTS Sort = iota
+	Sort_TRAVELERS
+)
+
+func (v Sort) String() string {
+	return [...]string{"analytics.flights.score", "analytics.travelers.score"}[v]
+}
+
+type Direction int
+
+const (
+	Direction_ARRIVING Direction = iota
+	Direction_DEPARTING
+)
+
+func (v Direction) String() string {
+	return [...]string{"ARRIVING", "DEPARTING"}[v]
+}
+
+type RelevantSort int
+
+const (
+	RelevantSort_RELEVANCE RelevantSort = iota
+	RelevantSort_DISTANCE
+	RelevantSort_FLIGHTS
+	RelevantSort_TRAVELERS
+)
+
+func (v RelevantSort) String() string {
+	return [...]string{
+		"relevance",
+		"distance",
+		"analytics.flights.score",
+		"analytics.travelers.score",
+	}[v]
+}
+
+type View int
+
+const (
+	View_LIGHT View = iota
+	View_FULL
+)
+
+func (v View) String() string {
+	return [...]string{
+		"LIGHT",
+		"FULL",
+	}[v]
 }
 
