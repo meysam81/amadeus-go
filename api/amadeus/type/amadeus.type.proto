@@ -238,7 +238,7 @@ message ParamDetail {
 
 // msgCode: 0080
 enum TravelClass {
-    NONE = 0;
+    TravelClass_NONE = 0;
     ECONOMY = 1;
     PREMIUM_ECONOMY = 2;
     BUSINESS = 3;
@@ -247,7 +247,7 @@ enum TravelClass {
 
 // msgCode: 0081
 enum ViewBy {
-    NONE = 0;
+    ViewBy_NONE = 0;
     DATE = 1;
     DURATION = 2;
     WEEK = 3;
@@ -255,21 +255,21 @@ enum ViewBy {
 
 // msgCode: 0082
 enum Sort { // both descending
-    NONE = 0;
+    Sort_NONE = 0;
     FLIGHTS = 1;
     TRAVELERS = 2;
 }
 
 // msgCode: 0083
 enum Direction {
-    NONE = 0;
+    Direction_NONE = 0;
     ARRIVING = 1;
     DEPARTING = 2;
 }
 
 // msgCode: 0084
 enum RelevantSort { // all descending
-    NONE = 0;
+    RelevantSort_NONE = 0;
     RELEVANCE = 1;
     DISTANCE = 2;
     FLIGHTS_SCORE = 3;
@@ -278,14 +278,14 @@ enum RelevantSort { // all descending
 
 // msgCode: 0085
 enum SubType { // all descending
-    NONE = 0;
+    SubType_NONE = 0;
     AIRPORT = 1;
     CITY = 2;
 }
 
 // msgCode: 0086
 enum View { // all descending
-    NONE = 0;
+    View_NONE = 0;
     LIGHT = 1;
     FULL = 2;
 }
